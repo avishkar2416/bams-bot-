@@ -1,8 +1,6 @@
 import streamlit as st
 from google import genai
-from fpdf import FPDF
-import requests
-import os
+import html
 import re
 
 # --- Page Setup ---
@@ -21,47 +19,97 @@ if not api_key:
 
 client = genai.Client(api_key=api_key)
 
-# --- Noto Sans Devanagari Font Setup ---
-FONT_URL = "https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoSansDevanagari/NotoSansDevanagari-Regular.ttf"
-FONT_PATH = "NotoSansDevanagari-Regular.ttf"
+def format_notes_as_printable_doc(subject_name, topic_name, raw_content):
+    # Markdown ला व्यवस्थित आणि सुबक फॉरमॅट करणे
+    formatted_body = html.escape(raw_content)
+    formatted_body = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', formatted_body)
+    formatted_body = re.sub(r'\*(.*?)\*', r'<em>\1</em>', formatted_body)
+    formatted_body = re.sub(r'^### (.*?)$', r'<h3>\1</h3>', formatted_body, flags=re.MULTILINE)
+    formatted_body = re.sub(r'^## (.*?)$', r'<h2>\1</h2>', formatted_body, flags=re.MULTILINE)
+    formatted_body = re.sub(r'^# (.*?)$', r'<h1>\1</h1>', formatted_body, flags=re.MULTILINE)
+    formatted_body = re.sub(r'^[-*]\s+(.*?)$', r'<li>\1</li>', formatted_body, flags=re.MULTILINE)
+    formatted_body = formatted_body.replace('\n', '<br>')
 
-def ensure_font_downloaded():
-    if not os.path.exists(FONT_PATH):
-        response = requests.get(FONT_URL)
-        with open(FONT_PATH, "wb") as f:
-            f.write(response.content)
+    html_template = f"""
+    <!DOCTYPE html>
+    <html lang="mr">
+    <head>
+        <meta charset="UTF-8">
+        <title>{topic_name} - BAMS Notes</title>
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap');
+            body {{
+                font-family: 'Noto Sans Devanagari', Arial, sans-serif;
+                line-height: 1.8;
+                color: #111;
+                padding: 25px;
+                max-width: 850px;
+                margin: auto;
+            }}
+            .header-banner {{
+                background-color: #f4fbf7;
+                border: 2px solid #2e7d32;
+                border-radius: 8px;
+                padding: 15px 20px;
+                margin-bottom: 20px;
+            }}
+            h1, h2, h3 {{
+                color: #1b4d3e;
+                margin-top: 18px;
+            }}
+            strong {{
+                color: #000;
+                font-weight: 700;
+            }}
+            li {{
+                margin-bottom: 6px;
+            }}
+            .print-btn {{
+                background-color: #2e7d32;
+                color: white;
+                padding: 12px 24px;
+                font-size: 16px;
+                font-weight: bold;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                margin-bottom: 20px;
+            }}
+            @media print {{
+                .no-print {{
+                    display: none !important;
+                }}
+                body {{
+                    padding: 0;
+                }}
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="no-print" style="text-align: center; margin-bottom: 20px;">
+            <button class="print-btn" onclick="window.print()">🖨️ PDF स्वरूपात सेव्ह करा / प्रिंट करा</button>
+            <p style="color: #666; font-size: 13px;">(मोबाईलमध्ये 'Save as PDF' निवडून डाऊनलोड करा)</p>
+        </div>
 
-def clean_markdown_text(text):
-    # Markdown चे साध्या स्वच्छ टेक्स्टमध्ये रूपांतर
-    text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
-    text = re.sub(r'\*(.*?)\*', r'\1', text)
-    text = re.sub(r'^#+\s*', '', text, flags=re.MULTILINE)
-    text = re.sub(r'^[-*]\s+', '• ', text, flags=re.MULTILINE)
-    return text
+        <div class="header-banner">
+            <h2 style="margin:0; color:#2e7d32;">🌿 BAMS अभ्यास मार्गदर्शक</h2>
+            <p style="margin: 6px 0 0 0;"><strong>विषय:</strong> {subject_name} | <strong>संकल्पना:</strong> {topic_name}</p>
+        </div>
 
-def create_perfect_pdf(subject_name, topic_name, raw_content):
-    ensure_font_downloaded()
-    
-    # FPDF क्लास इनिशिअलाइझ करतानाच text_shaping चालू करणे
-    pdf = FPDF(text_shaping=True)
-    pdf.add_font('Devanagari', '', FONT_PATH)
-    pdf.add_page()
-    pdf.set_auto_page_break(auto=True, margin=15)
-    
-    # Title Header
-    pdf.set_font('Devanagari', size=14)
-    pdf.cell(0, 10, '🌿 BAMS अभ्यास मार्गदर्शक', ln=True, align='C')
-    pdf.set_font('Devanagari', size=10)
-    pdf.cell(0, 8, f"विषय: {subject_name} | संकल्पना: {topic_name}", ln=True, align='C')
-    pdf.line(10, 30, 200, 30)
-    pdf.ln(5)
-    
-    # Body Content
-    cleaned_body = clean_markdown_text(raw_content)
-    pdf.set_font('Devanagari', size=10)
-    pdf.multi_cell(0, 7, cleaned_body)
-    
-    return bytes(pdf.output())
+        <div>
+            {formatted_body}
+        </div>
+
+        <script>
+            // फाईल उघडल्याबरोबर आपोआप प्रिंट/PDF डायलॉग उघडणे
+            window.onload = function() {{
+                setTimeout(function() {{ window.print(); }}, 500);
+            }};
+        </script>
+    </body>
+    </html>
+    """
+    return html_template
 
 # --- User Interface ---
 st.title("🌿 BAMS AI अभ्यास मार्गदर्शक")
@@ -123,12 +171,12 @@ if st.button("📝 अभ्यास नोट्स तयार करा", t
                 st.success("✅ सुटसुटीत नोट्स तयार झाल्या आहेत!")
                 st.markdown(notes_text)
                 
-                pdf_bytes = create_perfect_pdf(subject, topic, notes_text)
+                doc_html = format_notes_as_printable_doc(subject, topic, notes_text)
                 st.download_button(
-                    label="📥 थेट PDF डाऊनलोड करा (.pdf)",
-                    data=pdf_bytes,
-                    file_name=f"{topic.replace(' ', '_')}_BAMS_Notes.pdf",
-                    mime="application/pdf"
+                    label="📥 PDF नोट्स डाऊनलोड करा",
+                    data=doc_html.encode('utf-8'),
+                    file_name=f"{topic.replace(' ', '_')}_Notes.html",
+                    mime="text/html"
                 )
             except Exception as e:
                 st.error(f"त्रुटी आली: {e}")
