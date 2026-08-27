@@ -103,7 +103,7 @@ if st.button("📝 अभ्यास नोट्स तयार करा", t
     else:
         with st.spinner("AI शिक्षक तुमच्यासाठी सविस्तर नोट्स तयार करत आहेत..."):
             try:
-                model = genai.GenerativeModel('gemini-1.5-flash')
+                model = genai.GenerativeModel('gemini-pro')
                 
                 system_instruction = f"""
                 You are a senior Ayurveda Professor and BAMS mentor.
