@@ -1,4 +1,5 @@
 streamlit
 google-genai
-reportlab
+fpdf2
+uharfbuzz
 requests
