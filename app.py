@@ -1,5 +1,14 @@
 import streamlit as st
 from google import genai
+import requests
+import os
+import io
+
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 import re
 import html
 
@@ -19,84 +28,92 @@ if not api_key:
 
 client = genai.Client(api_key=api_key)
 
-# --- Printable HTML Document Generator ---
-def create_printable_html(subject_name, topic_name, content_markdown):
-    # Markdown चे साध्या व सुंदर HTML मध्ये रूपांतर
-    content_html = html.escape(content_markdown)
-    
-    # Bold
-    content_html = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', content_html)
-    # Italic
-    content_html = re.sub(r'\*(.*?)\*', r'<em>\1</em>', content_html)
-    # Headings
-    content_html = re.sub(r'^### (.*?)$', r'<h3>\1</h3>', content_html, flags=re.MULTILINE)
-    content_html = re.sub(r'^## (.*?)$', r'<h2>\1</h2>', content_html, flags=re.MULTILINE)
-    content_html = re.sub(r'^# (.*?)$', r'<h1>\1</h1>', content_html, flags=re.MULTILINE)
-    # Bullet points
-    content_html = re.sub(r'^\* (.*?)$', r'<li>\1</li>', content_html, flags=re.MULTILINE)
-    content_html = re.sub(r'^- (.*?)$', r'<li>\1</li>', content_html, flags=re.MULTILINE)
-    # Line breaks
-    content_html = content_html.replace('\n', '<br>')
+# --- Noto Sans Devanagari Font Setup ---
+FONT_URL = "https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoSansDevanagari/NotoSansDevanagari-Regular.ttf"
+FONT_PATH = "NotoSansDevanagari-Regular.ttf"
 
-    html_doc = f"""
-    <!DOCTYPE html>
-    <html lang="mr">
-    <head>
-        <meta charset="UTF-8">
-        <title>{topic_name} - BAMS Notes</title>
-        <style>
-            body {{
-                font-family: 'Segoe UI', Arial, 'Noto Sans Devanagari', sans-serif;
-                line-height: 1.8;
-                color: #1a1a1a;
-                padding: 30px;
-                max-width: 800px;
-                margin: auto;
-            }}
-            h1, h2, h3 {{
-                color: #1b4d3e;
-                margin-top: 20px;
-                border-bottom: 1px solid #ddd;
-                padding-bottom: 5px;
-            }}
-            strong {{
-                color: #000;
-                font-weight: 700;
-            }}
-            .header-box {{
-                background-color: #f0f7f4;
-                padding: 15px;
-                border-radius: 8px;
-                margin-bottom: 25px;
-                border-left: 5px solid #2e7d32;
-            }}
-            li {{
-                margin-bottom: 8px;
-            }}
-            @media print {{
-                body {{ padding: 0; }}
-                button {{ display: none; }}
-            }}
-        </style>
-    </head>
-    <body>
-        <div class="header-box">
-            <h2 style="margin:0; border:none; color:#2e7d32;">🌿 BAMS AI अभ्यास मार्गदर्शक</h2>
-            <p style="margin:5px 0 0 0;"><strong>विषय:</strong> {subject_name} | <strong>संकल्पना:</strong> {topic_name}</p>
-        </div>
-        <div>
-            {content_html}
-        </div>
-    </body>
-    </html>
-    """
-    return html_doc
+def ensure_font_downloaded():
+    if not os.path.exists(FONT_PATH):
+        response = requests.get(FONT_URL)
+        with open(FONT_PATH, "wb") as f:
+            f.write(response.content)
+
+def generate_direct_pdf(subject_name, topic_name, raw_markdown):
+    ensure_font_downloaded()
+    pdfmetrics.registerFont(TTFont('Devanagari', FONT_PATH))
+    
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=letter,
+        rightMargin=40,
+        leftMargin=40,
+        topMargin=40,
+        bottomMargin=40
+    )
+    
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'MainTitle',
+        fontName='Devanagari',
+        fontSize=15,
+        leading=20,
+        textColor='#1b4d3e',
+        spaceAfter=10
+    )
+    h2_style = ParagraphStyle(
+        'H2Style',
+        fontName='Devanagari',
+        fontSize=12,
+        leading=16,
+        textColor='#2e7d32',
+        spaceBefore=10,
+        spaceAfter=5
+    )
+    body_style = ParagraphStyle(
+        'BodyStyle',
+        fontName='Devanagari',
+        fontSize=10,
+        leading=15,
+        textColor='#111111',
+        spaceAfter=6
+    )
+    
+    story = []
+    story.append(Paragraph(f"<b>🌿 BAMS अभ्यास मार्गदर्शक</b>", title_style))
+    story.append(Paragraph(f"<b>विषय:</b> {subject_name} | <b>संकल्पना:</b> {topic_name}", body_style))
+    story.append(Spacer(1, 10))
+    
+    lines = raw_markdown.split('\n')
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+            
+        line_escaped = html.escape(line)
+        line_escaped = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', line_escaped)
+        line_escaped = re.sub(r'\*(.*?)\*', r'<i>\1</i>', line_escaped)
+        
+        if line_escaped.startswith('# ') or line_escaped.startswith('## '):
+            clean_h = re.sub(r'^#+\s*', '', line_escaped)
+            story.append(Paragraph(f"<b>{clean_h}</b>", h2_style))
+        elif line_escaped.startswith('### '):
+            clean_h = re.sub(r'^#+\s*', '', line_escaped)
+            story.append(Paragraph(f"<b>{clean_h}</b>", h2_style))
+        elif line_escaped.startswith('* ') or line_escaped.startswith('- '):
+            clean_bullet = line_escaped[2:]
+            story.append(Paragraph(f"• {clean_bullet}", body_style))
+        else:
+            story.append(Paragraph(line_escaped, body_style))
+            
+    doc.build(story)
+    buffer.seek(0)
+    return buffer.getvalue()
 
 # --- User Interface ---
 st.title("🌿 BAMS AI अभ्यास मार्गदर्शक")
 st.caption("आयुर्वेद संकल्पना, श्लोक अर्थ, मॉडर्न कोरिलेशन आणि परीक्षेसाठी परिपूर्ण नोट्स.")
 
-# विषय निवड
 subject = st.selectbox(
     "विषय निवडा (Subject):",
     [
@@ -135,7 +152,7 @@ if st.button("📝 अभ्यास नोट्स तयार करा", t
                 Language: {language_preference}
 
                 Create clean, well-structured, exam-oriented notes following these strict rules:
-                1. Use clean bullet points and numbered points. Do NOT use complex markdown tables.
+                1. Use clean bullet points and numbered points. Do NOT use markdown tables.
                 2. Highlight all key terms, Sanskrit words, and important facts in **Bold Black text**.
                 3. Language must be natural, fluent Marathi with clear Ayurvedic terminology.
                 4. Structure the response strictly in these 4 sections:
@@ -154,14 +171,12 @@ if st.button("📝 अभ्यास नोट्स तयार करा", t
                 st.success("✅ सुटसुटीत नोट्स तयार झाल्या आहेत!")
                 st.markdown(notes_text)
                 
-                # Printable HTML download (Perfect Marathi fonts without distortion)
-                html_doc = create_printable_html(subject, topic, notes_text)
+                pdf_data = generate_direct_pdf(subject, topic, notes_text)
                 st.download_button(
-                    label="📥 PDF / प्रिंट स्वरूपात नोट्स डाऊनलोड करा (HTML)",
-                    data=html_doc.encode('utf-8'),
-                    file_name=f"{topic.replace(' ', '_')}_notes.html",
-                    mime="text/html"
+                    label="📥 थेट PDF डाऊनलोड करा (.pdf)",
+                    data=pdf_data,
+                    file_name=f"{topic.replace(' ', '_')}_BAMS_Notes.pdf",
+                    mime="application/pdf"
                 )
-                st.info("💡 टीप: डाऊनलोड केलेली फाईल ओपन करून थेट मोबाईल/ब्राऊझरमधून 'Print to PDF' करू शकता. यात अक्षरे अजिबात फुटणार नाहीत.")
             except Exception as e:
                 st.error(f"त्रुटी आली: {e}")
