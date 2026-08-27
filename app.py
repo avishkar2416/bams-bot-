@@ -1,16 +1,9 @@
 import streamlit as st
 from google import genai
+from fpdf import FPDF
 import requests
 import os
-import io
-
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
 import re
-import html
 
 # --- Page Setup ---
 st.set_page_config(
@@ -38,77 +31,37 @@ def ensure_font_downloaded():
         with open(FONT_PATH, "wb") as f:
             f.write(response.content)
 
-def generate_direct_pdf(subject_name, topic_name, raw_markdown):
+def clean_markdown_text(text):
+    # Markdown चे साध्या स्वच्छ टेक्स्टमध्ये रूपांतर
+    text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
+    text = re.sub(r'\*(.*?)\*', r'\1', text)
+    text = re.sub(r'^#+\s*', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^[-*]\s+', '• ', text, flags=re.MULTILINE)
+    return text
+
+def create_perfect_pdf(subject_name, topic_name, raw_content):
     ensure_font_downloaded()
-    pdfmetrics.registerFont(TTFont('Devanagari', FONT_PATH))
     
-    buffer = io.BytesIO()
-    doc = SimpleDocTemplate(
-        buffer,
-        pagesize=letter,
-        rightMargin=40,
-        leftMargin=40,
-        topMargin=40,
-        bottomMargin=40
-    )
+    # fpdf2 with UTF-8 & HarfBuzz for correct Devanagari ligatures
+    pdf = FPDF()
+    pdf.add_font('Devanagari', '', FONT_PATH)
+    pdf.add_page()
+    pdf.set_auto_page_break(auto=True, margin=15)
     
-    styles = getSampleStyleSheet()
-    title_style = ParagraphStyle(
-        'MainTitle',
-        fontName='Devanagari',
-        fontSize=15,
-        leading=20,
-        textColor='#1b4d3e',
-        spaceAfter=10
-    )
-    h2_style = ParagraphStyle(
-        'H2Style',
-        fontName='Devanagari',
-        fontSize=12,
-        leading=16,
-        textColor='#2e7d32',
-        spaceBefore=10,
-        spaceAfter=5
-    )
-    body_style = ParagraphStyle(
-        'BodyStyle',
-        fontName='Devanagari',
-        fontSize=10,
-        leading=15,
-        textColor='#111111',
-        spaceAfter=6
-    )
+    # Title Header
+    pdf.set_font('Devanagari', size=14)
+    pdf.cell(0, 10, '🌿 BAMS अभ्यास मार्गदर्शक', ln=True, align='C')
+    pdf.set_font('Devanagari', size=10)
+    pdf.cell(0, 8, f"विषय: {subject_name} | संकल्पना: {topic_name}", ln=True, align='C')
+    pdf.line(10, 30, 200, 30)
+    pdf.ln(5)
     
-    story = []
-    story.append(Paragraph(f"<b>🌿 BAMS अभ्यास मार्गदर्शक</b>", title_style))
-    story.append(Paragraph(f"<b>विषय:</b> {subject_name} | <b>संकल्पना:</b> {topic_name}", body_style))
-    story.append(Spacer(1, 10))
+    # Body Content
+    cleaned_body = clean_markdown_text(raw_content)
+    pdf.set_font('Devanagari', size=10)
+    pdf.multi_cell(0, 7, cleaned_body)
     
-    lines = raw_markdown.split('\n')
-    for line in lines:
-        line = line.strip()
-        if not line:
-            continue
-            
-        line_escaped = html.escape(line)
-        line_escaped = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', line_escaped)
-        line_escaped = re.sub(r'\*(.*?)\*', r'<i>\1</i>', line_escaped)
-        
-        if line_escaped.startswith('# ') or line_escaped.startswith('## '):
-            clean_h = re.sub(r'^#+\s*', '', line_escaped)
-            story.append(Paragraph(f"<b>{clean_h}</b>", h2_style))
-        elif line_escaped.startswith('### '):
-            clean_h = re.sub(r'^#+\s*', '', line_escaped)
-            story.append(Paragraph(f"<b>{clean_h}</b>", h2_style))
-        elif line_escaped.startswith('* ') or line_escaped.startswith('- '):
-            clean_bullet = line_escaped[2:]
-            story.append(Paragraph(f"• {clean_bullet}", body_style))
-        else:
-            story.append(Paragraph(line_escaped, body_style))
-            
-    doc.build(story)
-    buffer.seek(0)
-    return buffer.getvalue()
+    return bytes(pdf.output())
 
 # --- User Interface ---
 st.title("🌿 BAMS AI अभ्यास मार्गदर्शक")
@@ -151,15 +104,14 @@ if st.button("📝 अभ्यास नोट्स तयार करा", t
                 Topic: {topic}
                 Language: {language_preference}
 
-                Create clean, well-structured, exam-oriented notes following these strict rules:
-                1. Use clean bullet points and numbered points. Do NOT use markdown tables.
-                2. Highlight all key terms, Sanskrit words, and important facts in **Bold Black text**.
-                3. Language must be natural, fluent Marathi with clear Ayurvedic terminology.
-                4. Structure the response strictly in these 4 sections:
-                   - **१. व्याख्या आणि संदर्भ श्लोक (Definition & Reference Shloka)** (Include shloka and simple line-by-line meaning)
-                   - **२. गुण, कर्म आणि प्रकार (Guna, Karma & Types)** (Point-by-point breakdown)
-                   - **३. आधुनिक वैद्यकशास्त्राशी तुलना (Modern Medical Correlation)** (System/organ level comparison)
-                   - **४. परीक्षेसाठी महत्त्वाचे मुद्दे (High-Yield Exam Points & Viva Tips)**
+                Create clean, high-yield, exam-oriented revision notes following these strict rules:
+                1. Write in clear, natural Marathi with correct Sanskrit terminology.
+                2. Use clean bullet points (•) and numbered steps. Do NOT use markdown tables or weird symbols.
+                3. Structure the notes strictly into:
+                   १. व्याख्या आणि संदर्भ श्लोक (Definition & Reference Shloka with simple line meaning)
+                   २. गुण, कर्म आणि प्रकार (Guna, Karma & Types in clear bullet points)
+                   ३. आधुनिक वैद्यकशास्त्राशी तुलना (Modern Medical Correlation)
+                   ४. परीक्षेसाठी महत्त्वाचे मुद्दे (High-Yield Exam Points & Viva Tips)
                 """
                 
                 response = client.models.generate_content(
@@ -171,10 +123,10 @@ if st.button("📝 अभ्यास नोट्स तयार करा", t
                 st.success("✅ सुटसुटीत नोट्स तयार झाल्या आहेत!")
                 st.markdown(notes_text)
                 
-                pdf_data = generate_direct_pdf(subject, topic, notes_text)
+                pdf_bytes = create_perfect_pdf(subject, topic, notes_text)
                 st.download_button(
                     label="📥 थेट PDF डाऊनलोड करा (.pdf)",
-                    data=pdf_data,
+                    data=pdf_bytes,
                     file_name=f"{topic.replace(' ', '_')}_BAMS_Notes.pdf",
                     mime="application/pdf"
                 )
