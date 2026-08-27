@@ -1,8 +1,7 @@
 import streamlit as st
 from google import genai
-from fpdf import FPDF
-import requests
-import os
+import re
+import html
 
 # --- Page Setup ---
 st.set_page_config(
@@ -20,50 +19,82 @@ if not api_key:
 
 client = genai.Client(api_key=api_key)
 
-# --- Noto Sans Devanagari Font Download for Marathi PDF ---
-FONT_URL = "https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoSansDevanagari/NotoSansDevanagari-Regular.ttf"
-FONT_PATH = "NotoSansDevanagari-Regular.ttf"
-
-def ensure_font_downloaded():
-    if not os.path.exists(FONT_PATH):
-        response = requests.get(FONT_URL)
-        with open(FONT_PATH, "wb") as f:
-            f.write(response.content)
-
-# --- PDF Generation Class ---
-class BAMSNotesPDF(FPDF):
-    def header(self):
-        self.set_font('Devanagari', size=14)
-        self.cell(0, 10, 'BAMS Study Notes | अभ्यास मार्गदर्शक', border=False, ln=True, align='C')
-        self.line(10, 20, 200, 20)
-        self.ln(6)
-
-    def footer(self):
-        self.set_y(-15)
-        self.set_font('Devanagari', size=8)
-        self.cell(0, 10, f'Page {self.page_no()}', 0, 0, 'C')
-
-def create_pdf(subject_name, topic_name, content):
-    ensure_font_downloaded()
-    pdf = BAMSNotesPDF()
-    pdf.add_font('Devanagari', '', FONT_PATH)
-    pdf.add_page()
-    pdf.set_auto_page_break(auto=True, margin=15)
+# --- Printable HTML Document Generator ---
+def create_printable_html(subject_name, topic_name, content_markdown):
+    # Markdown चे साध्या व सुंदर HTML मध्ये रूपांतर
+    content_html = html.escape(content_markdown)
     
-    # Header Details
-    pdf.set_font('Devanagari', size=11)
-    pdf.cell(0, 8, f"विषय (Subject): {subject_name}", ln=True)
-    pdf.cell(0, 8, f"संकल्पना (Topic): {topic_name}", ln=True)
-    pdf.ln(3)
-    
-    # Body
-    pdf.set_font('Devanagari', size=10)
-    pdf.multi_cell(0, 7, content)
-    return bytes(pdf.output())
+    # Bold
+    content_html = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', content_html)
+    # Italic
+    content_html = re.sub(r'\*(.*?)\*', r'<em>\1</em>', content_html)
+    # Headings
+    content_html = re.sub(r'^### (.*?)$', r'<h3>\1</h3>', content_html, flags=re.MULTILINE)
+    content_html = re.sub(r'^## (.*?)$', r'<h2>\1</h2>', content_html, flags=re.MULTILINE)
+    content_html = re.sub(r'^# (.*?)$', r'<h1>\1</h1>', content_html, flags=re.MULTILINE)
+    # Bullet points
+    content_html = re.sub(r'^\* (.*?)$', r'<li>\1</li>', content_html, flags=re.MULTILINE)
+    content_html = re.sub(r'^- (.*?)$', r'<li>\1</li>', content_html, flags=re.MULTILINE)
+    # Line breaks
+    content_html = content_html.replace('\n', '<br>')
+
+    html_doc = f"""
+    <!DOCTYPE html>
+    <html lang="mr">
+    <head>
+        <meta charset="UTF-8">
+        <title>{topic_name} - BAMS Notes</title>
+        <style>
+            body {{
+                font-family: 'Segoe UI', Arial, 'Noto Sans Devanagari', sans-serif;
+                line-height: 1.8;
+                color: #1a1a1a;
+                padding: 30px;
+                max-width: 800px;
+                margin: auto;
+            }}
+            h1, h2, h3 {{
+                color: #1b4d3e;
+                margin-top: 20px;
+                border-bottom: 1px solid #ddd;
+                padding-bottom: 5px;
+            }}
+            strong {{
+                color: #000;
+                font-weight: 700;
+            }}
+            .header-box {{
+                background-color: #f0f7f4;
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 25px;
+                border-left: 5px solid #2e7d32;
+            }}
+            li {{
+                margin-bottom: 8px;
+            }}
+            @media print {{
+                body {{ padding: 0; }}
+                button {{ display: none; }}
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="header-box">
+            <h2 style="margin:0; border:none; color:#2e7d32;">🌿 BAMS AI अभ्यास मार्गदर्शक</h2>
+            <p style="margin:5px 0 0 0;"><strong>विषय:</strong> {subject_name} | <strong>संकल्पना:</strong> {topic_name}</p>
+        </div>
+        <div>
+            {content_html}
+        </div>
+    </body>
+    </html>
+    """
+    return html_doc
 
 # --- User Interface ---
 st.title("🌿 BAMS AI अभ्यास मार्गदर्शक")
-st.caption("आयुर्वेद संकल्पना, श्लोक अर्थ, मॉडर्न कोरिलेशन आणि परीक्षेसाठी नोट्स.")
+st.caption("आयुर्वेद संकल्पना, श्लोक अर्थ, मॉडर्न कोरिलेशन आणि परीक्षेसाठी परिपूर्ण नोट्स.")
 
 # विषय निवड
 subject = st.selectbox(
@@ -87,7 +118,7 @@ topic = st.text_input(
 
 language_preference = st.radio(
     "नोट्सचे माध्यम:",
-    ["मराठी + Sanskrit/English terms", "English + Sanskrit terms"],
+    ["मराठी (सोपी आणि सुटसुटीत)", "English + Sanskrit terms"],
     horizontal=True
 )
 
@@ -95,7 +126,7 @@ if st.button("📝 अभ्यास नोट्स तयार करा", t
     if not topic.strip():
         st.error("कृपया विषयाचे नाव प्रविष्ट करा.")
     else:
-        with st.spinner("AI शिक्षक तुमच्यासाठी सविस्तर नोट्स तयार करत आहे..."):
+        with st.spinner("AI शिक्षक तुमच्यासाठी सुटसुटीत पॉईंट वाईज नोट्स तयार करत आहे..."):
             try:
                 system_instruction = f"""
                 You are a senior Ayurveda Professor and BAMS Exam Expert.
@@ -103,30 +134,34 @@ if st.button("📝 अभ्यास नोट्स तयार करा", t
                 Topic: {topic}
                 Language: {language_preference}
 
-                Create comprehensive, high-yield revision notes covering:
-                1. Concept Definition & Shloka reference (with simple breakdown)
-                2. Classifications / Guna-Karma / Properties / Types
-                3. Modern Medical Correlation & Clinical Relevance
-                4. Exam-oriented High-Yield Summary (Important for Viva/Theory)
-                Keep formatting neat and easy to read.
+                Create clean, well-structured, exam-oriented notes following these strict rules:
+                1. Use clean bullet points and numbered points. Do NOT use complex markdown tables.
+                2. Highlight all key terms, Sanskrit words, and important facts in **Bold Black text**.
+                3. Language must be natural, fluent Marathi with clear Ayurvedic terminology.
+                4. Structure the response strictly in these 4 sections:
+                   - **१. व्याख्या आणि संदर्भ श्लोक (Definition & Reference Shloka)** (Include shloka and simple line-by-line meaning)
+                   - **२. गुण, कर्म आणि प्रकार (Guna, Karma & Types)** (Point-by-point breakdown)
+                   - **३. आधुनिक वैद्यकशास्त्राशी तुलना (Modern Medical Correlation)** (System/organ level comparison)
+                   - **४. परीक्षेसाठी महत्त्वाचे मुद्दे (High-Yield Exam Points & Viva Tips)**
                 """
                 
                 response = client.models.generate_content(
-                    model='models/gemini-3.6-flash'
-,
+                    model='models/gemini-3.6-flash',
                     contents=system_instruction
                 )
                 
                 notes_text = response.text
-                st.success("✅ नोट्स तयार झाल्या आहेत!")
+                st.success("✅ सुटसुटीत नोट्स तयार झाल्या आहेत!")
                 st.markdown(notes_text)
                 
-                pdf_bytes = create_pdf(subject, topic, notes_text)
+                # Printable HTML download (Perfect Marathi fonts without distortion)
+                html_doc = create_printable_html(subject, topic, notes_text)
                 st.download_button(
-                    label="📥 PDF डाउनलोड करा",
-                    data=pdf_bytes,
-                    file_name=f"{topic.replace(' ', '_')}_notes.pdf",
-                    mime="application/pdf"
+                    label="📥 PDF / प्रिंट स्वरूपात नोट्स डाऊनलोड करा (HTML)",
+                    data=html_doc.encode('utf-8'),
+                    file_name=f"{topic.replace(' ', '_')}_notes.html",
+                    mime="text/html"
                 )
+                st.info("💡 टीप: डाऊनलोड केलेली फाईल ओपन करून थेट मोबाईल/ब्राऊझरमधून 'Print to PDF' करू शकता. यात अक्षरे अजिबात फुटणार नाहीत.")
             except Exception as e:
                 st.error(f"त्रुटी आली: {e}")
