@@ -112,7 +112,7 @@ if st.button("📝 अभ्यास नोट्स तयार करा", t
                 """
                 
                 response = client.models.generate_content(
-                    model='gemini-2.0-flash',
+                    model='gemini-2.5-flash',
                     contents=system_instruction
                 )
                 
