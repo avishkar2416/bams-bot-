@@ -46,9 +46,9 @@ class BAMSNotesPDF(FPDF):
 def create_pdf(subject_name, topic_name, content):
     ensure_font_downloaded()
     pdf = BAMSNotesPDF()
+    pdf.add_font('Devanagari', '', FONT_PATH)
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.add_font('Devanagari', '', FONT_PATH, uni=True)
     
     # Header Details
     pdf.set_font('Devanagari', size=11)
