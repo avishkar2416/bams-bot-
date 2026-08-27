@@ -1,5 +1,5 @@
 import streamlit as st
-import google.generativeai as genai
+from google import genai
 from fpdf import FPDF
 import requests
 import os
@@ -15,13 +15,10 @@ st.set_page_config(
 api_key = st.secrets.get("GEMINI_API_KEY", "")
 
 if not api_key:
-    api_key = st.sidebar.text_input("Gemini API Key प्रविष्ट करा:", type="password")
-
-if not api_key:
     st.warning("⚠️ कृपया सुरू ठेवण्यासाठी तुमची Gemini API Key टाका (Settings > Secrets मध्ये जोडा).")
     st.stop()
 
-genai.configure(api_key=api_key)
+client = genai.Client(api_key=api_key)
 
 # --- Noto Sans Devanagari Font Download for Marathi PDF ---
 FONT_URL = "https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoSansDevanagari/NotoSansDevanagari-Regular.ttf"
@@ -48,11 +45,9 @@ class BAMSNotesPDF(FPDF):
 
 def create_pdf(subject_name, topic_name, content):
     ensure_font_downloaded()
-    
     pdf = BAMSNotesPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
-    
     pdf.add_font('Devanagari', '', FONT_PATH, uni=True)
     
     # Header Details
@@ -64,7 +59,6 @@ def create_pdf(subject_name, topic_name, content):
     # Body
     pdf.set_font('Devanagari', size=10)
     pdf.multi_cell(0, 7, content)
-    
     return bytes(pdf.output())
 
 # --- User Interface ---
@@ -101,41 +95,37 @@ if st.button("📝 अभ्यास नोट्स तयार करा", t
     if not topic.strip():
         st.error("कृपया विषयाचे नाव प्रविष्ट करा.")
     else:
-        with st.spinner("AI शिक्षक तुमच्यासाठी सविस्तर नोट्स तयार करत आहेत..."):
+        with st.spinner("AI शिक्षक तुमच्यासाठी सविस्तर नोट्स तयार करत आहे..."):
             try:
-                model = genai.GenerativeModel('models/gemini-1.5-flash')
-
-                
                 system_instruction = f"""
-                You are a senior Ayurveda Professor and BAMS mentor.
+                You are a senior Ayurveda Professor and BAMS Exam Expert.
                 Subject: {subject}
                 Topic: {topic}
                 Language: {language_preference}
 
-                Create comprehensive, high-yield revision notes tailored for BAMS undergraduate exams:
-                1. Concept Definition & Shloka reference (with simple meaning).
-                2. Classifications / Guna-Karma / Properties.
-                3. Modern Medical Correlation & Anatomy/Physiology bridge.
-                4. Clinical & Therapeutic Importance.
-                5. Key Exam Takeaways (Bullet points).
-
-                Keep the structure neat and clean without complex markdown symbols that break text parsing.
+                Create comprehensive, high-yield revision notes covering:
+                1. Concept Definition & Shloka reference (with simple breakdown)
+                2. Classifications / Guna-Karma / Properties / Types
+                3. Modern Medical Correlation & Clinical Relevance
+                4. Exam-oriented High-Yield Summary (Important for Viva/Theory)
+                Keep formatting neat and easy to read.
                 """
                 
-                response = model.generate_content(system_instruction)
-                notes_text = response.text
-
-                st.markdown("### 📖 तयार झालेल्या नोट्स:")
-                st.markdown(notes_text)
-
-                pdf_data = create_pdf(subject, topic, notes_text)
+                response = client.models.generate_content(
+                    model='gemini-2.0-flash',
+                    contents=system_instruction
+                )
                 
+                notes_text = response.text
+                st.success("✅ नोट्स तयार झाल्या आहेत!")
+                st.markdown(notes_text)
+                
+                pdf_bytes = create_pdf(subject, topic, notes_text)
                 st.download_button(
-                    label="📥 PDF डाउनलोड करा (Save to Mobile)",
-                    data=pdf_data,
-                    file_name=f"BAMS_{topic.replace(' ', '_')}.pdf",
+                    label="📥 PDF डाउनलोड करा",
+                    data=pdf_bytes,
+                    file_name=f"{topic.replace(' ', '_')}_notes.pdf",
                     mime="application/pdf"
                 )
-
             except Exception as e:
-                st.error(f"त्रुटी आली: {str(e)}")
+                st.error(f"त्रुटी आली: {e}")
