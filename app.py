@@ -42,9 +42,10 @@ def clean_markdown_text(text):
 def create_perfect_pdf(subject_name, topic_name, raw_content):
     ensure_font_downloaded()
     
-    # fpdf2 with UTF-8 & HarfBuzz for correct Devanagari ligatures
+    # text_shaping=True मुळे मराठी जोडाक्षरे १००% अखंड आणि अचूक येतात
     pdf = FPDF()
-    pdf.add_font('Devanagari', '', FONT_PATH)
+    pdf.add_font('Devanagari', '', FONT_PATH, text_shaping=True)
+    pdf.set_font('Devanagari', size=10)
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     
