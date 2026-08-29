@@ -5,13 +5,13 @@ import time
 
 # --- Page Setup ---
 st.set_page_config(
-    page_title="AyurVeda AI | AvishkarAlase Pvt. Ltd.",
+    page_title="AyurVeda AI | Avishkar Alase",
     page_icon="🌿",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# --- Ultra-Futuristic Design & High-End Button Animations ---
+# --- Ultra-Futuristic Design & Button/Card Animations ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700;800&display=swap');
@@ -34,25 +34,25 @@ st.markdown("""
     }
 
     @keyframes cardEntrance {
-        0% { opacity: 0; transform: translateY(30px) scale(0.96); }
+        0% { opacity: 0; transform: translateY(24px) scale(0.97); }
         100% { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     @keyframes floatIcon {
         0% { transform: translateY(0px) rotate(0deg); }
-        50% { transform: translateY(-5px) rotate(5deg); }
+        50% { transform: translateY(-4px) rotate(4deg); }
         100% { transform: translateY(0px) rotate(0deg); }
     }
 
-    @keyframes buttonShine {
-        0% { left: -120%; }
-        50% { left: 120%; }
-        100% { left: 120%; }
+    @keyframes shineSweep {
+        0% { transform: translateX(-150%) skewX(-25deg); }
+        40% { transform: translateX(150%) skewX(-25deg); }
+        100% { transform: translateX(150%) skewX(-25deg); }
     }
 
-    @keyframes pulseGlow {
-        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
-        70% { box-shadow: 0 0 0 16px rgba(16, 185, 129, 0); }
+    @keyframes pulseAura {
+        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45); }
+        70% { box-shadow: 0 0 0 14px rgba(16, 185, 129, 0); }
         100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
     }
 
@@ -60,19 +60,19 @@ st.markdown("""
         color: #0f172a !important;
     }
 
-    /* Floating Glass Navbar */
+    /* Top Navbar */
     .premium-navbar {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 16px 26px;
-        background: rgba(255, 255, 255, 0.85) !important;
+        padding: 14px 22px;
+        background: rgba(255, 255, 255, 0.88) !important;
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         border: 1.5px solid rgba(255, 255, 255, 0.9);
         border-radius: 20px;
-        margin-bottom: 25px;
-        box-shadow: 0 12px 35px -10px rgba(5, 150, 105, 0.15);
+        margin-bottom: 24px;
+        box-shadow: 0 10px 30px -10px rgba(5, 150, 105, 0.12);
         animation: cardEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
     
@@ -84,18 +84,18 @@ st.markdown("""
     .nav-logo {
         background: linear-gradient(135deg, #059669 0%, #10b981 100%);
         color: white !important;
-        width: 44px;
-        height: 44px;
+        width: 42px;
+        height: 42px;
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 22px;
         animation: floatIcon 4s ease-in-out infinite;
-        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
+        box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
     }
     .brand-title {
-        font-size: 20px;
+        font-size: 19px;
         font-weight: 800;
         background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
         -webkit-background-clip: text;
@@ -104,58 +104,91 @@ st.markdown("""
         line-height: 1.1;
     }
     .brand-tag {
-        font-size: 10px;
+        font-size: 9.5px;
         font-weight: 800;
         color: #059669 !important;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
     }
 
-    /* Company Official Badge */
-    .owner-pill {
+    /* Ultra-Professional Top-Right Signature Badge */
+    .vip-creator-card {
+        position: relative;
+        overflow: hidden;
         display: flex;
         align-items: center;
-        gap: 12px;
-        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%) !important;
-        border: 1px solid #a7f3d0;
-        padding: 8px 18px;
+        gap: 10px;
+        background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%) !important;
+        border: 1.5px solid #a7f3d0;
+        padding: 8px 16px;
         border-radius: 16px;
-        box-shadow: 0 4px 15px rgba(5, 150, 105, 0.1);
+        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.15);
+        cursor: default;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .owner-pill:hover {
-        transform: translateY(-2px) scale(1.02);
-        box-shadow: 0 8px 25px rgba(5, 150, 105, 0.2);
+    
+    .vip-creator-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 60%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+        animation: shineSweep 3.8s ease-in-out infinite;
     }
-    .owner-avatar {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #047857, #10b981);
+
+    .vip-creator-card:hover {
+        transform: translateY(-2px) scale(1.03);
+        border-color: #34d399;
+        box-shadow: 0 8px 25px rgba(5, 150, 105, 0.25);
+    }
+
+    .vip-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #064e3b 0%, #059669 100%);
         color: white !important;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 13px;
+        font-size: 15px;
         font-weight: 800;
+        box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3);
     }
-    .owner-title {
-        font-size: 13px;
+
+    .vip-name {
+        font-size: 14px;
         font-weight: 800;
-        color: #064e3b !important;
+        letter-spacing: -0.01em;
+        background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: flex;
+        align-items: center;
+        gap: 5px;
     }
-    .owner-subtitle {
-        font-size: 10px;
-        color: #059669 !important;
-        font-weight: 700;
+
+    .verified-tick {
+        background: #10b981;
+        color: white !important;
+        font-size: 9px;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);
     }
 
     /* 3D Hero Banner */
     .hero-banner {
         background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%) !important;
-        padding: 34px 30px;
-        border-radius: 24px;
-        margin-bottom: 28px;
+        padding: 32px 28px;
+        border-radius: 22px;
+        margin-bottom: 26px;
         box-shadow: 0 20px 45px -12px rgba(4, 120, 87, 0.45);
         border: 1px solid rgba(255, 255, 255, 0.2);
         animation: cardEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1);
@@ -187,31 +220,31 @@ st.markdown("""
         border: 1px solid rgba(255, 255, 255, 0.25);
     }
     .hero-title {
-        font-size: 30px;
+        font-size: 28px;
         font-weight: 800;
         margin: 0 0 8px 0;
         letter-spacing: -0.02em;
     }
     .hero-desc {
-        font-size: 14.5px;
+        font-size: 14px;
         line-height: 1.65;
         opacity: 0.95;
         margin: 0;
     }
 
-    /* Glass Control Panel */
+    /* Control Panel Card */
     .control-panel {
-        background: rgba(255, 255, 255, 0.85) !important;
+        background: rgba(255, 255, 255, 0.88) !important;
         backdrop-filter: blur(16px);
         border: 1.5px solid #ffffff;
         border-radius: 22px;
-        padding: 28px;
+        padding: 26px;
         box-shadow: 0 12px 35px rgba(0, 0, 0, 0.04);
-        margin-bottom: 28px;
+        margin-bottom: 26px;
         animation: cardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Inputs Styling */
+    /* Inputs Micro-Interactions */
     div[data-baseweb="select"] > div,
     div[data-baseweb="input"] > div {
         background-color: #ffffff !important;
@@ -226,35 +259,22 @@ st.markdown("""
         box-shadow: 0 6px 18px rgba(5, 150, 105, 0.1) !important;
     }
 
-    /* ULTRA ANIMATED BUTTONS (Main CTA + Download) */
+    /* ULTRA ANIMATED BUTTONS */
     div.stButton > button, div[data-testid="stDownloadButton"] > button {
         background: linear-gradient(135deg, #059669 0%, #047857 50%, #064e3b 100%) !important;
         color: #ffffff !important;
         border: none !important;
         border-radius: 16px !important;
         padding: 16px 30px !important;
-        font-size: 17px !important;
+        font-size: 16.5px !important;
         font-weight: 800 !important;
         letter-spacing: -0.01em !important;
         box-shadow: 0 10px 30px -4px rgba(5, 150, 105, 0.45) !important;
         transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        animation: pulseGlow 2.5s infinite;
+        animation: pulseAura 2.5s infinite;
         position: relative !important;
         overflow: hidden !important;
         cursor: pointer !important;
-    }
-
-    /* Shining Light Sweep on Buttons */
-    div.stButton > button::before, div[data-testid="stDownloadButton"] > button::before {
-        content: '' !important;
-        position: absolute !important;
-        top: 0 !important;
-        left: -120% !important;
-        width: 100% !important;
-        height: 100% !important;
-        background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.4), transparent) !important;
-        transform: skewX(-25deg) !important;
-        animation: buttonShine 3.5s infinite !important;
     }
 
     div.stButton > button:hover, div[data-testid="stDownloadButton"] > button:hover {
@@ -264,7 +284,6 @@ st.markdown("""
 
     div.stButton > button:active, div[data-testid="stDownloadButton"] > button:active {
         transform: translateY(2px) scale(0.96) !important;
-        box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3) !important;
     }
 
     /* Output Canvas Card */
@@ -272,15 +291,15 @@ st.markdown("""
         background: #ffffff !important;
         border: 1px solid #e2e8f0;
         border-radius: 24px;
-        padding: 40px 34px;
+        padding: 38px 32px;
         box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
-        margin-top: 30px;
+        margin-top: 28px;
         animation: cardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         line-height: 1.9;
     }
     .notes-box h1 {
         color: #064e3b !important;
-        font-size: 26px;
+        font-size: 25px;
         font-weight: 800;
         border-bottom: 2px solid #ecfdf5;
         padding-bottom: 10px;
@@ -316,7 +335,7 @@ st.markdown("""
     /* Footer */
     .app-footer {
         text-align: center;
-        padding: 45px 10px 15px 10px;
+        padding: 40px 10px 15px 10px;
         font-size: 13.5px;
         color: #64748b !important;
         font-weight: 600;
@@ -419,7 +438,7 @@ def create_printable_html_doc(subject_name, topic_name, raw_content):
         </div>
 
         <div class="doc-footer">
-            <p>🌿 <strong>BAMS AI Study Companion</strong> | विकसित केले: <strong>AvishkarAlase Pvt. Ltd.</strong> (तुमच्या सेवेसाठी 🙏)</p>
+            <p>🌿 <strong>BAMS AI Study Companion</strong> | Developed by <strong>Avishkar Alase</strong></p>
         </div>
 
         <script>
@@ -432,7 +451,7 @@ def create_printable_html_doc(subject_name, topic_name, raw_content):
     """
     return full_html
 
-# --- Navigation Bar ---
+# --- Top Navigation Bar with Ultra-Professional VIP Creator Card ---
 st.markdown("""
 <div class="premium-navbar">
     <div class="nav-brand">
@@ -442,11 +461,10 @@ st.markdown("""
             <div class="brand-tag">NCISM Curriculum Engine</div>
         </div>
     </div>
-    <div class="owner-pill">
-        <div class="owner-avatar">A</div>
-        <div>
-            <div class="owner-title">AvishkarAlase Pvt. Ltd.</div>
-            <div class="owner-subtitle">तुमच्या सेवेसाठी 🙏</div>
+    <div class="vip-creator-card">
+        <div class="vip-avatar">A</div>
+        <div class="vip-name">
+            Avishkar Alase <span class="verified-tick">✓</span>
         </div>
     </div>
 </div>
@@ -574,7 +592,6 @@ if generate_btn:
 # --- Bottom Footer Branding ---
 st.markdown("""
 <div class="app-footer">
-    🌿 <strong>BAMS AI Study Companion</strong> | विकसित केले: <strong>AvishkarAlase Pvt. Ltd.</strong> (तुमच्या सेवेसाठी 🙏)
+    🌿 <strong>BAMS AI Study Companion</strong> | Developed by <strong>Avishkar Alase</strong>
 </div>
 """, unsafe_allow_html=True)
-
