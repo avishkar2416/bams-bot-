@@ -5,66 +5,84 @@ import time
 
 # --- Page Setup ---
 st.set_page_config(
-    page_title="AyurVeda AI | BAMS Clinical Companion",
+    page_title="AyurVeda AI | BAMS Enterprise Companion",
     page_icon="🌿",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# --- High-End Premium Web UI Styling ---
+# --- Ultra-Premium CSS Design System ---
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap');
 
     /* Global Base */
     html, body, [class*="css"] {
         font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', -apple-system, sans-serif;
-        color: #1e293b;
+        color: #0f172a;
     }
+    
     .stApp {
-        background: radial-gradient(circle at top right, #f0fdf4 0%, #f8fafc 40%, #ffffff 100%);
+        background: radial-gradient(1200px 800px at 80% -10%, #ecfdf5 0%, #f8fafc 50%, #f0fdf4 100%);
+        min-height: 100vh;
     }
 
-    /* Premium Navigation Header */
+    /* Main Container Padding */
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 4rem;
+        max-width: 1100px;
+    }
+
+    /* Floating Ultra-Glass Navbar */
     .premium-navbar {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 14px 28px;
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(226, 232, 240, 0.8);
-        border-radius: 18px;
-        margin-bottom: 30px;
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+        padding: 16px 28px;
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.9);
+        border-radius: 20px;
+        margin-bottom: 28px;
+        box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.12), 0 1px 3px rgba(0,0,0,0.05);
     }
+    
     .nav-brand {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 14px;
     }
+    
     .nav-logo {
         background: linear-gradient(135deg, #059669 0%, #10b981 100%);
         color: white;
-        width: 44px;
-        height: 44px;
-        border-radius: 12px;
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 22px;
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+        font-size: 24px;
+        box-shadow: 0 8px 16px -4px rgba(16, 185, 129, 0.4);
+        transition: transform 0.3s ease;
     }
+    .nav-logo:hover {
+        transform: rotate(10deg) scale(1.05);
+    }
+    
     .brand-title {
-        font-size: 20px;
+        font-size: 22px;
         font-weight: 800;
-        letter-spacing: -0.02em;
-        background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+        letter-spacing: -0.03em;
+        background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         margin: 0;
+        line-height: 1.1;
     }
+    
     .brand-tag {
         font-size: 11px;
         font-weight: 700;
@@ -73,20 +91,37 @@ st.markdown("""
         letter-spacing: 0.08em;
     }
 
-    /* Owner Badge */
+    /* Creator Signature Badge */
     .owner-pill {
         display: flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(236, 253, 245, 0.8);
+        border: 1px solid rgba(167, 243, 208, 0.8);
+        padding: 8px 16px;
+        border-radius: 14px;
+        box-shadow: 0 2px 8px rgba(5, 150, 105, 0.06);
+    }
+    .owner-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #047857, #10b981);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    .owner-meta {
+        display: flex;
         flex-direction: column;
-        align-items: flex-end;
-        background: #ecfdf5;
-        border: 1px solid #a7f3d0;
-        padding: 6px 14px;
-        border-radius: 12px;
     }
     .owner-title {
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 800;
-        color: #065f46;
+        color: #064e3b;
     }
     .owner-subtitle {
         font-size: 10px;
@@ -94,110 +129,169 @@ st.markdown("""
         font-weight: 600;
     }
 
-    /* Hero Banner */
+    /* Dynamic Hero Banner */
     .hero-card {
-        background: linear-gradient(135deg, #064e3b 0%, #047857 60%, #059669 100%);
-        padding: 40px 36px;
-        border-radius: 24px;
+        background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);
+        padding: 42px 40px;
+        border-radius: 26px;
         color: white;
-        margin-bottom: 35px;
-        box-shadow: 0 20px 40px -15px rgba(5, 150, 105, 0.35);
+        margin-bottom: 30px;
+        box-shadow: 0 20px 45px -15px rgba(4, 120, 87, 0.4);
         position: relative;
         overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.15);
     }
-    .hero-card::after {
+    
+    .hero-card::before {
         content: '';
         position: absolute;
-        top: -60px;
-        right: -60px;
-        width: 220px;
-        height: 220px;
-        background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%);
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(16, 185, 129, 0.3) 0%, transparent 70%);
+        top: -100px;
+        right: -80px;
         border-radius: 50%;
     }
+
     .hero-badge {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        background: rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(8px);
         border: 1px solid rgba(255, 255, 255, 0.25);
-        padding: 5px 14px;
+        padding: 6px 14px;
         border-radius: 100px;
         font-size: 12px;
-        font-weight: 600;
-        letter-spacing: 0.03em;
-        margin-bottom: 14px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        margin-bottom: 16px;
+        color: #ecfdf5;
     }
+    
     .hero-title {
-        font-size: 32px;
+        font-size: 34px;
         font-weight: 800;
         line-height: 1.25;
-        margin: 0 0 10px 0;
-        letter-spacing: -0.02em;
+        margin: 0 0 12px 0;
+        letter-spacing: -0.03em;
+        color: #ffffff;
     }
+    
     .hero-desc {
         font-size: 15px;
-        line-height: 1.6;
-        opacity: 0.9;
+        line-height: 1.65;
+        color: #e6f4ea;
         margin: 0;
-        max-width: 680px;
+        max-width: 720px;
+        font-weight: 400;
     }
 
-    /* Control Panel Box */
+    /* Control Panel Card */
     .control-box {
-        background: #ffffff;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(12px);
         border: 1px solid #e2e8f0;
-        border-radius: 20px;
-        padding: 28px;
+        border-radius: 22px;
+        padding: 30px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
-        margin-bottom: 35px;
+        margin-bottom: 30px;
     }
 
-    /* Generated Notes Card */
+    /* Streamlit Widget Enhancements */
+    div[data-baseweb="select"] > div,
+    div[data-baseweb="input"] > div {
+        background-color: #f8fafc !important;
+        border-radius: 14px !important;
+        border: 1.5px solid #e2e8f0 !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+    div[data-baseweb="select"] > div:focus-within,
+    div[data-baseweb="input"] > div:focus-within {
+        border-color: #059669 !important;
+        background-color: #ffffff !important;
+        box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.12) !important;
+    }
+
+    /* Primary CTA Button */
+    div.stButton > button {
+        background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 14px !important;
+        padding: 14px 28px !important;
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        letter-spacing: -0.01em !important;
+        box-shadow: 0 8px 24px -4px rgba(5, 150, 105, 0.4) !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    div.stButton > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 12px 30px -4px rgba(5, 150, 105, 0.5) !important;
+    }
+
+    /* High-End Output Notes Canvas */
     .output-card {
         background: #ffffff;
         border: 1px solid #e2e8f0;
         border-radius: 24px;
-        padding: 40px;
-        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.05);
-        margin-top: 30px;
-        line-height: 1.85;
+        padding: 42px 45px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+        margin-top: 35px;
+        line-height: 1.9;
     }
-    .output-card h1, .output-card h2 {
+    
+    .output-card h1 {
         color: #064e3b;
-        border-bottom: 2px solid #ecfdf5;
-        padding-bottom: 8px;
-        margin-top: 30px;
+        font-size: 26px;
         font-weight: 800;
+        border-bottom: 2px solid #ecfdf5;
+        padding-bottom: 12px;
+        margin-top: 20px;
+    }
+    .output-card h2 {
+        color: #047857;
+        font-size: 20px;
+        font-weight: 700;
+        border-left: 4px solid #10b981;
+        padding-left: 12px;
+        margin-top: 30px;
     }
     .output-card h3 {
-        color: #047857;
-        margin-top: 22px;
+        color: #059669;
+        font-size: 17px;
         font-weight: 700;
+        margin-top: 22px;
     }
+    
     .output-card blockquote {
         background: #f0fdf4;
-        border-left: 5px solid #10b981;
-        padding: 16px 22px;
-        border-radius: 0 14px 14px 0;
+        border-left: 4px solid #10b981;
+        padding: 16px 24px;
+        border-radius: 0 16px 16px 0;
         font-weight: 600;
         color: #065f46;
-        margin: 20px 0;
+        margin: 22px 0;
+        font-size: 15px;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
     }
+    
     .output-card strong {
         color: #0f172a;
         font-weight: 700;
     }
 
-    /* Footer */
+    /* Footer Branding */
     .app-footer {
         text-align: center;
-        padding: 30px 10px 10px 10px;
+        padding: 40px 10px 15px 10px;
         color: #64748b;
         font-size: 13px;
+        font-weight: 500;
     }
     .app-footer strong {
-        color: #065f46;
+        color: #064e3b;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -211,7 +305,7 @@ if not api_key:
 
 client = genai.Client(api_key=api_key)
 
-# --- High Quality Export Generator ---
+# --- Clean Printable Document Generator (Zero Distorted Characters) ---
 def create_printable_html_doc(subject_name, topic_name, raw_content):
     html_content = markdown.markdown(raw_content, extensions=['extra', 'nl2br'])
 
@@ -223,7 +317,7 @@ def create_printable_html_doc(subject_name, topic_name, raw_content):
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{topic_name} - BAMS Master Notes</title>
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Noto+Sans+Devanagari:wght@400;600;700;800&display=swap');
             body {{
                 font-family: 'Noto Sans Devanagari', 'Plus Jakarta Sans', -apple-system, sans-serif;
                 line-height: 1.85;
@@ -236,20 +330,21 @@ def create_printable_html_doc(subject_name, topic_name, raw_content):
             .header-banner {{
                 background: linear-gradient(135deg, #064e3b 0%, #047857 100%);
                 color: white;
-                border-radius: 16px;
-                padding: 24px 30px;
-                margin-bottom: 30px;
+                border-radius: 18px;
+                padding: 26px 32px;
+                margin-bottom: 35px;
             }}
-            .header-banner h2 {{ margin: 0 0 6px 0; color: #ffffff; font-size: 24px; }}
+            .header-banner h2 {{ margin: 0 0 6px 0; color: #ffffff; font-size: 24px; font-weight: 800; }}
             .header-banner p {{ margin: 0; font-size: 14px; opacity: 0.95; }}
-            h1, h2 {{ color: #064e3b; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-top: 30px; }}
-            h3 {{ color: #047857; margin-top: 20px; }}
+            h1 {{ color: #064e3b; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; margin-top: 25px; }}
+            h2 {{ color: #047857; margin-top: 30px; font-size: 20px; }}
+            h3 {{ color: #059669; margin-top: 20px; }}
             blockquote {{
                 background: #f0fdf4;
                 border-left: 5px solid #10b981;
-                margin: 18px 0;
-                padding: 14px 20px;
-                border-radius: 0 10px 10px 0;
+                margin: 20px 0;
+                padding: 16px 22px;
+                border-radius: 0 12px 12px 0;
                 font-weight: 600;
                 color: #065f46;
             }}
@@ -259,7 +354,7 @@ def create_printable_html_doc(subject_name, topic_name, raw_content):
             .print-btn {{
                 background: linear-gradient(135deg, #059669 0%, #047857 100%);
                 color: white;
-                padding: 14px 30px;
+                padding: 14px 32px;
                 font-size: 15px;
                 font-weight: 700;
                 border: none;
@@ -268,11 +363,11 @@ def create_printable_html_doc(subject_name, topic_name, raw_content):
                 box-shadow: 0 6px 20px rgba(5, 150, 105, 0.3);
             }}
             .doc-footer {{
-                margin-top: 40px;
+                margin-top: 50px;
                 border-top: 1px solid #e2e8f0;
-                padding-top: 15px;
+                padding-top: 20px;
                 text-align: center;
-                font-size: 12px;
+                font-size: 13px;
                 color: #64748b;
             }}
             @media print {{
@@ -297,7 +392,7 @@ def create_printable_html_doc(subject_name, topic_name, raw_content):
         </div>
 
         <div class="doc-footer">
-            <p><strong>Created by Avishkar Alashe</strong> | BAMS AI Study Companion | तुमच्या सेवेसाठी 🙏</p>
+            <p>🌿 <strong>BAMS AI Study Companion</strong> | विकसित केले: <strong>Avishkar Alashe</strong> (तुमच्या सेवेसाठी 🙏)</p>
         </div>
 
         <script>
@@ -321,8 +416,11 @@ st.markdown("""
         </div>
     </div>
     <div class="owner-pill">
-        <span class="owner-title">👨‍💻 Avishkar Alashe</span>
-        <span class="owner-subtitle">तुमच्या सेवेसाठी 🙏</span>
+        <div class="owner-avatar">A</div>
+        <div class="owner-meta">
+            <span class="owner-title">Avishkar Alashe</span>
+            <span class="owner-subtitle">तुमच्या सेवेसाठी 🙏</span>
+        </div>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -330,13 +428,13 @@ st.markdown("""
 # --- Hero Banner ---
 st.markdown("""
 <div class="hero-card">
-    <div class="hero-badge">🎓 NCISM & University Exam Standard</div>
+    <div class="hero-badge">✨ NCISM Standard Study Matrix</div>
     <h1 class="hero-title">BAMS इंटेलिजंट स्टडी असिस्टंट</h1>
-    <p class="hero-desc">अस्सल संहिता संदर्भ, संस्कृत श्लोक व अन्वय, मॉडर्न मेडिकल कोरिलेशन आणि हाय-स्कोरिंग क्लिनिकल नोट्स — सर्वकाही १-क्लिकमध्ये.</p>
+    <p class="hero-desc">अस्सल संहिता संदर्भ, अचूक संस्कृत श्लोक व अन्वय, मॉडर्न मेडिकल कोरिलेशन आणि हाय-स्कोरिंग क्लिनिकल नोट्स — सर्वकाही १-क्लिकमध्ये.</p>
 </div>
 """, unsafe_allow_html=True)
 
-# --- Configuration Form Card ---
+# --- Control Panel Card ---
 st.markdown('<div class="control-box">', unsafe_allow_html=True)
 
 col1, col2 = st.columns([1.2, 1])
@@ -451,4 +549,3 @@ st.markdown("""
     <p>🌿 <strong>BAMS AI Study Companion</strong> | विकसित केले: <strong>Avishkar Alashe</strong> (तुमच्या सेवेसाठी 🙏)</p>
 </div>
 """, unsafe_allow_html=True)
-
