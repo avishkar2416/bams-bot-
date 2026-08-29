@@ -5,13 +5,13 @@ import time
 
 # --- Page Setup ---
 st.set_page_config(
-    page_title="AyurVeda AI | BAMS Enterprise",
+    page_title="AyurVeda AI | AvishkarAlase Pvt. Ltd.",
     page_icon="🌿",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# --- Ultra-Futuristic Design & Animations ---
+# --- Ultra-Futuristic Design & High-End Button Animations ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700;800&display=swap');
@@ -20,7 +20,7 @@ st.markdown("""
         font-family: 'Noto Sans Devanagari', 'Plus Jakarta Sans', sans-serif !important;
     }
 
-    /* Animated Gradient Canvas */
+    /* Dynamic Fluid Canvas */
     .stApp {
         background: linear-gradient(-45deg, #f0fdf4, #e6fcf5, #f8fafc, #ecfdf5);
         background-size: 400% 400%;
@@ -44,9 +44,15 @@ st.markdown("""
         100% { transform: translateY(0px) rotate(0deg); }
     }
 
+    @keyframes buttonShine {
+        0% { left: -120%; }
+        50% { left: 120%; }
+        100% { left: 120%; }
+    }
+
     @keyframes pulseGlow {
-        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-        70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
+        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+        70% { box-shadow: 0 0 0 16px rgba(16, 185, 129, 0); }
         100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
     }
 
@@ -54,13 +60,13 @@ st.markdown("""
         color: #0f172a !important;
     }
 
-    /* Floating Futuristic Glass Navbar */
+    /* Floating Glass Navbar */
     .premium-navbar {
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 16px 26px;
-        background: rgba(255, 255, 255, 0.82) !important;
+        background: rgba(255, 255, 255, 0.85) !important;
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         border: 1.5px solid rgba(255, 255, 255, 0.9);
@@ -105,7 +111,7 @@ st.markdown("""
         text-transform: uppercase;
     }
 
-    /* Designer Glass Badge */
+    /* Company Official Badge */
     .owner-pill {
         display: flex;
         align-items: center;
@@ -115,10 +121,10 @@ st.markdown("""
         padding: 8px 18px;
         border-radius: 16px;
         box-shadow: 0 4px 15px rgba(5, 150, 105, 0.1);
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .owner-pill:hover {
-        transform: translateY(-2px);
+        transform: translateY(-2px) scale(1.02);
         box-shadow: 0 8px 25px rgba(5, 150, 105, 0.2);
     }
     .owner-avatar {
@@ -130,8 +136,8 @@ st.markdown("""
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 14px;
-        font-weight: bold;
+        font-size: 13px;
+        font-weight: 800;
     }
     .owner-title {
         font-size: 13px;
@@ -144,7 +150,7 @@ st.markdown("""
         font-weight: 700;
     }
 
-    /* 3D Glass Hero Banner */
+    /* 3D Hero Banner */
     .hero-banner {
         background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%) !important;
         padding: 34px 30px;
@@ -205,7 +211,7 @@ st.markdown("""
         animation: cardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Inputs Micro-Interactions */
+    /* Inputs Styling */
     div[data-baseweb="select"] > div,
     div[data-baseweb="input"] > div {
         background-color: #ffffff !important;
@@ -220,26 +226,45 @@ st.markdown("""
         box-shadow: 0 6px 18px rgba(5, 150, 105, 0.1) !important;
     }
 
-    /* Supercharged CTA Button with Pulse */
-    div.stButton > button {
-        background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+    /* ULTRA ANIMATED BUTTONS (Main CTA + Download) */
+    div.stButton > button, div[data-testid="stDownloadButton"] > button {
+        background: linear-gradient(135deg, #059669 0%, #047857 50%, #064e3b 100%) !important;
         color: #ffffff !important;
         border: none !important;
         border-radius: 16px !important;
-        padding: 16px 28px !important;
+        padding: 16px 30px !important;
         font-size: 17px !important;
         font-weight: 800 !important;
         letter-spacing: -0.01em !important;
         box-shadow: 0 10px 30px -4px rgba(5, 150, 105, 0.45) !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
         animation: pulseGlow 2.5s infinite;
+        position: relative !important;
+        overflow: hidden !important;
+        cursor: pointer !important;
     }
-    div.stButton > button:hover {
-        transform: translateY(-3px) scale(1.01) !important;
-        box-shadow: 0 15px 35px -4px rgba(5, 150, 105, 0.55) !important;
+
+    /* Shining Light Sweep on Buttons */
+    div.stButton > button::before, div[data-testid="stDownloadButton"] > button::before {
+        content: '' !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: -120% !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.4), transparent) !important;
+        transform: skewX(-25deg) !important;
+        animation: buttonShine 3.5s infinite !important;
     }
-    div.stButton > button:active {
-        transform: translateY(2px) scale(0.97) !important;
+
+    div.stButton > button:hover, div[data-testid="stDownloadButton"] > button:hover {
+        transform: translateY(-4px) scale(1.015) !important;
+        box-shadow: 0 16px 38px -4px rgba(5, 150, 105, 0.6) !important;
+    }
+
+    div.stButton > button:active, div[data-testid="stDownloadButton"] > button:active {
+        transform: translateY(2px) scale(0.96) !important;
+        box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3) !important;
     }
 
     /* Output Canvas Card */
@@ -320,7 +345,7 @@ def create_printable_html_doc(subject_name, topic_name, raw_content):
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{topic_name} - BAMS Master Notes</title>
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@600;700&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
             body {{
                 font-family: 'Noto Sans Devanagari', 'Plus Jakarta Sans', Arial, sans-serif;
                 line-height: 1.85;
@@ -394,7 +419,7 @@ def create_printable_html_doc(subject_name, topic_name, raw_content):
         </div>
 
         <div class="doc-footer">
-            <p>🌿 <strong>BAMS AI Study Companion</strong> | विकसित केले: <strong>Avishkar Alashe</strong> (तुमच्या सेवेसाठी 🙏)</p>
+            <p>🌿 <strong>BAMS AI Study Companion</strong> | विकसित केले: <strong>AvishkarAlase Pvt. Ltd.</strong> (तुमच्या सेवेसाठी 🙏)</p>
         </div>
 
         <script>
@@ -420,7 +445,7 @@ st.markdown("""
     <div class="owner-pill">
         <div class="owner-avatar">A</div>
         <div>
-            <div class="owner-title">Avishkar Alashe</div>
+            <div class="owner-title">AvishkarAlase Pvt. Ltd.</div>
             <div class="owner-subtitle">तुमच्या सेवेसाठी 🙏</div>
         </div>
     </div>
@@ -526,7 +551,7 @@ if generate_btn:
                     continue
 
         if success_flag:
-            st.balloons()  # सक्सेस ॲनिमेशन (Balloons)
+            st.balloons()
             st.success("✅ सर्व श्लोक आणि मुद्द्यांसह संपूर्ण नोट्स तयार झाल्या आहेत!")
             
             # Notes Display Card
@@ -549,6 +574,7 @@ if generate_btn:
 # --- Bottom Footer Branding ---
 st.markdown("""
 <div class="app-footer">
-    🌿 <strong>BAMS AI Study Companion</strong> | विकसित केले: <strong>Avishkar Alashe</strong> (तुमच्या सेवेसाठी 🙏)
+    🌿 <strong>BAMS AI Study Companion</strong> | विकसित केले: <strong>AvishkarAlase Pvt. Ltd.</strong> (तुमच्या सेवेसाठी 🙏)
 </div>
 """, unsafe_allow_html=True)
+
