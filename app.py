@@ -189,31 +189,24 @@ if st.button("📝 सविस्तर अभ्यास नोट्स त�
            - ५. परीक्षेसाठी महत्त्वाचे मुद्दे आणि ३-४ हमखास व्हायव्हा (Viva) प्रश्न व उत्तरे
         """
 
-        output_area = st.empty()
         notes_text = ""
         success_flag = False
 
-        # फास्ट एक्झिक्युशन आणि 503 लोड एररसाठी ऑटोमॅटिक बॅकअप मॉडेल्स लिस्ट
         models_to_try = [
+            'gemini-2.5-flash',
             'models/gemini-3.6-flash',
-            'models/gemini-2.5-pro',
-            'gemini-2.5-flash'
+            'models/gemini-2.5-pro'
         ]
 
-        with st.spinner("⚡ AI तज्ज्ञ जलद गतीने नोट्स तयार करत आहे..."):
+        with st.spinner("⚡ AI तज्ज्ञ तुमच्यासाठी संपूर्ण नोट्स एकत्र तयार करत आहे, कृपया थोडा वेळ थांबा..."):
             for model_name in models_to_try:
                 try:
-                    stream = client.models.generate_content_stream(
+                    response = client.models.generate_content(
                         model=model_name,
                         contents=system_instruction
                     )
-                    
-                    for chunk in stream:
-                        if chunk.text:
-                            notes_text += chunk.text
-                            output_area.markdown(notes_text)
-
-                    if notes_text.strip():
+                    if response and response.text:
+                        notes_text = response.text
                         success_flag = True
                         break
                 except Exception:
@@ -221,7 +214,8 @@ if st.button("📝 सविस्तर अभ्यास नोट्स त�
                     continue
 
         if success_flag:
-            st.success("✅ सर्व श्लोक आणि मुद्द्यांसह नोट्स तयार झाल्या आहेत!")
+            st.success("✅ सर्व श्लोक आणि मुद्द्यांसह संपूर्ण नोट्स तयार झाल्या आहेत!")
+            st.markdown(notes_text)
             
             doc_html = create_printable_html_doc(subject, topic, notes_text)
             st.download_button(
@@ -231,4 +225,4 @@ if st.button("📝 सविस्तर अभ्यास नोट्स त�
                 mime="text/html"
             )
         else:
-            st.error("गुगल सर्व्हरवर सध्या प्रचंड भार आहे. कृपया ५ सेकंद थांबा आणि पुन्हा बटण दाबा.")
+            st.error("गुगल सर्व्हरवर सध्या भार आहे. कृपया ५ सेकंद थांबा आणि पुन्हा बटण दाबा.")
