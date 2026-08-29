@@ -1,6 +1,7 @@
 import streamlit as st
 from google import genai
 import markdown
+import time
 
 # --- Page Setup ---
 st.set_page_config(
@@ -9,11 +10,11 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- Custom UI Styling ---
+# --- Custom Styling ---
 st.markdown("""
 <style>
-    .main {
-        background-color: #f8faf9;
+    .main { 
+        background-color: #f8faf9; 
     }
     .hero-box {
         background: linear-gradient(135deg, #1b4d3e 0%, #2e7d32 100%);
@@ -23,13 +24,8 @@ st.markdown("""
         margin-bottom: 25px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     }
-    .notes-card {
-        background-color: #ffffff;
-        padding: 25px;
-        border-radius: 12px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        margin-top: 20px;
+    .stSelectbox, .stTextInput, .stRadio {
+        font-family: 'Segoe UI', Arial, sans-serif;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -38,13 +34,13 @@ st.markdown("""
 api_key = st.secrets.get("GEMINI_API_KEY", "")
 
 if not api_key:
-    st.warning("⚠️ कृपया सुरू ठेवण्यासाठी तुमची Gemini API Key टाका (Settings > Secrets मध्ये जोडा).")
+    st.warning("⚠️ कृपया सुरू ठेवण्यासाठी तुमची Gemini API Key जोडा (Settings > Secrets).")
     st.stop()
 
 client = genai.Client(api_key=api_key)
 
+# --- Clean Printable Document Generator (Zero Distorted Characters) ---
 def create_printable_html_doc(subject_name, topic_name, raw_content):
-    # Markdown चे अचूक HTML मध्ये रूपांतर
     html_content = markdown.markdown(raw_content, extensions=['extra', 'nl2br'])
 
     full_html = f"""
@@ -72,28 +68,10 @@ def create_printable_html_doc(subject_name, topic_name, raw_content):
                 padding: 20px 24px;
                 margin-bottom: 30px;
             }}
-            .header-banner h2 {{
-                margin: 0 0 6px 0;
-                color: #ffffff;
-                font-size: 22px;
-            }}
-            .header-banner p {{
-                margin: 0;
-                font-size: 14px;
-                opacity: 0.95;
-            }}
-            h1, h2 {{
-                color: #1b4d3e;
-                border-bottom: 2px solid #e2e8f0;
-                padding-bottom: 6px;
-                margin-top: 26px;
-                font-size: 20px;
-            }}
-            h3 {{
-                color: #2e7d32;
-                margin-top: 18px;
-                font-size: 16px;
-            }}
+            .header-banner h2 {{ margin: 0 0 6px 0; color: #ffffff; font-size: 22px; }}
+            .header-banner p {{ margin: 0; font-size: 14px; opacity: 0.95; }}
+            h1, h2 {{ color: #1b4d3e; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; margin-top: 26px; }}
+            h3 {{ color: #2e7d32; margin-top: 18px; }}
             blockquote {{
                 background: #f0fdf4;
                 border-left: 4px solid #22c55e;
@@ -103,17 +81,9 @@ def create_printable_html_doc(subject_name, topic_name, raw_content):
                 font-weight: 600;
                 color: #14532d;
             }}
-            strong {{
-                color: #0f172a;
-                font-weight: 700;
-            }}
-            ul, ol {{
-                padding-left: 22px;
-                margin: 10px 0;
-            }}
-            li {{
-                margin-bottom: 8px;
-            }}
+            strong {{ color: #0f172a; font-weight: 700; }}
+            ul, ol {{ padding-left: 22px; margin: 10px 0; }}
+            li {{ margin-bottom: 8px; }}
             .print-btn {{
                 background-color: #1b4d3e;
                 color: white;
@@ -125,19 +95,15 @@ def create_printable_html_doc(subject_name, topic_name, raw_content):
                 cursor: pointer;
             }}
             @media print {{
-                .no-print {{
-                    display: none !important;
-                }}
-                body {{
-                    padding: 0;
-                }}
+                .no-print {{ display: none !important; }}
+                body {{ padding: 0; }}
             }}
         </style>
     </head>
     <body>
         <div class="no-print" style="text-align: center; margin-bottom: 25px;">
-            <button class="print-btn" onclick="window.print()">📥 PDF डाऊनलोड करा / प्रिंट करा</button>
-            <p style="color: #64748b; font-size: 13px; margin-top: 6px;">(मोबाईलमध्ये उघडल्यावर 'Save as PDF' निवडून डाऊनलोड करा)</p>
+            <button class="print-btn" onclick="window.print()">📥 PDF सेव्ह करा / प्रिंट करा</button>
+            <p style="color: #64748b; font-size: 13px; margin-top: 6px;">(मोबाईलमध्ये 'Save as PDF' निवडून डाऊनलोड करा)</p>
         </div>
 
         <div class="header-banner">
@@ -159,7 +125,7 @@ def create_printable_html_doc(subject_name, topic_name, raw_content):
     """
     return full_html
 
-# --- Header Section ---
+# --- UI Header ---
 st.markdown("""
 <div class="hero-box">
     <h2 style="margin:0; font-size:24px;">🌿 BAMS AI अभ्यास मार्गदर्शक</h2>
@@ -167,7 +133,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Layout Inputs
 col1, col2 = st.columns([1, 1])
 
 with col1:
@@ -199,75 +164,71 @@ with col2:
 
 topic = st.text_input(
     "🔍 अभ्यासाचा विषय / प्रश्न टाका:",
-    placeholder="उदा. Pitta Dosha Prakar & Karya, Ashwagandha Dravyaguna, किंवा Amavata Nidan & Chikitsa"
+    placeholder="उदा. Pitta Dosha Prakar & Karya किंवा Ashwagandha Dravyaguna"
 )
 
 if st.button("📝 सविस्तर अभ्यास नोट्स तयार करा", type="primary"):
     if not topic.strip():
-        st.error("कृपया अभ्यासाचा विषय किंवा प्रश्न प्रविष्ट करा.")
+        st.error("कृपया अभ्यासाचा विषय प्रविष्ट करा.")
     else:
-        with st.spinner("AI आयुर्वेद तज्ज्ञ तुमच्यासाठी परिपूर्ण श्लोक व सुटसुटीत नोट्स तयार करत आहे..."):
-            try:
-                system_instruction = f"""
-                You are a senior Ayurveda Professor and BAMS Exam Paper Evaluator according to NCISM curriculum standards.
-                Subject: {subject}
-                Topic: {topic}
-                Language: {language_preference}
+        system_instruction = f"""
+        You are a senior Ayurveda Professor and BAMS Exam Expert according to NCISM curriculum.
+        Subject: {subject}
+        Topic: {topic}
+        Language: {language_preference}
 
-                Generate extremely detailed, comprehensive, high-scoring BAMS study notes.
-                
-                STRICT FORMATTING RULES:
-                1. NEVER use ASCII or text tree diagrams (do not draw box charts or '|---' lines).
-                2. Use clear hierarchical bullet points (•) and numbered lists for types and classifications.
-                3. Wrap Sanskrit Shlokas in blockquotes (> "Shloka here").
-                4. Highlight all critical keywords, anatomical names, and viva terms in **Bold Black text**.
-                5. Use clean, natural Marathi with correct terminology.
+        Generate detailed, high-yield, structured revision notes:
+        1. NEVER create ASCII diagrams or text tree boxes (avoid '|---' and box drawings).
+        2. Format Sanskrit Shlokas strictly inside blockquotes (> "Shloka").
+        3. Highlight key terms, anatomical words, and keywords in **Bold**.
+        4. Structure strictly into:
+           - १. निरुक्ती, व्याख्या आणि मूळ संदर्भ श्लोक (अचूक पदच्छेद, अन्वय व अर्थ)
+           - २. सविस्तर वर्गीकरण, गुण, कर्म व प्रकार (स्थान व कार्यासह सुटसुटीत बुलेट पॉईंट्स)
+           - ३. आधुनिक वैद्यकशास्त्राशी तुलना (Modern Medical Correlation)
+           - ४. चिकित्सा सूत्र व उपयुक्त औषधी कल्प
+           - ५. परीक्षेसाठी महत्त्वाचे मुद्दे आणि ३-४ हमखास व्हायव्हा (Viva) प्रश्न व उत्तरे
+        """
 
-                Follow this exact section structure:
+        output_area = st.empty()
+        notes_text = ""
+        success_flag = False
 
-                # 🌿 {topic} - परिपूर्ण अभ्यास नोट्स
+        # फास्ट एक्झिक्युशन आणि 503 लोड एररसाठी ऑटोमॅटिक बॅकअप मॉडेल्स लिस्ट
+        models_to_try = [
+            'models/gemini-3.6-flash',
+            'models/gemini-2.5-pro',
+            'gemini-2.5-flash'
+        ]
 
-                ## १. निरुक्ती, व्याख्या आणि मूळ संदर्भ श्लोक (Etymology, Definition & Shlokas)
-                * मूळ संस्कृत श्लोक देवनागरीमध्ये व संहिता संदर्भ (चरक/सुश्रुत/अष्टांग हृदय).
-                * श्लोकाचा पदच्छेद आणि शब्दशः अन्वय.
-                * सोप्या भाषेत संपूर्ण श्लोकार्थ.
+        with st.spinner("⚡ AI तज्ज्ञ जलद गतीने नोट्स तयार करत आहे..."):
+            for model_name in models_to_try:
+                try:
+                    stream = client.models.generate_content_stream(
+                        model=model_name,
+                        contents=system_instruction
+                    )
+                    
+                    for chunk in stream:
+                        if chunk.text:
+                            notes_text += chunk.text
+                            output_area.markdown(notes_text)
 
-                ## २. सविस्तर वर्गीकरण, गुण, कर्म व प्रकार (Classification, Guna-Karma & Functions)
-                * गुण आणि स्थान.
-                * प्रकार (प्रत्येक प्रकाराचे नाव, स्थान आणि कार्य सुटसुटीत बुलेट पॉईंट्समध्ये).
-                * वृद्धी आणि क्षय लक्षणे.
+                    if notes_text.strip():
+                        success_flag = True
+                        break
+                except Exception:
+                    time.sleep(1)
+                    continue
 
-                ## ३. आधुनिक वैद्यकशास्त्राशी तुलना (Modern Medical Correlation)
-                * ॲनाटॉमी (Anatomy), फिजिओलॉजी (Physiology) किंवा पॅथॉलॉजी (Pathology) नुसार आधुनिक संकल्पनांशी अचूक तुलना.
-                * हार्मोन्स, एन्झाईम्स किंवा ऑर्गन्सचे संदर्भ.
-
-                ## ४. चिकित्सा सूत्र व उपयुक्त कल्प / औषधी (Chikitsa Sutra & Formulations)
-                * प्रधान चिकित्सा सिद्धांत व प्रमुख औषधी द्रव्ये.
-
-                ## ५. परीक्षेसाठी महत्त्वाचे मुद्दे आणि व्हायव्हा प्रश्न (High-Yield Exam Points & Viva Voce)
-                * Theory परीक्षेसाठी महत्त्वाचे की-वर्ड्स.
-                * तोंडी परीक्षेसाठी (Viva Voce) ३-४ हमखास प्रश्न व उत्तरे.
-                """
-                
-                response = client.models.generate_content(
-                    model='models/gemini-3.6-flash',
-                    contents=system_instruction
-                )
-                
-                notes_text = response.text
-                st.success("✅ सर्व श्लोक आणि मुद्द्यांसह सविस्तर नोट्स तयार झाल्या आहेत!")
-                
-                with st.container():
-                    st.markdown(f'<div class="notes-card">', unsafe_allow_html=True)
-                    st.markdown(notes_text)
-                    st.markdown('</div>', unsafe_allow_html=True)
-                
-                doc_html = create_printable_html_doc(subject, topic, notes_text)
-                st.download_button(
-                    label="📥 PDF नोट्स डाऊनलोड करा (.html / .pdf)",
-                    data=doc_html.encode('utf-8'),
-                    file_name=f"{topic.replace(' ', '_')}_BAMS_Notes.html",
-                    mime="text/html"
-                )
-            except Exception as e:
-                st.error(f"त्रुटी आली: {e}")
+        if success_flag:
+            st.success("✅ सर्व श्लोक आणि मुद्द्यांसह नोट्स तयार झाल्या आहेत!")
+            
+            doc_html = create_printable_html_doc(subject, topic, notes_text)
+            st.download_button(
+                label="📥 PDF नोट्स डाऊनलोड करा (.pdf / .html)",
+                data=doc_html.encode('utf-8'),
+                file_name=f"{topic.replace(' ', '_')}_BAMS_Notes.html",
+                mime="text/html"
+            )
+        else:
+            st.error("गुगल सर्व्हरवर सध्या प्रचंड भार आहे. कृपया ५ सेकंद थांबा आणि पुन्हा बटण दाबा.")
