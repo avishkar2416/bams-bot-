@@ -11,23 +11,39 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- Universal Mobile-Friendly CSS ---
+# --- Micro-Interactions & Animation CSS ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700;800&display=swap');
 
-    /* Global Text Visibility Fix for Mobile & Dark Mode */
     * {
         font-family: 'Noto Sans Devanagari', 'Plus Jakarta Sans', sans-serif !important;
     }
     
     .stApp {
-        background-color: #f8faf9 !important;
+        background: radial-gradient(1200px 800px at 80% -10%, #ecfdf5 0%, #f8fafc 50%, #f0fdf4 100%) !important;
     }
 
-    /* Force Label & Text Visibility */
     label, p, span, div {
         color: #0f172a !important;
+    }
+
+    /* Keyframe Animations */
+    @keyframes slideUpFade {
+        0% {
+            opacity: 0;
+            transform: translateY(24px) scale(0.98);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes pulseGlow {
+        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+        70% { box-shadow: 0 0 0 14px rgba(16, 185, 129, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
     }
 
     /* Top Navbar */
@@ -36,12 +52,16 @@ st.markdown("""
         justify-content: space-between;
         align-items: center;
         padding: 14px 20px;
-        background: #ffffff !important;
+        background: rgba(255, 255, 255, 0.85) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
         border: 1px solid #e2e8f0;
         border-radius: 16px;
         margin-bottom: 20px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+        transition: transform 0.3s ease;
     }
+    
     .nav-brand {
         display: flex;
         align-items: center;
@@ -57,6 +77,10 @@ st.markdown("""
         align-items: center;
         justify-content: center;
         font-size: 20px;
+        transition: transform 0.4s ease;
+    }
+    .nav-logo:hover {
+        transform: rotate(15deg) scale(1.1);
     }
     .brand-title {
         font-size: 18px;
@@ -75,8 +99,8 @@ st.markdown("""
     .owner-badge {
         background: #ecfdf5 !important;
         border: 1px solid #a7f3d0;
-        padding: 6px 12px;
-        border-radius: 10px;
+        padding: 6px 14px;
+        border-radius: 12px;
         text-align: right;
     }
     .owner-name {
@@ -90,13 +114,14 @@ st.markdown("""
         font-weight: 600;
     }
 
-    /* Main Hero Banner */
+    /* Hero Banner */
     .hero-banner {
         background: linear-gradient(135deg, #064e3b 0%, #047857 100%) !important;
         padding: 28px 24px;
         border-radius: 20px;
         margin-bottom: 25px;
         box-shadow: 0 10px 25px rgba(5, 150, 105, 0.25);
+        animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .hero-banner * {
         color: #ffffff !important;
@@ -122,43 +147,56 @@ st.markdown("""
         margin: 0;
     }
 
-    /* Streamlit Selectbox & Inputs styling */
+    /* Streamlit Input fields */
     div[data-baseweb="select"] > div,
     div[data-baseweb="input"] > div {
         background-color: #ffffff !important;
         border: 1.5px solid #cbd5e1 !important;
         border-radius: 12px !important;
+        transition: all 0.25s ease !important;
     }
-    div[data-baseweb="select"] span,
-    div[data-baseweb="input"] input {
-        color: #0f172a !important;
+    div[data-baseweb="select"] > div:hover,
+    div[data-baseweb="input"] > div:hover {
+        border-color: #059669 !important;
+        transform: translateY(-1px);
     }
 
-    /* Main Button */
+    /* Interactive Click Animated Button */
     div.stButton > button {
         background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
         color: #ffffff !important;
         border: none !important;
-        border-radius: 12px !important;
-        padding: 14px 20px !important;
+        border-radius: 14px !important;
+        padding: 16px 24px !important;
         font-size: 16px !important;
         font-weight: 700 !important;
-        box-shadow: 0 4px 15px rgba(5, 150, 105, 0.35) !important;
+        box-shadow: 0 6px 20px rgba(5, 150, 105, 0.35) !important;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        cursor: pointer !important;
+    }
+    div.stButton > button:hover {
+        transform: translateY(-3px) scale(1.01) !important;
+        box-shadow: 0 10px 25px rgba(5, 150, 105, 0.45) !important;
+    }
+    div.stButton > button:active {
+        transform: translateY(1px) scale(0.97) !important;
+        box-shadow: 0 2px 10px rgba(5, 150, 105, 0.3) !important;
     }
 
-    /* Notes Display Box */
+    /* Animated Notes Box Card */
     .notes-box {
         background: #ffffff !important;
         border: 1px solid #e2e8f0;
-        border-radius: 20px;
-        padding: 30px 24px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+        border-radius: 22px;
+        padding: 32px 28px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05);
         margin-top: 25px;
+        animation: slideUpFade 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     .notes-box h1, .notes-box h2 {
         color: #064e3b !important;
         border-bottom: 2px solid #ecfdf5;
-        padding-bottom: 6px;
+        padding-bottom: 8px;
     }
     .notes-box h3 {
         color: #047857 !important;
@@ -166,9 +204,13 @@ st.markdown("""
     .notes-box blockquote {
         background: #f0fdf4 !important;
         border-left: 4px solid #10b981;
-        padding: 12px 18px;
+        padding: 14px 20px;
         border-radius: 0 12px 12px 0;
-        margin: 16px 0;
+        margin: 18px 0;
+        transition: transform 0.2s ease;
+    }
+    .notes-box blockquote:hover {
+        transform: translateX(4px);
     }
     .notes-box blockquote * {
         color: #065f46 !important;
@@ -385,7 +427,7 @@ if generate_btn:
             'models/gemini-2.5-pro'
         ]
 
-        with st.spinner("⚡ AI आयुर्वेद तज्ज्ञ तुमच्यासाठी संपूर्ण नोट्स एकत्र तयार करत आहे..."):
+        with st.spinner("⚡ AI आयुर्वेद तज्ज्ञ तुमच्यासाठी संपूर्ण नोट्स तयार करत आहे..."):
             for model_name in models_to_try:
                 try:
                     response = client.models.generate_content(
