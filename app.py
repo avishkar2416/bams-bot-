@@ -28,7 +28,6 @@ st.markdown("""
         color: #0f172a !important;
     }
 
-    /* Dropdown and Input Theme Fix */
     div[data-baseweb="select"] > div,
     div[data-baseweb="input"] > div,
     ul[role="listbox"],
@@ -161,7 +160,7 @@ st.markdown("""
         color: #047857 !important;
     }
 
-    /* Animated Button */
+    /* Button */
     div.stButton > button, div[data-testid="stDownloadButton"] > button {
         background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
         color: #ffffff !important;
@@ -198,7 +197,6 @@ st.markdown("""
         color: #065f46 !important;
     }
 
-    /* Footer */
     .app-footer {
         text-align: center;
         padding: 35px 10px 15px 10px;
@@ -217,6 +215,27 @@ if not api_key:
     st.stop()
 
 client = genai.Client(api_key=api_key)
+
+# Helper function to generate content using latest supported models
+def generate_ai_content(prompt, as_json=False):
+    models_to_try = [
+        'gemini-3.6-flash',
+        'gemini-2.5-pro'
+    ]
+    for model_name in models_to_try:
+        try:
+            config = types.GenerateContentConfig(response_mime_type="application/json") if as_json else None
+            response = client.models.generate_content(
+                model=model_name,
+                contents=prompt,
+                config=config
+            )
+            if response and response.text:
+                return response.text
+        except Exception:
+            time.sleep(1)
+            continue
+    raise RuntimeError("सर्व मॉडेल्स सध्या व्यस्त आहेत. कृपया ५ सेकंदांनंतर पुन्हा प्रयत्न करा.")
 
 # --- Printable Document Generator ---
 def create_printable_html_doc(subject_name, topic_name, year_name, mode_name, raw_content):
@@ -315,10 +334,10 @@ with tab_notes:
                 - Follow clean medical structure with Viva points.
                 """
                 try:
-                    res = client.models.generate_content(model='gemini-2.5-flash', contents=prompt)
+                    notes_output = generate_ai_content(prompt)
                     st.success("✅ नोट्स तयार झाल्या आहेत!")
-                    st.markdown(res.text)
-                    doc_html = create_printable_html_doc(subject, topic, bams_year, study_mode, res.text)
+                    st.markdown(notes_output)
+                    doc_html = create_printable_html_doc(subject, topic, bams_year, study_mode, notes_output)
                     st.download_button("📥 PDF डाऊनलोड करा", data=doc_html.encode('utf-8'), file_name=f"{topic}_Notes.html", mime="text/html", use_container_width=True)
                 except Exception as e:
                     st.error(f"त्रुटी: {e}")
@@ -353,25 +372,29 @@ with tab_video:
                 Platform: {video_platform}
                 Tone: {voice_tone}
 
-                Break down the topic into 3 to 4 distinct scenes for a 60-second educational video.
+                Break down the topic into 3 distinct scenes for a 60-second educational video.
                 Return ONLY a valid JSON array. Each object must have:
-                - "scene_number": int (1, 2, 3...)
+                - "scene_number": int (1, 2, 3)
                 - "scene_title": Short title
                 - "voiceover_marathi": Exact spoken voiceover script in natural, clear Marathi.
                 - "screen_text": 2-3 bullet points to show on screen
                 - "image_prompt": A highly descriptive English prompt to generate a photorealistic Ayurveda/medical image using AI (photorealistic, clean lighting, 8k, educational).
                 
-                No extra text or markdown formatting around the JSON. Return only the raw JSON.
+                No extra text, no markdown backticks around JSON. Return only the raw JSON.
                 """
 
                 try:
-                    res = client.models.generate_content(
-                        model='gemini-2.5-flash',
-                        contents=script_prompt,
-                        config=types.GenerateContentConfig(response_mime_type="application/json")
-                    )
-                    scenes = json.loads(res.text)
-
+                    raw_json = generate_ai_content(script_prompt, as_json=True)
+                    # Clean up possible markdown wrappers if model adds any
+                    cleaned_json = raw_json.strip()
+                    if cleaned_json.startswith("```json"):
+                        cleaned_json = cleaned_json[7:]
+                    if cleaned_json.startswith("```"):
+                        cleaned_json = cleaned_json[3:]
+                    if cleaned_json.endswith("```"):
+                        cleaned_json = cleaned_json[:-3]
+                    
+                    scenes = json.loads(cleaned_json.strip())
                     st.success(f"✅ {len(scenes)} सीन्सची परिपूर्ण स्क्रिप्ट आणि इमेजेस तयार होत आहेत!")
 
                     aspect_ratio = "9:16" if "Vertical" in video_platform else "16:9"
@@ -386,7 +409,6 @@ with tab_video:
                         </div>
                         """, unsafe_allow_html=True)
 
-                        # Generate individual image for this scene
                         with st.spinner(f"🎨 सीन {scene.get('scene_number')} साठी AI इमेज तयार होत आहे..."):
                             try:
                                 img_res = client.models.generate_images(
@@ -407,7 +429,7 @@ with tab_video:
                                         mime="image/png"
                                     )
                             except Exception as img_err:
-                                st.info(f"💡 इमेज प्रॉम्ट तयार झाला आहे: *{scene.get('image_prompt')}* (इमेज जनरेशन एरर: {img_err})")
+                                st.info(f"💡 इमेज प्रॉम्ट: *{scene.get('image_prompt')}* (इमेज जनरेशन नोट: {img_err})")
 
                 except Exception as e:
                     st.error(f"त्रुटी: {e}")
