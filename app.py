@@ -20,7 +20,6 @@ st.markdown("""
         font-family: 'Noto Sans Devanagari', 'Plus Jakarta Sans', sans-serif !important;
     }
 
-    /* Dynamic Fluid Canvas */
     .stApp {
         background: linear-gradient(-45deg, #f0fdf4, #e6fcf5, #f8fafc, #ecfdf5);
         background-size: 400% 400%;
@@ -111,7 +110,7 @@ st.markdown("""
         text-transform: uppercase;
     }
 
-    /* Ultra-Professional Top-Right Signature Badge */
+    /* Top-Right VIP Signature Card */
     .vip-creator-card {
         position: relative;
         overflow: hidden;
@@ -123,7 +122,6 @@ st.markdown("""
         padding: 8px 16px;
         border-radius: 16px;
         box-shadow: 0 4px 20px rgba(16, 185, 129, 0.15);
-        cursor: default;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
@@ -244,7 +242,7 @@ st.markdown("""
         animation: cardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Inputs Micro-Interactions */
+    /* Inputs Styling */
     div[data-baseweb="select"] > div,
     div[data-baseweb="input"] > div {
         background-color: #ffffff !important;
@@ -353,7 +351,7 @@ if not api_key:
 client = genai.Client(api_key=api_key)
 
 # --- Printable Clean Document ---
-def create_printable_html_doc(subject_name, topic_name, raw_content):
+def create_printable_html_doc(subject_name, topic_name, year_name, mode_name, raw_content):
     html_content = markdown.markdown(raw_content, extensions=['extra', 'nl2br'])
 
     full_html = f"""
@@ -430,7 +428,8 @@ def create_printable_html_doc(subject_name, topic_name, raw_content):
 
         <div class="header-banner">
             <h2>🌿 BAMS AI Clinical & Exam Guide</h2>
-            <p><strong>विषय:</strong> {subject_name} &nbsp;|&nbsp; <strong>संकल्पना:</strong> {topic_name}</p>
+            <p><strong>वर्ष:</strong> {year_name} &nbsp;|&nbsp; <strong>विषय:</strong> {subject_name}</p>
+            <p><strong>प्रकार:</strong> {mode_name} &nbsp;|&nbsp; <strong>संकल्पना:</strong> {topic_name}</p>
         </div>
 
         <div>
@@ -451,7 +450,7 @@ def create_printable_html_doc(subject_name, topic_name, raw_content):
     """
     return full_html
 
-# --- Top Navigation Bar with Ultra-Professional VIP Creator Card ---
+# --- Top Navigation Bar with VIP Creator Card ---
 st.markdown("""
 <div class="premium-navbar">
     <div class="nav-brand">
@@ -479,12 +478,24 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- Control Panel Card ---
+# --- Control Panel Card with 2 New Search Options ---
 st.markdown('<div class="control-panel">', unsafe_allow_html=True)
 
-col1, col2 = st.columns([1.2, 1])
+# ROW 1: BAMS Year & Subject Selection
+row1_col1, row1_col2 = st.columns([1, 1.2])
 
-with col1:
+with row1_col1:
+    bams_year = st.selectbox(
+        "🎓 BAMS वर्ष निवडा (Academic Year):",
+        [
+            "BAMS 1st Professional (प्रथम वर्ष)",
+            "BAMS 2nd Professional (द्वितीय वर्ष)",
+            "BAMS 3rd Professional (तृतीय वर्ष)",
+            "BAMS Final Professional (अंतिम वर्ष)"
+        ]
+    )
+
+with row1_col2:
     subject = st.selectbox(
         "📚 विषय निवडा (Select Subject):",
         [
@@ -504,13 +515,29 @@ with col1:
         ]
     )
 
-with col2:
+# ROW 2: Study Mode & Language Preference
+row2_col1, row2_col2 = st.columns([1.2, 1])
+
+with row2_col1:
+    study_mode = st.selectbox(
+        "🎯 अभ्यासाचा प्रकार निवडा (Study Mode / Output Type):",
+        [
+            "📖 Comprehensive Notes (संपूर्ण सविस्तर अभ्यास नोट्स)",
+            "📜 Only Shlokas & Meanings (फक्त मूळ श्लोक, अन्वय व अर्थ)",
+            "📝 10-Mark LAQ Answer Format (दीर्घोत्तरी प्रश्न-उत्तर फॉरमॅट)",
+            "⚡ Quick Revision / Viva Voce Points (तोंडी परीक्षेसाठी महत्त्वाचे मुद्दे)",
+            "🩺 Clinical Chikitsa & Formulations (क्लिनिकल चिकित्सा व औषधी कल्प)"
+        ]
+    )
+
+with row2_col2:
     language_preference = st.radio(
         "🌐 माध्यम (Language):",
         ["मराठी (संस्कृत श्लोक + सोपा अर्थ + मॉडर्न टर्म्स)", "English + Sanskrit Shlokas"],
         horizontal=True
     )
 
+# ROW 3: Topic Input
 topic = st.text_input(
     "🔍 अभ्यासाचा विषय / प्रश्न टाका:",
     placeholder="उदा. Pitta Dosha types and functions, Ashwagandha pharmacology, किंवा Amavata Chikitsa"
@@ -527,21 +554,24 @@ if generate_btn:
     else:
         system_instruction = f"""
         You are a senior Ayurveda Acharya and BAMS Exam Paper Evaluator according to NCISM standards.
+        Academic Level: {bams_year}
         Subject: {subject}
+        Study Mode: {study_mode}
         Topic: {topic}
         Language: {language_preference}
 
-        Generate detailed, high-yield, structured revision notes:
+        Generate tailored, high-yield study material strictly aligned with the selected '{study_mode}'.
+        
+        Strict Guidelines:
         1. NEVER create ASCII diagrams or text tree boxes (avoid '|---' and box drawings).
-        2. Format Sanskrit Shlokas strictly inside blockquotes (> "Shloka").
+        2. Format all Sanskrit Shlokas strictly inside blockquotes (> "Shloka").
         3. Highlight key terms, anatomical words, and keywords in **Bold**.
-        4. Structure strictly into:
-           - # 🌿 {topic} - परिपूर्ण अभ्यास नोट्स
-           - ## १. निरुक्ती, व्याख्या आणि मूळ संदर्भ श्लोक (अचूक पदच्छेद, अन्वय व अर्थ)
-           - ## २. सविस्तर वर्गीकरण, गुण, कर्म व प्रकार (स्थान व कार्यासह सुटसुटीत बुलेट पॉईंट्स)
-           - ## ३. आधुनिक वैद्यकशास्त्राशी तुलना (Modern Medical Correlation)
-           - ## ४. चिकित्सा सूत्र व उपयुक्त औषधी कल्प
-           - ## ५. परीक्षेसाठी महत्त्वाचे मुद्दे आणि ३-४ हमखास व्हायव्हा (Viva) प्रश्न व उत्तरे
+        4. If Study Mode is:
+           - 'Only Shlokas & Meanings': Focus 80% on authentic Sanskrit Shlokas with ref (Charak/Sushrut/Ashtanga), Padachheda, Anvaya, and exact meaning.
+           - '10-Mark LAQ Answer Format': Structure as standard university examination paper (Introduction, Definition, Core Concepts with Shlokas, Modern Correlation, Clinical Importance, Conclusion).
+           - 'Quick Revision / Viva Voce Points': Give high-yield bullet points, mnemonics, and 5-6 Viva questions with sharp answers.
+           - 'Clinical Chikitsa & Formulations': Focus deeply on Chikitsa Sutra, classical formulations, dose, anupana, and pathya-apathya.
+           - 'Comprehensive Notes': Provide full coverage (Definition, Shlokas, Guna-Karma, Classification, Modern Correlation, Chikitsa, Viva questions).
         """
 
         notes_text = ""
@@ -553,7 +583,7 @@ if generate_btn:
             'models/gemini-2.5-pro'
         ]
 
-        with st.spinner("⚡ AI आयुर्वेद तज्ज्ञ तुमच्यासाठी संपूर्ण नोट्स तयार करत आहे..."):
+        with st.spinner(f"⚡ AI आयुर्वेद तज्ज्ञ '{study_mode}' नुसार नोट्स तयार करत आहे..."):
             for model_name in models_to_try:
                 try:
                     response = client.models.generate_content(
@@ -570,7 +600,7 @@ if generate_btn:
 
         if success_flag:
             st.balloons()
-            st.success("✅ सर्व श्लोक आणि मुद्द्यांसह संपूर्ण नोट्स तयार झाल्या आहेत!")
+            st.success("✅ निवडलेल्या अभ्यास प्रकारानुसार नोट्स यशस्वीरीत्या तयार झाल्या आहेत!")
             
             # Notes Display Card
             st.markdown('<div class="notes-box">', unsafe_allow_html=True)
@@ -578,7 +608,7 @@ if generate_btn:
             st.markdown('</div>', unsafe_allow_html=True)
             
             st.markdown("<br>", unsafe_allow_html=True)
-            doc_html = create_printable_html_doc(subject, topic, notes_text)
+            doc_html = create_printable_html_doc(subject, topic, bams_year, study_mode, notes_text)
             st.download_button(
                 label="📥 सुंदर PDF / प्रिंट फॉरमॅट डाऊनलोड करा (.pdf)",
                 data=doc_html.encode('utf-8'),
@@ -595,3 +625,4 @@ st.markdown("""
     🌿 <strong>BAMS AI Study Companion</strong> | Developed by <strong>Avishkar Alase</strong>
 </div>
 """, unsafe_allow_html=True)
+
