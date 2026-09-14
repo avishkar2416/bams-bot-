@@ -344,12 +344,12 @@ def ask_gemini(system_prompt):
             continue
     raise RuntimeError("गुगल सर्व्हर व्यस्त आहे. कृपया पुन्हा प्रयत्न करा.")
 
-# --- Document Generator (With One-Click Image Download & PDF Print) ---
+# --- Document Generator (One-Click Image Download & PDF Print) ---
 def create_exportable_doc(title_tag, subtitle_info, raw_content):
     html_content = markdown.markdown(raw_content, extensions=['extra', 'tables', 'nl2br'])
     return f"""
     <!DOCTYPE html>
-    <html lang="mr">
+    <html lang="en">
     <head>
         <meta charset="UTF-8">
         <title>{title_tag} - AyurVeda Master Doc</title>
@@ -366,7 +366,6 @@ def create_exportable_doc(title_tag, subtitle_info, raw_content):
             th {{ background-color: #ecfdf5; color: #064e3b; font-weight: bold; }}
             blockquote {{ background: #f0fdf4; border-left: 5px solid #10b981; margin: 18px 0; padding: 14px 20px; color: #065f46; font-weight: bold; border-radius: 0 10px 10px 0; }}
             
-            /* Action Buttons Bar */
             .action-bar {{ display: flex; justify-content: center; gap: 14px; margin-bottom: 25px; flex-wrap: wrap; }}
             .btn-img {{ background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: white; padding: 14px 24px; font-size: 15px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 6px 18px rgba(2, 132, 199, 0.35); }}
             .btn-pdf {{ background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; padding: 14px 24px; font-size: 15px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 6px 18px rgba(5, 150, 105, 0.35); }}
@@ -443,7 +442,7 @@ with tab1:
     <div class="hero-banner">
         <div class="hero-tag">✨ NCISM Standard Study Matrix</div>
         <div class="hero-title">BAMS इंटेलिजंट स्टडी असिस्टंट</div>
-        <div class="hero-desc">अस्सल संहिता संदर्भ, टॉपर स्टाईल फ्लोचार्ट्स, संप्राप्ती चक्र, तुलनात्मक तक्ते आणि हमखास परीक्षेतील की-पॉइंट्स.</div>
+        <div class="hero-desc">सोपी इंडियन इंग्लिश, अचूक संस्कृत संदर्भ, टॉपर स्टाईल फ्लोचार्ट्स, तुलनात्मक तक्ते आणि हमखास परीक्षेतील की-पॉइंट्स.</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -499,7 +498,7 @@ with tab1:
     with row2_col2:
         language_preference = st.radio(
             "🌐 माध्यम (Language):",
-            ["English + Sanskrit (फोटोमधील टॉपर स्टाईल)", "मराठी (संस्कृत श्लोक + सोपा अर्थ + मॉडर्न टर्म्स)"],
+            ["Simple Indian English + Sanskrit (सोपे व थेट समजणारे इंग्रजी)", "मराठी (संस्कृत श्लोक + सोपा अर्थ + मॉडर्न टर्म्स)"],
             horizontal=True,
             key="lang_notes"
         )
@@ -516,50 +515,79 @@ with tab1:
         if not topic.strip():
             st.warning("⚠️ कृपया अभ्यासाचा विषय किंवा प्रश्न प्रविष्ट करा.")
         else:
+            simple_english_rules = """
+            LANGUAGE & TONE INSTRUCTIONS (VERY IMPORTANT):
+            - Write in very simple, clean, and direct Indian English, exactly how Indian medical professors explain to BAMS students.
+            - Avoid complicated vocabulary, convoluted sentences, or fancy Western jargon.
+            - Keep explanations short, clear, and bulleted.
+            - Maintain 100% medical and Ayurvedic accuracy (terms like Agni, Ama, Dhatu, Srotas, Doshadushya Sammurchana should be retained with simple English explanations).
+            """
+
             if "Topper Hand-written Chart" in study_mode:
                 system_instruction = f"""
-                You are a university topper and professor in Ayurveda (BAMS/MD).
+                You are a senior Ayurveda Professor and Top Ranker in BAMS/MD examination in India.
                 Subject: {subject}
                 Topic: {topic}
-                Language: {language_preference}
+                Language Preference: {language_preference}
 
-                Create study notes EXACTLY matching the handwritten topper note layout:
+                {simple_english_rules}
+
+                Create study notes matching the handwritten topper note style:
                 1. Main Title with Subject Tag:
                    # 🌿 {topic}
                    `{subject} | (BAMS / MD Exam Note)`
-                2. Two Core Entities / Concept Definition Boxes:
-                   - Clearly define entity ① and entity ②.
+                
+                2. Core Concepts Definition:
+                   - Clearly define entity ① and entity ② in simple, crisp English sentences.
+                
                 3. Pathogenesis / Samprapti Step-by-Step Flowchart:
-                   Present using clean text flow blocks with arrows:
-                   [Step 1: Nidana / Intake]
+                   Present clean, readable vertical flow with arrows:
+                   [Step 1: Intake of Nidana / Causes]
                    ↓
-                   [Step 2: Agni Dushti]
+                   [Step 2: Agni Mandya / Disturbance of Digestive Fire]
                    ↓
-                   [Step 3: Ama & Dosha Vitiation]
+                   [Step 3: Ama Formation & Dosha Vitiation]
                    ↓
-                   [Step 4: Srotodushti]
+                   [Step 4: Srotas Blockage / Srotodushti]
                    ↓
-                   [Step 5: Manifestation of Disease]
-                4. Clinical Signs & Manifestations (Diseases / Lakshana):
-                   - Bulleted list categorized into Agnimandya, Twak Vikara, and Systemic.
-                5. Key Concept Box (> Blockquote)
-                6. Contemporary / Modern Correlation Box
+                   [Step 5: Doshadushya Sammurchana]
+                   ↓
+                   [Step 6: Disease Manifestation]
+                
+                4. Clinical Signs & Symptoms (Diseases / Lakshana):
+                   - Clear bullet points categorized into GI symptoms, Skin symptoms, and General systemic features.
+                
+                5. Key Concept Box (> Blockquote):
+                   > Highlight the central exam takeaway in 2 simple lines.
+                
+                6. Modern Medical Correlation:
+                   - Give practical, direct correlations (e.g. chronic low-dose toxicity, bioaccumulation, lead/arsenic/pesticides).
+                
                 7. Comparison Table (Difference in Disease Manifestation):
                    | Feature | Entity 1 | Entity 2 |
                    | :--- | :--- | :--- |
-                8. Exam Line / Punch Line: One memorable final exam sentence.
+                   | **Nature** | Simple explanation | Simple explanation |
+                   | **Onset** | Fast / Slow | Gradual / Delayed |
+                   | **Main Mechanism** | Clear points | Clear points |
+                   | **Examples** | Common examples | Common examples |
+                
+                8. 🎯 Exam Line / Punch Line:
+                   One perfect summary sentence to conclude the answer sheet.
                 """
             else:
                 system_instruction = f"""
-                You are a senior Ayurveda Acharya according to NCISM standards.
+                You are a senior Ayurveda Acharya according to NCISM standards in India.
                 Academic Level: {bams_year}, Subject: {subject}, Study Mode: {study_mode}, Topic: {topic}, Language: {language_preference}.
+                
+                {simple_english_rules}
+
                 Generate tailored, high-yield study material strictly aligned with '{study_mode}'.
                 - Format Sanskrit Shlokas inside blockquotes (> "Shloka").
-                - Bold key terms.
-                - Follow authentic NCISM syllabus structure.
+                - Bold all key terms.
+                - Keep English very simple, clear, bulleted, and 100% accurate.
                 """
 
-            with st.spinner(f"⚡ AI आयुर्वेद तज्ज्ञ '{study_mode}' नुसार नोट्स तयार करत आहे..."):
+            with st.spinner(f"⚡ AI आयुर्वेद तज्ज्ञ सोप्या भाषेत '{study_mode}' नुसार नोट्स तयार करत आहे..."):
                 try:
                     notes_text = ask_gemini(system_instruction)
                     st.balloons()
@@ -589,7 +617,7 @@ with tab2:
     <div class="hero-banner" style="background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%) !important;">
         <div class="hero-tag">🧪 रसशास्त्र व भैषज्य कल्पना स्पेशल</div>
         <div class="hero-title">आयुर्वेदिक औषध घटक व सविस्तर निर्माण विधी</div>
-        <div class="hero-desc">कोणतीही आयुर्वेदिक गोळी, वटी, चूर्ण, आसव-अरिष्ट, भस्म किंवा घृत कशापासून बनवले आहे आणि कसे तयार करायचे ते सोप्या स्टेप्समध्ये शिका.</div>
+        <div class="hero-desc">कोणतीही आयुर्वेदिक गोळी, वटी, चूर्ण, आसव-अरिष्ट, भस्म किंवा घृत कशापासून बनवले आहे आणि कसे तयार करायचे ते सोप्या भाषेत शिका.</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -614,7 +642,7 @@ with tab2:
     with m_col2:
         m_lang = st.radio(
             "🌐 शिकवण्याची भाषा:",
-            ["मराठी (सविस्तर मराठी कृती + प्रमाण)", "English + Sanskrit Terms"],
+            ["Simple Indian English + Sanskrit", "मराठी (सविस्तर मराठी कृती + प्रमाण)"],
             horizontal=True,
             key="lang_med"
         )
@@ -637,13 +665,12 @@ with tab2:
             Dosage Form: {dosage_form}
             Language: {m_lang}
 
-            Provide an exhaustive, practical guide on how this medicine is formulated and manufactured:
-            1. Classical Reference & Shloka (blockquote)
-            2. Ingredients Table (Herb/Dhatu, Part, Ratio/Grams)
-            3. Raw Material Purification (Shodhana)
-            4. Step-by-Step Manufacturing (Mardan, Paka, Agni details)
-            5. Siddhi Lakshana & Quality Tests
-            6. Dose, Anupana & Clinical Uses
+            Explain the manufacturing process in simple, practical Indian English (or Marathi if selected):
+            - Easy-to-understand sentences.
+            - Clear ingredients table with exact parts/ratios.
+            - Simple Shodhana (purification) steps.
+            - Practical preparation steps (Mardan, Agni, Paka).
+            - Purity tests and clinical dose/anupana.
             """
 
             with st.spinner(f"🔬 AI तज्ज्ञ '{medicine_name}' ची निर्माण पद्धत तयार करत आहे..."):
