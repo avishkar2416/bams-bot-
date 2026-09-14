@@ -118,28 +118,27 @@ def ask_gemini(prompt, as_json=False):
     raise RuntimeError("गुगल सर्व्हर व्यस्त आहे. कृपया पुन्हा प्रयत्न करा.")
 
 # =========================================================================
-# अस्सल १००% शुद्ध मराठी व देवनागरी A4 HTML Generator
+# अस्सल A4 Blue Ballpen Handwritten Sheet HTML Generator
 # =========================================================================
 def create_a4_handwritten_doc(data, subject_name, topic_name, is_marathi=True):
-    marks = data.get("exam_marks", "१० गुण - दीर्घोत्तरी" if is_marathi else "10 Marks - LAQ")
+    marks = data.get("exam_marks", "१० गुण - दीर्घोत्तरी (LAQ)" if is_marathi else "10 Marks - LAQ")
     title = data.get("main_heading", topic_name)
     has_flowchart = data.get("include_flowchart", True)
     
     t1 = data.get("entity_1", {})
     t2 = data.get("entity_2", {})
     
-    # Marathi vs English dynamic UI labels
-    lbl_flowchart = "संप्राप्ती प्रवाह तक्ता (फ्लोचार्ट)" if is_marathi else "Pathogenesis / Samprapti Flowchart"
-    lbl_exam_points = "परीक्षेसाठी महत्त्वाचे मुद्दे:" if is_marathi else "High-Yield Exam Points:"
-    lbl_clinical = "लक्षणे, विकार व चिकित्सा:" if is_marathi else "Clinical / Systemic Features:"
-    lbl_key_concept = "★ मुख्य संकल्पना (की-कॉन्सेप्ट):" if is_marathi else "★ Key Exam Concept:"
-    lbl_modern = "★ आधुनिक वैद्यकीय सांगड:" if is_marathi else "★ Contemporary / Modern Link:"
-    lbl_table = "★ परीक्षा तुलनात्मक तक्ता:" if is_marathi else "★ Quick Exam Comparison Table:"
-    lbl_feature = "मुद्दा / लक्षण" if is_marathi else "Feature"
-    lbl_punch = "✍️ परीक्षेसाठी मुख्य सूत्र (निष्कर्ष):" if is_marathi else "✍️ Exam Punch Line:"
+    lbl_flowchart = "संप्राप्ती प्रवाह तक्ता (Pathogenesis Flowchart)" if is_marathi else "Pathogenesis / Samprapti Flowchart"
+    lbl_exam_points = "परीक्षेसाठी महत्त्वाचे मुद्दे (High-Yield Points):" if is_marathi else "High-Yield Exam Points:"
+    lbl_clinical = "लक्षणे, विकार व चिकित्सा (Clinical & Management):" if is_marathi else "Clinical / Systemic Features:"
+    lbl_key_concept = "★ मुख्य संकल्पना (Key Concept):" if is_marathi else "★ Key Exam Concept:"
+    lbl_modern = "★ आधुनिक वैद्यकीय सांगड (Modern Correlation):" if is_marathi else "★ Contemporary / Modern Link:"
+    lbl_table = "★ परीक्षा तुलनात्मक तक्ता (Quick Comparison Table):" if is_marathi else "★ Quick Exam Comparison Table:"
+    lbl_feature = "मुद्दा / लक्षण (Feature)" if is_marathi else "Feature"
+    lbl_punch = "✍️ परीक्षेसाठी मुख्य सूत्र (Exam Punch Line):" if is_marathi else "✍️ Exam Punch Line:"
     lbl_btn_png = "📸 A4 बॉलपेन फोटो डाऊनलोड करा (.PNG)" if is_marathi else "📸 Download A4 Note (.PNG)"
     lbl_btn_pdf = "📄 थेट PDF प्रिंट करा" if is_marathi else "📄 Print / Save as PDF"
-    lbl_def = "व्याख्या:" if is_marathi else "Def:"
+    lbl_def = "व्याख्या (Definition):" if is_marathi else "Def:"
 
     flow_html = ""
     if has_flowchart and data.get("flowchart_steps"):
@@ -294,7 +293,7 @@ def create_a4_handwritten_doc(data, subject_name, topic_name, is_marathi=True):
                 border: 2px solid #123060;
                 border-radius: 14px;
                 padding: 2px 12px;
-                font-size: 18px;
+                font-size: 17.5px;
                 font-weight: 800;
                 margin-bottom: 6px;
                 background: #ffffff;
@@ -499,7 +498,7 @@ with tab1:
     st.markdown("""
     <div class="hero-banner">
         <h3 style="margin:0 0 6px 0;">🎯 BAMS A4 बॉलपेन Handwritten नोट्स</h3>
-        <p style="margin:0; font-size:13.5px; opacity:0.95;">शुद्ध मराठी माध्यम (Zero English), ठळक मुख्य हेडिंग, महत्वाच्या शब्दांना <b>Red Highlight</b>, फ्लोचार्ट आणि गुण (Marks Weightage).</p>
+        <p style="margin:0; font-size:13.5px; opacity:0.95;">महाराष्ट्रातील सोपी मराठी भाषा + महत्त्वाच्या ठिकाणी सोपे इंग्रजी शब्द, ठळक मुख्य हेडिंग, महत्वाच्या शब्दांना <b>Red Highlight</b> आणि फ्लोचार्ट.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -551,13 +550,13 @@ with tab1:
     with r2_col2:
         language_preference = st.radio(
             "🌐 माध्यम (Language):",
-            ["मराठी (अस्सल मराठी + संस्कृत श्लोक - इंग्रजी शब्द नको)", "Simple Indian English + Sanskrit"],
+            ["मराठी (सोपी मराठी + महत्त्वाच्या ठिकाणी सोपे इंग्रजी शब्द)", "Simple Indian English + Sanskrit"],
             horizontal=True
         )
 
     topic = st.text_input(
         "🔍 अभ्यासाचा विषय / प्रश्न टाका:",
-        placeholder="उदा. पित्त दोष स्वरूप, गुण व प्रकोप लक्षणे, गरविष व दूषीविष, किंवा अश्वगंधा"
+        placeholder="उदा. पित्त दोषाचे स्वरूप व गुणधर्म, गरविष व दूषीविष, किंवा अश्वगंधा"
     )
 
     generate_notes_btn = st.button("🚀 सविस्तर अभ्यास नोट्स तयार करा", key="btn_notes", use_container_width=True)
@@ -571,11 +570,11 @@ with tab1:
             if "A4 Blue Ballpen" in study_mode:
                 if is_marathi:
                     lang_rule = """
-                    STRICT MARATHI LANGUAGE INSTRUCTION:
-                    - The student has chosen MARATHI. You MUST generate 100% of the content in Marathi (Devanagari) and Sanskrit.
-                    - DO NOT use English words or Roman script anywhere (NO English words in brackets like '(Metabolism)', '(Burning)', '(Inflammation)', '(Pitta Dosha)').
-                    - Use authentic Ayurvedic Marathi words: उदा. Metabolism ऐवजी 'चयापचय', Inflammation ऐवजी 'शोथ किंवा दाह', Purgation ऐवजी 'विरेचन'.
-                    - Exam marks should be written in Marathi (उदा. '१० गुण - दीर्घोत्तरी प्रश्न' किंवा '५ गुण - लघुत्तरी प्रश्न').
+                    LANGUAGE & TONE INSTRUCTION:
+                    - Write in very simple, natural Marathi as spoken in Maharashtra (महाराष्ट्रात जशी रोज बोलली जाते तशी साधी आणि सोपी मराठी वापरा).
+                    - For main headings and key medical concepts, add crisp, simple English in parentheses so students can easily correlate (उदा. 'पित्त दोषाचे स्वरूप व गुणधर्म (Pitta Dosha Swaroopa & Attributes)', 'पित्ताचे ५ प्रकार (5 Types of Pitta)', 'पाचक पित्त (Pachaka Pitta - Digestive Fire)', 'रक्त धातू (Blood tissue)').
+                    - Avoid overly complex or difficult grammatical words. Keep explanations short, clear, and direct.
+                    - Marks weightage should be in Marathi (उदा. '१० गुण - दीर्घोत्तरी (LAQ)' किंवा '५ गुण - लघुत्तरी (SAQ)').
                     """
                 else:
                     lang_rule = """
@@ -583,7 +582,7 @@ with tab1:
                     """
 
                 json_prompt = f"""
-                You are a senior Ayurveda Professor and BAMS University Paper Setter.
+                You are a senior Ayurveda Professor and BAMS University Paper Setter in Maharashtra.
                 Subject: {subject}
                 Topic: {topic}
                 Language Selected: {language_preference}
@@ -596,49 +595,49 @@ with tab1:
 
                 RED HIGHLIGHT INSTRUCTION:
                 - Wrap all crucial medical keywords, cardinal symptoms, important drugs, or main mechanisms inside `<span class="hl-red">...</span>` so they get a red background highlight!
-                Example: `<span class="hl-red">उष्ण-तीक्ष्ण</span>`, `<span class="hl-red">रक्त धातू</span>`, `<span class="hl-red">विरेचन</span>`.
+                Example: `<span class="hl-red">उष्ण-तीक्ष्ण गुण</span>`, `<span class="hl-red">रक्त धातू</span>`, `<span class="hl-red">विरेचन शोधन</span>`.
                 
                 Return ONLY valid JSON matching this schema:
                 {{
-                    "exam_marks": "{'१० गुण - दीर्घोत्तरी' if is_marathi else '10 Marks - LAQ'}",
-                    "main_heading": "{'मराठीत ठळक शीर्षक' if is_marathi else 'Crisp Title of the Topic'}",
+                    "exam_marks": "{'१० गुण - दीर्घोत्तरी (LAQ)' if is_marathi else '10 Marks - LAQ'}",
+                    "main_heading": "{'मराठीत मुख्य शीर्षक (Topic in Marathi + Simple English)' if is_marathi else 'Crisp Title of the Topic'}",
                     "include_flowchart": true or false,
                     "flowchart_steps": [
-                        "पायरी १: निदान / हेतू सोबत <span class='hl-red'>महत्त्वाचा शब्द</span>",
-                        "पायरी २: अग्नी दुष्टी",
-                        "पायरी ३: आम निर्मिती व दोष प्रकोप",
-                        "अंतिम: व्याधी लक्षणे"
+                        "पायरी १: हेतू सेवन / कारणे सोबत <span class='hl-red'>महत्त्वाचा शब्द</span>",
+                        "पायरी २: अग्नी दुष्टी व दोष प्रकोप",
+                        "पायरी ३: शरीरात रक्ताची दुष्टी",
+                        "अंतिम: मुख्य लक्षणे व व्याधी निर्मिती"
                     ],
                     "entity_1": {{
-                        "title": "{'संकल्पना १' if is_marathi else 'Concept 1'}",
-                        "definition": "१ ओळीची सुटसुटीत व्याख्या <span class='hl-red'>महत्त्वाचा शब्द</span>",
+                        "title": "{'संकल्पना १ (Concept 1 in Marathi + English)' if is_marathi else 'Concept 1'}",
+                        "definition": "१-२ ओळींची साधी, सोपी व्याख्या <span class='hl-red'>महत्त्वाचा शब्द</span>",
                         "key_points": [
-                            "मुद्दा १ <span class='hl-red'>महत्त्वाचा घटक</span>",
+                            "मुद्दा १ सोबत <span class='hl-red'>महत्त्वाचा शब्द</span>",
                             "मुद्दा २",
                             "मुद्दा ३ <span class='hl-red'>प्रधान लक्षण</span>"
                         ],
                         "exam_key": "मुख्य परीक्षा संकल्पना <span class='hl-red'>महत्त्वाचा मुद्दा</span>"
                     }},
                     "entity_2": {{
-                        "title": "{'संकल्पना २' if is_marathi else 'Concept 2'}",
-                        "definition": "१ ओळीची सुटसुटीत व्याख्या <span class='hl-red'>महत्त्वाचा शब्द</span>",
+                        "title": "{'संकल्पना २ (Concept 2 in Marathi + English)' if is_marathi else 'Concept 2'}",
+                        "definition": "१-२ ओळींची साधी, सोपी व्याख्या <span class='hl-red'>महत्त्वाचा शब्द</span>",
                         "key_points": [
-                            "मुद्दा १ <span class='hl-red'>महत्त्वाचा घटक</span>",
+                            "मुद्दा १ सोबत <span class='hl-red'>महत्त्वाचा शब्द</span>",
                             "मुद्दा २",
                             "मुद्दा ३ <span class='hl-red'>चिकित्सा उपक्रम</span>"
                         ],
                         "exam_key": "चिकित्सा किंवा आधुनिक सांगड <span class='hl-red'>महत्त्वाचा मुद्दा</span>"
                     }},
                     "comparison_table": [
-                        {{"feature": "{'गुणधर्म / स्वरूप' if is_marathi else 'Nature / Guna'}", "point_1": "... <span class='hl-red'>शब्द</span>", "point_2": "..."}},
-                        {{"feature": "{'प्रधान लक्षणे' if is_marathi else 'Cardinal Lakshana'}", "point_1": "<span class='hl-red'>...</span>", "point_2": "<span class='hl-red'>...</span>"}},
-                        {{"feature": "{'चिकित्सा सूत्र' if is_marathi else 'Treatment Line'}", "point_1": "<span class='hl-red'>...</span>", "point_2": "<span class='hl-red'>...</span>"}}
+                        {{"feature": "{'स्वरूप व गुणधर्म (Attributes)' if is_marathi else 'Nature / Guna'}", "point_1": "... <span class='hl-red'>शब्द</span>", "point_2": "..."}},
+                        {{"feature": "{'प्रधान लक्षणे (Main Symptoms)' if is_marathi else 'Cardinal Lakshana'}", "point_1": "<span class='hl-red'>...</span>", "point_2": "<span class='hl-red'>...</span>"}},
+                        {{"feature": "{'चिकित्सा उपक्रम (Treatment)' if is_marathi else 'Treatment Line'}", "point_1": "<span class='hl-red'>...</span>", "point_2": "<span class='hl-red'>...</span>"}}
                     ],
-                    "exam_punch_line": "परीक्षेसाठी १ मुख्य अंतिम निष्कर्ष वाक्य <span class='hl-red'>मुख्य सूत्र</span>."
+                    "exam_punch_line": "परीक्षेसाठी १ मुख्य अंतिम निष्कर्ष सूत्र <span class='hl-red'>महत्त्वाचा शब्द</span>."
                 }}
                 """
 
-                with st.spinner("✍️ AI शुद्ध मराठीत A4 Sheet तयार करत आहे..."):
+                with st.spinner("✍️ AI सोप्या मराठीत आणि इंग्रजी संदर्भांसह A4 Sheet तयार करत आहे..."):
                     try:
                         raw_json = ask_gemini(json_prompt, as_json=True)
                         clean_json = raw_json.strip()
@@ -650,7 +649,7 @@ with tab1:
                         a4_html = create_a4_handwritten_doc(sheet_data, subject, topic, is_marathi=is_marathi)
 
                         st.balloons()
-                        st.success(f"✅ शुद्ध मराठीत A4 Sheet तयार झाली आहे! (अपेक्षित गुण: {sheet_data.get('exam_marks')})")
+                        st.success(f"✅ सोप्या मराठी व इंग्रजी संदर्भांसह A4 Sheet तयार झाली आहे! (अपेक्षित गुण: {sheet_data.get('exam_marks')})")
 
                         st.components.v1.html(a4_html, height=1250, scrolling=True)
 
@@ -662,7 +661,7 @@ with tab1:
                 You are a senior Ayurveda Acharya according to NCISM standards.
                 Academic Level: {bams_year}, Subject: {subject}, Study Mode: {study_mode}, Topic: {topic}, Language: {language_preference}.
                 Generate tailored, high-yield study material strictly aligned with '{study_mode}'.
-                - If Marathi is selected, use 100% pure Marathi/Sanskrit without English words.
+                - Use natural, simple spoken Marathi with helpful English terms in brackets for key medical points.
                 - Format Sanskrit Shlokas inside blockquotes (> "Shloka").
                 - Bold all key terms.
                 """
@@ -703,7 +702,7 @@ with tab2:
         else:
             with st.spinner(f"🔬 AI तज्ज्ञ '{medicine_name}' ची निर्माण पद्धत तयार करत आहे..."):
                 try:
-                    med_prompt = f"Explain manufacturing of {medicine_name} ({dosage_form}) in {m_lang} with ingredients table, purification, and steps."
+                    med_prompt = f"Explain manufacturing of {medicine_name} ({dosage_form}) in simple spoken {m_lang} with ingredients table, purification, and steps."
                     res_text = ask_gemini(med_prompt)
                     st.success("✅ माहिती तयार झाली आहे!")
                     st.markdown(res_text)
@@ -716,3 +715,4 @@ st.markdown("""
     🌿 <strong>AyurVeda AI Handwritten Studio</strong> | Developed by <strong>Avishkar Alase</strong>
 </div>
 """, unsafe_allow_html=True)
+
