@@ -16,7 +16,7 @@ st.set_page_config(
 # --- Base Theme & Mobile Clean UI ---
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Mukta:wght@400;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Mukta:wght@400;600;700;800;900&display=swap');
 
     html, body, .stApp {
         background-color: #f4f6f8 !important;
@@ -118,7 +118,7 @@ def ask_gemini(prompt, as_json=False):
     raise RuntimeError("गुगल सर्व्हर व्यस्त आहे. कृपया पुन्हा प्रयत्न करा.")
 
 # =========================================================================
-# सुवाच्य आणि सरळ (Upright Clean Hand-Font) A4 HTML Generator
+# सुवाच्य, बोल्ड हेडिंग A4 HTML Generator
 # =========================================================================
 def create_a4_handwritten_doc(data, subject_name, topic_name):
     marks = data.get("exam_marks", "10 Marks - LAQ")
@@ -169,8 +169,7 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
         <title>{topic_name} - A4 Handwritten Notes</title>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
         <style>
-            /* सुवाच्य, सरळ आणि स्पष्ट फॉन्ट्स: इंग्रजीसाठी Architects Daughter आणि मराठीसाठी Mukta */
-            @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Mukta:wght@500;600;700;800&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Mukta:wght@500;600;700;800;900&display=swap');
 
             body {{
                 background-color: #e2e8f0;
@@ -210,13 +209,13 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
                 box-shadow: 0 10px 30px rgba(0,0,0,0.15);
                 padding: 30px 34px;
                 box-sizing: border-box;
-                color: #123060; /* Realistic Neat Blue Ballpen Ink */
+                color: #123060;
                 position: relative;
                 font-style: normal !important;
                 letter-spacing: 0.2px;
             }}
 
-            /* RED TEXT HIGHLIGHTER - Clean and Sharp */
+            /* RED TEXT HIGHLIGHTER */
             .hl-red {{
                 background-color: #ffe4e6 !important;
                 color: #b91c1c !important;
@@ -236,16 +235,27 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
                 padding-bottom: 10px;
                 margin-bottom: 14px;
             }}
+            
+            /* EXTRA BOLD & PROMINENT MAIN TITLE */
             .title-box {{
-                border: 2px solid #123060;
-                border-radius: 10px;
-                padding: 6px 16px;
-                font-size: 21px;
-                font-weight: 700;
+                border: 2.5px solid #123060;
+                border-radius: 12px;
+                padding: 10px 18px;
+                font-size: 24px;
+                font-weight: 900 !important;
                 width: 68%;
                 text-align: center;
                 background: #ffffff;
+                color: #0a1f42 !important;
+                box-shadow: 0 2px 8px rgba(18, 48, 96, 0.08);
             }}
+            .title-box span {{
+                border-bottom: 3px double #123060;
+                padding-bottom: 2px;
+                display: inline-block;
+                letter-spacing: 0.5px;
+            }}
+
             .marks-tag-box {{
                 border: 2px solid #123060;
                 border-radius: 8px;
@@ -275,7 +285,7 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
                 border-radius: 14px;
                 padding: 2px 12px;
                 font-size: 17px;
-                font-weight: 700;
+                font-weight: 800;
                 margin-bottom: 6px;
                 background: #ffffff;
             }}
@@ -389,10 +399,10 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
         </div>
 
         <div class="a4-paper" id="a4Canvas">
-            <!-- Header with Topic & Marks -->
+            <!-- Header with Extra Bold Main Topic & Marks -->
             <div class="header-grid">
                 <div class="title-box">
-                    <u>{title}</u>
+                    <span>{title}</span>
                 </div>
                 <div class="marks-tag-box">
                     <b>{subject_name}</b><br>
@@ -479,7 +489,7 @@ with tab1:
     st.markdown("""
     <div class="hero-banner">
         <h3 style="margin:0 0 6px 0;">🎯 BAMS A4 बॉलपेन Handwritten नोट्स</h3>
-        <p style="margin:0; font-size:13.5px; opacity:0.95;">सरळ, स्वच्छ आणि सुवाच्य अक्षरे (Clean Straight Hand-Font), महत्वाच्या शब्दांना <b>Red Highlight</b>, फ्लोचार्ट आणि गुण (Marks Weightage).</p>
+        <p style="margin:0; font-size:13.5px; opacity:0.95;">ठळक मुख्य हेडिंग (Extra Bold Title), सरळ सुवाच्य अक्षरे, महत्वाच्या शब्दांना <b>Red Highlight</b>, फ्लोचार्ट आणि गुण (Marks Weightage).</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -602,7 +612,7 @@ with tab1:
                 }}
                 """
 
-                with st.spinner("✍️ AI सरळ आणि सुवाच्य हस्ताक्षरात A4 Sheet तयार करत आहे..."):
+                with st.spinner("✍️ AI ठळक हेडिंगसह A4 Sheet तयार करत आहे..."):
                     try:
                         raw_json = ask_gemini(json_prompt, as_json=True)
                         clean_json = raw_json.strip()
@@ -614,7 +624,7 @@ with tab1:
                         a4_html = create_a4_handwritten_doc(sheet_data, subject, topic)
 
                         st.balloons()
-                        st.success(f"✅ स्पष्ट आणि सुवाच्य A4 Sheet तयार झाली आहे! (अपेक्षित गुण: {sheet_data.get('exam_marks')})")
+                        st.success(f"✅ ठळक हेडिंगसह A4 Sheet तयार झाली आहे! (अपेक्षित गुण: {sheet_data.get('exam_marks')})")
 
                         st.components.v1.html(a4_html, height=1250, scrolling=True)
 
