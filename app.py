@@ -7,140 +7,184 @@ import markdown
 
 # --- Page Setup ---
 st.set_page_config(
-    page_title="AyurVeda AI | Avishkar Alase",
-    page_icon="🌿",
+    page_title="AyurVeda AI | गणेशोत्सव विशेष पर्व",
+    page_icon="🌺",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# --- Ultra-Premium Glassmorphism Theme & Micro-Animations ---
+# --- GANESHOTSAV ROYAL GOLDEN & FESTIVE CSS ANIMATIONS ---
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Mukta:wght@400;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Mukta:wght@400;600;700;800;900&display=swap');
 
-    /* Global Theme */
+    /* 1. Festive Background with Floating Aura */
     html, body, .stApp {
-        background: radial-gradient(circle at 10% 20%, #f0fdf4 0%, #f8fafc 50%, #ecfdf5 100%) !important;
-        font-family: 'Plus Jakarta Sans', 'Mukta', sans-serif !important;
-        color: #0f172a !important;
+        background: radial-gradient(circle at 50% 0%, #fffbeb 0%, #fef3c7 25%, #fdfcf7 60%, #fff7ed 100%) !important;
+        background-attachment: fixed !important;
+        font-family: 'Mukta', 'Plus Jakarta Sans', sans-serif !important;
+        color: #1e1b4b !important;
+        overflow-x: hidden;
+    }
+
+    /* 2. Floating Festive Diya & Flower Glow Animation */
+    @keyframes flowerFall {
+        0% { transform: translateY(-10px) rotate(0deg); opacity: 0.8; }
+        50% { transform: translateY(15px) rotate(15deg); opacity: 1; }
+        100% { transform: translateY(-10px) rotate(0deg); opacity: 0.8; }
+    }
+
+    @keyframes goldPulse {
+        0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6); }
+        70% { box-shadow: 0 0 0 18px rgba(245, 158, 11, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+    }
+
+    @keyframes divineShimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
     }
 
     label, p, span, div, h1, h2, h3 {
-        color: #0f172a !important;
+        color: #1e1b4b !important;
     }
 
-    /* Floating Inputs with Smooth Focus */
-    div[data-baseweb="select"] > div,
-    div[data-baseweb="input"] > div {
-        background-color: rgba(255, 255, 255, 0.9) !important;
-        border: 1.5px solid #cbd5e1 !important;
-        border-radius: 14px !important;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02) !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    }
-    div[data-baseweb="select"] > div:hover,
-    div[data-baseweb="input"] > div:hover {
-        border-color: #10b981 !important;
-        box-shadow: 0 4px 16px rgba(16, 185, 129, 0.15) !important;
-        transform: translateY(-1px);
-    }
-
-    /* Top Premium Navbar */
-    .premium-navbar {
+    /* 3. Golden Luxury Floating Navbar */
+    .ganesha-navbar {
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 14px 22px;
-        background: rgba(255, 255, 255, 0.85) !important;
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1.5px solid rgba(255, 255, 255, 0.8);
-        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.9) !important;
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border: 2px solid #fde68a !important;
+        border-radius: 24px;
         margin-bottom: 22px;
-        box-shadow: 0 10px 30px -10px rgba(5, 150, 105, 0.15);
+        box-shadow: 0 12px 35px -8px rgba(217, 119, 6, 0.2);
+    }
+    .brand-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .diya-icon {
+        font-size: 28px;
+        animation: flowerFall 3.5s ease-in-out infinite;
     }
     .brand-title {
-        font-size: 19px;
+        font-size: 21px;
         font-weight: 900;
-        background: linear-gradient(135deg, #064e3b 0%, #059669 100%);
+        background: linear-gradient(135deg, #b45309 0%, #ea580c 50%, #d97706 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         margin: 0;
         letter-spacing: -0.5px;
     }
     .vip-badge {
-        background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%) !important;
-        border: 1.5px solid #6ee7b7;
-        padding: 6px 16px;
-        border-radius: 12px;
-        font-size: 13px;
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important;
+        border: 1.5px solid #f59e0b;
+        padding: 8px 18px;
+        border-radius: 14px;
+        font-size: 13.5px;
         font-weight: 800;
-        color: #064e3b !important;
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
-        transition: transform 0.2s ease;
+        color: #92400e !important;
+        box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: transform 0.25s ease;
     }
     .vip-badge:hover {
-        transform: scale(1.04);
+        transform: scale(1.05) rotate(1deg);
     }
 
-    /* Hero Banner with Modern Mesh */
-    .hero-banner {
-        background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #065f46 100%) !important;
+    /* 4. Royal Festive Hero Banner */
+    .ganesha-hero {
+        background: linear-gradient(135deg, #b45309 0%, #c2410c 45%, #991b1b 100%) !important;
         padding: 26px 24px;
-        border-radius: 22px;
+        border-radius: 24px;
         margin-bottom: 24px;
         color: #ffffff !important;
-        box-shadow: 0 16px 36px -10px rgba(4, 120, 87, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    .hero-banner * { color: #ffffff !important; }
-
-    /* Button Micro-Animations */
-    div.stButton > button {
-        background: linear-gradient(135deg, #059669 0%, #047857 50%, #064e3b 100%) !important;
-        color: #ffffff !important;
-        border: none !important;
-        border-radius: 16px !important;
-        padding: 16px 32px !important;
-        font-size: 16.5px !important;
-        font-weight: 800 !important;
-        letter-spacing: 0.3px !important;
-        box-shadow: 0 10px 28px -4px rgba(5, 150, 105, 0.45) !important;
-        cursor: pointer !important;
-        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 0 18px 40px -10px rgba(180, 83, 9, 0.45);
+        border: 2px solid #fef08a;
         position: relative;
         overflow: hidden;
     }
-    div.stButton > button:hover {
-        transform: translateY(-3px) scale(1.015) !important;
-        box-shadow: 0 16px 32px -4px rgba(5, 150, 105, 0.55) !important;
-    }
-    div.stButton > button:active {
-        transform: translateY(1px) scale(0.97) !important;
-        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3) !important;
+    .ganesha-hero * { color: #ffffff !important; }
+    .festive-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 255, 255, 0.22);
+        padding: 5px 14px;
+        border-radius: 30px;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        margin-bottom: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.35);
     }
 
-    /* Tabs Styling */
+    /* 5. Inputs with Golden Glow on Focus */
+    div[data-baseweb="select"] > div,
+    div[data-baseweb="input"] > div {
+        background-color: rgba(255, 255, 255, 0.95) !important;
+        border: 2px solid #fed7aa !important;
+        border-radius: 16px !important;
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.04) !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    div[data-baseweb="select"] > div:hover,
+    div[data-baseweb="input"] > div:hover {
+        border-color: #f59e0b !important;
+        box-shadow: 0 6px 20px rgba(245, 158, 11, 0.25) !important;
+        transform: translateY(-2px);
+    }
+
+    /* 6. Kesari Gold Animated Button with Ripple Scale */
+    div.stButton > button {
+        background: linear-gradient(135deg, #ea580c 0%, #d97706 50%, #b45309 100%) !important;
+        color: #ffffff !important;
+        border: 2px solid #fde68a !important;
+        border-radius: 18px !important;
+        padding: 17px 36px !important;
+        font-size: 17px !important;
+        font-weight: 900 !important;
+        letter-spacing: 0.4px !important;
+        box-shadow: 0 12px 30px -4px rgba(234, 88, 12, 0.5) !important;
+        cursor: pointer !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        animation: goldPulse 2.5s infinite;
+    }
+    div.stButton > button:hover {
+        transform: translateY(-3px) scale(1.02) !important;
+        box-shadow: 0 18px 40px -4px rgba(234, 88, 12, 0.7) !important;
+    }
+    div.stButton > button:active {
+        transform: translateY(2px) scale(0.96) !important;
+        box-shadow: 0 4px 14px rgba(234, 88, 12, 0.3) !important;
+    }
+
+    /* 7. Festive Tabs */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 12px;
-        margin-bottom: 22px;
+        gap: 14px;
+        margin-bottom: 24px;
     }
     .stTabs [data-baseweb="tab"] {
-        background-color: rgba(255, 255, 255, 0.8) !important;
-        border-radius: 14px !important;
-        padding: 12px 24px !important;
+        background-color: rgba(255, 255, 255, 0.85) !important;
+        border-radius: 16px !important;
+        padding: 13px 26px !important;
         font-weight: 800 !important;
-        border: 1.5px solid #cbd5e1 !important;
+        border: 1.5px solid #fed7aa !important;
         transition: all 0.25s ease !important;
     }
-    .stTabs [data-baseweb="tab"]:hover {
-        border-color: #10b981 !important;
-    }
     .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, #064e3b 0%, #059669 100%) !important;
-        border-color: #059669 !important;
+        background: linear-gradient(135deg, #b45309 0%, #ea580c 100%) !important;
+        border-color: #ea580c !important;
         color: #ffffff !important;
-        box-shadow: 0 8px 20px rgba(5, 150, 105, 0.25) !important;
+        box-shadow: 0 8px 22px rgba(234, 88, 12, 0.3) !important;
+        transform: scale(1.02);
     }
     .stTabs [aria-selected="true"] * {
         color: #ffffff !important;
@@ -148,10 +192,10 @@ st.markdown("""
 
     .app-footer {
         text-align: center;
-        padding: 35px 10px 15px 10px;
+        padding: 40px 10px 15px 10px;
         font-size: 13.5px;
-        color: #64748b !important;
-        font-weight: 600;
+        color: #92400e !important;
+        font-weight: 700;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -165,7 +209,7 @@ if not api_key:
 client = genai.Client(api_key=api_key)
 
 # =========================================================================
-# STABLE GEMINI CALLER (Updated Models & Auto-Fallback)
+# STABLE GEMINI CALLER (Auto-Fallback Models)
 # =========================================================================
 @st.cache_data(show_spinner=False, ttl=86400)
 def cached_ask_gemini(prompt: str, as_json: bool = False):
@@ -201,11 +245,11 @@ def create_a4_handwritten_doc(data, subject_name, topic_name, is_marathi=True):
     t1 = data.get("entity_1", {})
     t2 = data.get("entity_2", {})
     
-    # 100% Strict Dynamic UI Headers
+    # 100% Strict Dynamic Headers
     lbl_flowchart = "संप्राप्ती प्रवाह तक्ता (फ्लोचार्ट)" if is_marathi else "Pathogenesis / Samprapti Flowchart"
     lbl_exam_points = "परीक्षेसाठी महत्त्वाचे मुद्दे:" if is_marathi else "High-Yield Exam Points:"
     lbl_clinical = "लक्षणे, विकार व चिकित्सा:" if is_marathi else "Clinical / Systemic Features:"
-    lbl_key_concept = "★ मुख्य संकल्पना (की-कॉन्सेप्ट):" if is_marathi else "★ Key Exam Concept:"
+    lbl_key_concept = "★ मुख्य संकल्पना:" if is_marathi else "★ Key Exam Concept:"
     lbl_modern = "★ आधुनिक वैद्यकीय सांगड:" if is_marathi else "★ Contemporary / Modern Link:"
     lbl_table = "★ परीक्षा तुलनात्मक तक्ता:" if is_marathi else "★ Quick Exam Comparison Table:"
     lbl_feature = "मुद्दा / लक्षण" if is_marathi else "Feature"
@@ -260,7 +304,7 @@ def create_a4_handwritten_doc(data, subject_name, topic_name, is_marathi=True):
             @import url('https://fonts.googleapis.com/css2?family=Mukta:wght@500;600;700;800;900&family=Architects+Daughter&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
 
             body {{
-                background-color: #e2e8f0;
+                background-color: #f1f5f9;
                 margin: 0;
                 padding: 20px 10px;
                 display: flex;
@@ -270,7 +314,6 @@ def create_a4_handwritten_doc(data, subject_name, topic_name, is_marathi=True):
                 -webkit-font-smoothing: antialiased;
             }}
 
-            /* Action Buttons with Interactive Click Micro-Animation */
             .action-bar {{
                 margin-bottom: 22px;
                 display: flex;
@@ -302,16 +345,15 @@ def create_a4_handwritten_doc(data, subject_name, topic_name, is_marathi=True):
                 width: 794px;
                 min-height: 1123px;
                 background: #ffffff;
-                border: 2px solid #0f2b5c;
+                border: 2.5px solid #0f2b5c;
                 box-shadow: 0 12px 35px rgba(0,0,0,0.15);
                 padding: 30px 34px;
                 box-sizing: border-box;
-                color: #123060; /* Authentic Blue Ballpen */
+                color: #123060; /* Realistic Blue Ballpen */
                 position: relative;
                 letter-spacing: 0.1px;
             }}
 
-            /* Red Background Text Highlighter */
             .hl-red {{
                 background-color: #ffe4e6 !important;
                 color: #b91c1c !important;
@@ -322,7 +364,6 @@ def create_a4_handwritten_doc(data, subject_name, topic_name, is_marathi=True):
                 display: inline-block;
             }}
 
-            /* Header Section */
             .header-grid {{
                 display: flex;
                 justify-content: space-between;
@@ -358,7 +399,6 @@ def create_a4_handwritten_doc(data, subject_name, topic_name, is_marathi=True):
                 background: #ffffff;
             }}
 
-            /* 2 Columns Layout */
             .dual-grid {{
                 display: flex;
                 gap: 16px;
@@ -391,7 +431,6 @@ def create_a4_handwritten_doc(data, subject_name, topic_name, is_marathi=True):
                 background: #ffffff;
             }}
 
-            /* Flowchart Boxes */
             .box-step {{
                 border: 1.5px solid #123060;
                 border-radius: 8px;
@@ -418,7 +457,6 @@ def create_a4_handwritten_doc(data, subject_name, topic_name, is_marathi=True):
                 background: #ffffff;
             }}
 
-            /* Lists */
             ul.hw-list {{
                 margin: 6px 0 10px 0;
                 padding-left: 18px;
@@ -427,7 +465,6 @@ def create_a4_handwritten_doc(data, subject_name, topic_name, is_marathi=True):
             }}
             ul.hw-list li {{ margin-bottom: 5px; }}
 
-            /* Key Concept & Exam line */
             .key-concept-box {{
                 border: 1.5px dashed #123060;
                 border-radius: 10px;
@@ -445,7 +482,6 @@ def create_a4_handwritten_doc(data, subject_name, topic_name, is_marathi=True):
                 margin: 10px 0 6px 0;
             }}
 
-            /* Table */
             .hw-table {{
                 width: 100%;
                 border-collapse: collapse;
@@ -559,12 +595,17 @@ def create_a4_handwritten_doc(data, subject_name, topic_name, is_marathi=True):
 
 # --- Top Navigation Bar ---
 st.markdown("""
-<div class="premium-navbar">
-    <div>
-        <div class="brand-title">🌿 AyurVeda AI</div>
-        <small style="color:#059669; font-weight:800; letter-spacing:0.5px;">NCISM BAMS A4 HANDWRITTEN STUDIO</small>
+<div class="ganesha-navbar">
+    <div class="brand-group">
+        <div class="diya-icon">🪔</div>
+        <div>
+            <div class="brand-title">🌿 AyurVeda AI</div>
+            <small style="color:#b45309; font-weight:800; letter-spacing:0.5px;">गणेशोत्सव विशेष पर्व | BAMS HANDWRITTEN STUDIO</small>
+        </div>
     </div>
-    <div class="vip-badge">Avishkar Alase ✓</div>
+    <div class="vip-badge">
+        <span>Avishkar Alase</span> <span style="background:#ea580c; color:white; border-radius:50%; width:15px; height:15px; display:inline-flex; align-items:center; justify-content:center; font-size:9px;">✓</span>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -579,9 +620,10 @@ tab1, tab2 = st.tabs([
 # =========================================================================
 with tab1:
     st.markdown("""
-    <div class="hero-banner">
-        <h3 style="margin:0 0 6px 0; font-weight:800;">🎯 BAMS A4 बॉलपेन Handwritten नोट्स</h3>
-        <p style="margin:0; font-size:13.5px; opacity:0.95;">ठळक मुख्य हेडिंग, सुवाच्य अक्षरे, महत्वाच्या शब्दांना <b>Red Highlight</b>, फ्लोचार्ट आणि परीक्षेतील गुण (Marks Weightage).</p>
+    <div class="ganesha-hero">
+        <div class="festive-tag">🌺 ॥ श्री गणेशाय नमः ॥ 🌺</div>
+        <h3 style="margin:0 0 8px 0; font-weight:900; font-size:24px;">🎯 BAMS A4 बॉलपेन Handwritten नोट्स</h3>
+        <p style="margin:0; font-size:14px; opacity:0.95;">बुद्धीची देवता गणपती बाप्पाच्या आशीर्वादाने परिपूर्ण परीक्षा नोट्स: ठळक हेडिंग, महत्वाच्या शब्दांना <b>Red Highlight</b> आणि अचूक फ्लोचार्ट.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -642,7 +684,7 @@ with tab1:
 
     topic = st.text_input(
         "🔍 अभ्यासाचा विषय / प्रश्न टाका:",
-        placeholder="उदा. Pitta Dosha Swaroopa, Garavisha vs Dooshivisha, किंवा Ashwagandha"
+        placeholder="उदा. Pitta Dosha, Garavisha vs Dooshivisha, किंवा Ashwagandha"
     )
 
     generate_notes_btn = st.button("🚀 सविस्तर अभ्यास नोट्स तयार करा", key="btn_notes", use_container_width=True)
@@ -664,13 +706,12 @@ with tab1:
                     """
                 else:
                     lang_rule = """
-                    STRICT LANGUAGE INSTRUCTION (100% ENGLISH):
-                    - The user chose 'Simple Indian English + Sanskrit'.
-                    - You MUST write the ENTIRE response strictly in ENGLISH (using Roman script).
-                    - DO NOT use Devanagari script (मराठी/हिंदी लिपी) anywhere in flowchart, steps, table, or points!
-                    - Flowchart steps MUST start with 'Step 1:', 'Step 2:', 'Final:' (NOT 'पायरी १', 'अंतिम').
-                    - Sanskrit terms should be written in English transliteration (e.g. 'Ushna', 'Tikshna', 'Pitta Prakopa', 'Rakta Dhatu', 'Pachaka Pitta', 'Virechana').
-                    - All headings, explanations, tables, and notes must be 100% in simple English.
+                    STRICT ZERO-MARATHI INSTRUCTION (100% PURE ENGLISH):
+                    - The student has selected 'Simple Indian English + Sanskrit'.
+                    - ABSOLUTELY DO NOT WRITE ANY MARATHI/DEVANAGARI WORDS OR SCRIPTS ANYWHERE IN THE JSON!
+                    - Every single word in the flowchart ('Step 1:', 'Step 2:', 'Final:'), definitions, tables, points, and punch line MUST be in ENGLISH.
+                    - Write Sanskrit terms purely in English Roman transliteration (e.g. 'Pitta Prakopa', 'Ushna-Tikshna Guna', 'Rakta Dhatu', 'Pachaka Pitta', 'Virechana').
+                    - Marks must be written as '10 Marks - LAQ' or '5 Marks - SAQ'.
                     """
 
                 json_prompt = f"""
@@ -687,12 +728,12 @@ with tab1:
 
                 RED HIGHLIGHT INSTRUCTION:
                 - Wrap all crucial medical keywords, cardinal symptoms, important drugs, or main mechanisms inside `<span class="hl-red">...</span>` so they get a red background highlight!
-                Example: `<span class="hl-red">Ushna-Tikshna Guna</span>`, `<span class="hl-red">Rakta Dhatu</span>`, `<span class="hl-red">Virechana Shodhana</span>`.
+                Example: `<span class="hl-red">{'उष्ण-तीक्ष्ण' if is_marathi else 'Ushna-Tikshna'}</span>`, `<span class="hl-red">{'रक्त धातू' if is_marathi else 'Rakta Dhatu'}</span>`.
                 
                 Return ONLY valid JSON matching this schema:
                 {{
                     "exam_marks": "{'१० गुण - दीर्घोत्तरी (LAQ)' if is_marathi else '10 Marks - LAQ'}",
-                    "main_heading": "{'मराठीत मुख्य शीर्षक (Topic in Marathi + English Terms)' if is_marathi else 'Crisp Topic Title in English'}",
+                    "main_heading": "{'मराठीत मुख्य शीर्षक' if is_marathi else 'Clean Topic Title strictly in English'}",
                     "include_flowchart": true or false,
                     "flowchart_steps": [
                         "{'पायरी १: हेतू सेवन' if is_marathi else 'Step 1: Intake of Nidana / Causes'} with <span class='hl-red'>keyword</span>",
@@ -702,7 +743,7 @@ with tab1:
                     ],
                     "entity_1": {{
                         "title": "{'संकल्पना १' if is_marathi else 'Concept 1 Title in English'}",
-                        "definition": "1-2 lines simple definition with <span class='hl-red'>keyword</span>",
+                        "definition": "{'१-२ ओळींची साधी व्याख्या' if is_marathi else '1-2 lines clean definition in English'} with <span class='hl-red'>keyword</span>",
                         "key_points": [
                             "Point 1 with <span class='hl-red'>vital keyword</span>",
                             "Point 2",
@@ -712,7 +753,7 @@ with tab1:
                     }},
                     "entity_2": {{
                         "title": "{'संकल्पना २' if is_marathi else 'Concept 2 Title in English'}",
-                        "definition": "1-2 lines simple definition with <span class='hl-red'>keyword</span>",
+                        "definition": "{'१-२ ओळींची साधी व्याख्या' if is_marathi else '1-2 lines clean definition in English'} with <span class='hl-red'>keyword</span>",
                         "key_points": [
                             "Point 1 with <span class='hl-red'>vital keyword</span>",
                             "Point 2",
@@ -725,7 +766,7 @@ with tab1:
                         {{"feature": "{'प्रधान लक्षणे' if is_marathi else 'Clinical Signs'}", "point_1": "<span class='hl-red'>...</span>", "point_2": "<span class='hl-red'>...</span>"}},
                         {{"feature": "{'चिकित्सा उपक्रम' if is_marathi else 'Line of Treatment'}", "point_1": "<span class='hl-red'>...</span>", "point_2": "<span class='hl-red'>...</span>"}}
                     ],
-                    "exam_punch_line": "1 memorable summary sentence with <span class='hl-red'>core punch</span>."
+                    "exam_punch_line": "{'परीक्षेसाठी १ मुख्य अंतिम निष्कर्ष सूत्र' if is_marathi else '1 memorable summary sentence strictly in English'} with <span class='hl-red'>core punch</span>."
                 }}
                 """
 
@@ -771,9 +812,10 @@ with tab1:
 # =========================================================================
 with tab2:
     st.markdown("""
-    <div class="hero-banner" style="background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%) !important;">
-        <h3 style="margin:0 0 6px 0; font-weight:800;">🧪 रसशास्त्र व भैषज्य कल्पना स्पेशल</h3>
-        <p style="margin:0; font-size:13.5px; opacity:0.95;">आयुर्वेदिक औषध घटक व सविस्तर निर्माण विधी सोप्या स्टेप्समध्ये शिका.</p>
+    <div class="ganesha-hero" style="background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%) !important; border-color: #5eead4;">
+        <div class="festive-tag" style="background: rgba(255,255,255,0.18);">🌿 रसौषधी विधी</div>
+        <h3 style="margin:0 0 8px 0; font-weight:900; font-size:24px;">🧪 रसशास्त्र व भैषज्य कल्पना स्पेशल</h3>
+        <p style="margin:0; font-size:14px; opacity:0.95;">आयुर्वेदिक औषध घटक व सविस्तर निर्माण विधी सोप्या स्टेप्समध्ये शिका.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -794,7 +836,7 @@ with tab2:
         else:
             with st.spinner(f"🔬 AI तज्ज्ञ '{medicine_name}' ची निर्माण पद्धत तयार करत आहे..."):
                 try:
-                    med_prompt = f"Explain manufacturing of {medicine_name} ({dosage_form}) in {m_lang} with ingredients table, purification, and steps."
+                    med_prompt = f"Explain manufacturing of {medicine_name} ({dosage_form}) in simple spoken {m_lang} with ingredients table, purification, and steps."
                     res_text = cached_ask_gemini(med_prompt, as_json=False)
                     st.success("✅ माहिती तयार झाली आहे!")
                     st.markdown(res_text)
@@ -804,6 +846,6 @@ with tab2:
 # --- Footer ---
 st.markdown("""
 <div class="app-footer">
-    🌿 <strong>AyurVeda AI Handwritten Studio</strong> | Developed by <strong>Avishkar Alase</strong>
+    🌺 ॥ गणपती बाप्पा मोरया ॥ 🌿 <strong>AyurVeda AI</strong> | Developed by <strong>Avishkar Alase</strong>
 </div>
 """, unsafe_allow_html=True)
