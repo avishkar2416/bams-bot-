@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- Ultra-Futuristic Design & Button/Card Animations ---
+# --- Ultra-Futuristic Design & Button Animations ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700;800&display=swap');
@@ -136,6 +136,12 @@ st.markdown("""
         animation: shineSweep 3.8s ease-in-out infinite;
     }
 
+    .vip-creator-card:hover {
+        transform: translateY(-2px) scale(1.03);
+        border-color: #34d399;
+        box-shadow: 0 8px 25px rgba(5, 150, 105, 0.25);
+    }
+
     .vip-avatar {
         width: 34px;
         height: 34px;
@@ -172,7 +178,6 @@ st.markdown("""
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);
     }
 
     /* Tabs Styling */
@@ -186,7 +191,6 @@ st.markdown("""
         padding: 12px 22px !important;
         font-weight: 800 !important;
         border: 1.5px solid #cbd5e1 !important;
-        transition: all 0.25s ease !important;
     }
     .stTabs [aria-selected="true"] {
         background: linear-gradient(135deg, #064e3b 0%, #059669 100%) !important;
@@ -205,9 +209,6 @@ st.markdown("""
         margin-bottom: 24px;
         box-shadow: 0 20px 45px -12px rgba(4, 120, 87, 0.45);
         border: 1px solid rgba(255, 255, 255, 0.2);
-        animation: cardEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-        position: relative;
-        overflow: hidden;
     }
     .hero-banner * {
         color: #ffffff !important;
@@ -221,7 +222,6 @@ st.markdown("""
         font-size: 11px;
         font-weight: 700;
         margin-bottom: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.25);
     }
     .hero-title {
         font-size: 26px;
@@ -232,7 +232,6 @@ st.markdown("""
         font-size: 13.8px;
         line-height: 1.6;
         opacity: 0.95;
-        margin: 0;
     }
 
     /* Control Panel Card */
@@ -254,7 +253,7 @@ st.markdown("""
         border-radius: 14px !important;
     }
 
-    /* ULTRA ANIMATED BUTTONS */
+    /* Buttons */
     div.stButton > button, div[data-testid="stDownloadButton"] > button {
         background: linear-gradient(135deg, #059669 0%, #047857 50%, #064e3b 100%) !important;
         color: #ffffff !important;
@@ -269,12 +268,7 @@ st.markdown("""
         cursor: pointer !important;
     }
 
-    div.stButton > button:hover, div[data-testid="stDownloadButton"] > button:hover {
-        transform: translateY(-3px) scale(1.01) !important;
-        box-shadow: 0 16px 38px -4px rgba(5, 150, 105, 0.6) !important;
-    }
-
-    /* Output Canvas Card */
+    /* Notes Box & Table Styling */
     .notes-box {
         background: #ffffff !important;
         border: 1px solid #e2e8f0;
@@ -284,23 +278,24 @@ st.markdown("""
         margin-top: 28px;
         line-height: 1.9;
     }
-    .notes-box h1 {
+    .notes-box table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin: 20px 0 !important;
+        border: 2px solid #064e3b !important;
+        border-radius: 10px !important;
+    }
+    .notes-box th {
+        background-color: #ecfdf5 !important;
         color: #064e3b !important;
-        font-size: 25px;
-        font-weight: 800;
-        border-bottom: 2px solid #ecfdf5;
-        padding-bottom: 10px;
+        font-weight: 800 !important;
+        border: 1px solid #cbd5e1 !important;
+        padding: 12px 14px !important;
     }
-    .notes-box h2 {
-        color: #047857 !important;
-        font-size: 20px;
-        font-weight: 700;
-        margin-top: 26px;
-    }
-    .notes-box h3 {
-        color: #059669 !important;
-        font-size: 17px;
-        margin-top: 18px;
+    .notes-box td {
+        border: 1px solid #cbd5e1 !important;
+        padding: 10px 14px !important;
+        color: #0f172a !important;
     }
     .notes-box blockquote {
         background: #f0fdf4 !important;
@@ -308,10 +303,6 @@ st.markdown("""
         padding: 16px 24px;
         border-radius: 0 16px 16px 0;
         margin: 20px 0;
-    }
-    .notes-box blockquote * {
-        color: #065f46 !important;
-        font-weight: 600;
     }
 
     .app-footer {
@@ -333,12 +324,12 @@ if not api_key:
 
 client = genai.Client(api_key=api_key)
 
-# Helper function for safe model calling
+# Helper function for safe model calling (Flash First)
 def ask_gemini(system_prompt):
     models_to_try = [
+        'gemini-2.5-flash',
         'models/gemini-3.6-flash',
-        'models/gemini-2.5-pro',
-        'gemini-2.5-flash'
+        'models/gemini-2.5-pro'
     ]
     for model_name in models_to_try:
         try:
@@ -353,39 +344,68 @@ def ask_gemini(system_prompt):
             continue
     raise RuntimeError("गुगल सर्व्हर व्यस्त आहे. कृपया पुन्हा प्रयत्न करा.")
 
-# --- Printable Document Generator ---
-def create_printable_html_doc(title_tag, subtitle_info, raw_content):
-    html_content = markdown.markdown(raw_content, extensions=['extra', 'nl2br'])
+# --- Document Generator (With One-Click Image Download & PDF Print) ---
+def create_exportable_doc(title_tag, subtitle_info, raw_content):
+    html_content = markdown.markdown(raw_content, extensions=['extra', 'tables', 'nl2br'])
     return f"""
     <!DOCTYPE html>
     <html lang="mr">
     <head>
         <meta charset="UTF-8">
         <title>{title_tag} - AyurVeda Master Doc</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
-            body {{ font-family: 'Noto Sans Devanagari', 'Plus Jakarta Sans', Arial, sans-serif; line-height: 1.85; color: #1e293b; padding: 40px 24px; max-width: 860px; margin: auto; }}
-            .header-banner {{ background: linear-gradient(135deg, #064e3b 0%, #047857 100%); color: white; border-radius: 18px; padding: 26px 32px; margin-bottom: 35px; }}
-            .header-banner h2 {{ margin: 0 0 6px 0; color: #ffffff; font-size: 24px; }}
-            .header-banner p {{ margin: 0; font-size: 14px; color: #ffffff; }}
-            h1 {{ color: #064e3b; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }}
-            h2 {{ color: #047857; margin-top: 30px; font-size: 20px; }}
-            blockquote {{ background: #f0fdf4; border-left: 5px solid #10b981; margin: 20px 0; padding: 16px 22px; border-radius: 0 12px 12px 0; color: #065f46; font-weight: bold; }}
-            .print-btn {{ background: #059669; color: white; padding: 12px 28px; font-size: 15px; font-weight: 700; border: none; border-radius: 10px; cursor: pointer; }}
-            @media print {{ .no-print {{ display: none !important; }} }}
+            body {{ font-family: 'Noto Sans Devanagari', 'Plus Jakarta Sans', Arial, sans-serif; line-height: 1.85; color: #1e293b; padding: 30px 20px; max-width: 900px; margin: auto; background-color: #f8fafc; }}
+            .capture-area {{ background: #ffffff; padding: 35px 30px; border-radius: 20px; border: 1.5px solid #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }}
+            .header-banner {{ background: linear-gradient(135deg, #064e3b 0%, #047857 100%); color: white; border-radius: 16px; padding: 24px 28px; margin-bottom: 28px; }}
+            .header-banner h2 {{ margin: 0 0 6px 0; color: #ffffff; font-size: 24px; font-weight: 800; }}
+            .header-banner p {{ margin: 0; font-size: 13.5px; color: #ffffff; opacity: 0.95; }}
+            table {{ width: 100%; border-collapse: collapse; margin: 20px 0; border: 2px solid #064e3b; border-radius: 8px; overflow: hidden; }}
+            th, td {{ border: 1px solid #cbd5e1; padding: 10px 12px; text-align: left; }}
+            th {{ background-color: #ecfdf5; color: #064e3b; font-weight: bold; }}
+            blockquote {{ background: #f0fdf4; border-left: 5px solid #10b981; margin: 18px 0; padding: 14px 20px; color: #065f46; font-weight: bold; border-radius: 0 10px 10px 0; }}
+            
+            /* Action Buttons Bar */
+            .action-bar {{ display: flex; justify-content: center; gap: 14px; margin-bottom: 25px; flex-wrap: wrap; }}
+            .btn-img {{ background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: white; padding: 14px 24px; font-size: 15px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 6px 18px rgba(2, 132, 199, 0.35); }}
+            .btn-pdf {{ background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; padding: 14px 24px; font-size: 15px; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 6px 18px rgba(5, 150, 105, 0.35); }}
+            
+            @media print {{
+                .no-print {{ display: none !important; }}
+                body {{ padding: 0; background: #ffffff; }}
+                .capture-area {{ box-shadow: none; border: none; padding: 0; }}
+            }}
         </style>
     </head>
     <body>
-        <div class="no-print" style="text-align: center; margin-bottom: 30px;">
-            <button class="print-btn" onclick="window.print()">📥 थेट PDF सेव्ह करा / प्रिंट करा</button>
+        <div class="no-print action-bar">
+            <button class="btn-img" onclick="downloadAsImage()">📸 फोटो (Image / PNG) म्हणून सेव्ह करा</button>
+            <button class="btn-pdf" onclick="window.print()">📄 थेट PDF सेव्ह करा / प्रिंट करा</button>
         </div>
-        <div class="header-banner">
-            <h2>🌿 {title_tag}</h2>
-            <p>{subtitle_info}</p>
+
+        <div class="capture-area" id="notesCapture">
+            <div class="header-banner">
+                <h2>🌿 {title_tag}</h2>
+                <p>{subtitle_info}</p>
+            </div>
+            <div>{html_content}</div>
+            <p style="text-align:center; margin-top:40px; font-size:13px; color:#64748b; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+                🌿 <strong>AyurVeda AI</strong> | Developed by <strong>Avishkar Alase</strong>
+            </p>
         </div>
-        <div>{html_content}</div>
-        <p style="text-align:center; margin-top:50px; font-size:13px; color:#64748b;">🌿 <strong>AyurVeda AI</strong> | Developed by <strong>Avishkar Alase</strong></p>
-        <script>window.onload = function() {{ setTimeout(function() {{ window.print(); }}, 600); }};</script>
+
+        <script>
+            function downloadAsImage() {{
+                const element = document.getElementById('notesCapture');
+                html2canvas(element, {{ scale: 2, useCORS: true }}).then(canvas => {{
+                    const link = document.createElement('a');
+                    link.download = '{title_tag.replace(" ", "_")}_Notes.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                }});
+            }}
+        </script>
     </body>
     </html>
     """
@@ -409,7 +429,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- 2 Main Tabs: Notes vs Pharmacy/Manufacturing ---
+# --- 2 Main Tabs ---
 tab1, tab2 = st.tabs([
     "📖 BAMS स्टडी नोट्स (Syllabus Notes)",
     "🧪 औषध घटक व निर्माण विधी (Medicine & Manufacturing)"
@@ -423,7 +443,7 @@ with tab1:
     <div class="hero-banner">
         <div class="hero-tag">✨ NCISM Standard Study Matrix</div>
         <div class="hero-title">BAMS इंटेलिजंट स्टडी असिस्टंट</div>
-        <div class="hero-desc">अस्सल संहिता संदर्भ, अचूक संस्कृत श्लोक व अन्वय, मॉडर्न मेडिकल कोरिलेशन आणि हाय-स्कोरिंग क्लिनिकल नोट्स.</div>
+        <div class="hero-desc">अस्सल संहिता संदर्भ, टॉपर स्टाईल फ्लोचार्ट्स, संप्राप्ती चक्र, तुलनात्मक तक्ते आणि हमखास परीक्षेतील की-पॉइंट्स.</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -445,6 +465,7 @@ with tab1:
         subject = st.selectbox(
             "📚 विषय निवडा (Select Subject):",
             [
+                "Agada Tantra & Vyavahara Ayurveda (अगद तंत्र)",
                 "Kriya Sharir (क्रिया शारीर)",
                 "Rachana Sharir (रचना शारीर)",
                 "Dravyaguna Vijnana (द्रव्यगुण विज्ञान)",
@@ -456,8 +477,7 @@ with tab1:
                 "Shalya Tantra (शल्य तंत्र)",
                 "Shalakya Tantra (शालाक्य तंत्र)",
                 "Prasuti Tantra & Stri Roga (प्रसूति तंत्र व स्त्रीरोग)",
-                "Kaumarbhritya (कौमारभृत्य)",
-                "Agada Tantra & Vyavahara Ayurveda (अगद तंत्र)"
+                "Kaumarbhritya (कौमारभृत्य)"
             ]
         )
 
@@ -467,6 +487,7 @@ with tab1:
         study_mode = st.selectbox(
             "🎯 अभ्यासाचा प्रकार निवडा (Study Mode):",
             [
+                "📋 Topper Hand-written Chart & Table Notes (फ्लोचार्ट + तक्ता नोट्स)",
                 "📖 Comprehensive Notes (संपूर्ण सविस्तर अभ्यास नोट्स)",
                 "📜 Only Shlokas & Meanings (फक्त मूळ श्लोक, अन्वय व अर्थ)",
                 "📝 10-Mark LAQ Answer Format (दीर्घोत्तरी प्रश्न-उत्तर फॉरमॅट)",
@@ -478,14 +499,14 @@ with tab1:
     with row2_col2:
         language_preference = st.radio(
             "🌐 माध्यम (Language):",
-            ["मराठी (संस्कृत श्लोक + सोपा अर्थ + मॉडर्न टर्म्स)", "English + Sanskrit Shlokas"],
+            ["English + Sanskrit (फोटोमधील टॉपर स्टाईल)", "मराठी (संस्कृत श्लोक + सोपा अर्थ + मॉडर्न टर्म्स)"],
             horizontal=True,
             key="lang_notes"
         )
 
     topic = st.text_input(
         "🔍 अभ्यासाचा विषय / प्रश्न टाका:",
-        placeholder="उदा. Pitta Dosha types and functions, Ashwagandha pharmacology, किंवा Amavata Chikitsa"
+        placeholder="उदा. Role of Garavisha and Dooshivisha in Manifestation of Diseases किंवा Pitta Dosha Prakar"
     )
 
     generate_notes_btn = st.button("🚀 सविस्तर अभ्यास नोट्स तयार करा", key="btn_notes", use_container_width=True)
@@ -495,14 +516,49 @@ with tab1:
         if not topic.strip():
             st.warning("⚠️ कृपया अभ्यासाचा विषय किंवा प्रश्न प्रविष्ट करा.")
         else:
-            system_instruction = f"""
-            You are a senior Ayurveda Acharya and BAMS Exam Paper Evaluator according to NCISM standards.
-            Academic Level: {bams_year}, Subject: {subject}, Study Mode: {study_mode}, Topic: {topic}, Language: {language_preference}.
-            Generate tailored, high-yield study material strictly aligned with '{study_mode}'.
-            - Format Sanskrit Shlokas inside blockquotes (> "Shloka").
-            - Bold key terms.
-            - Follow authentic NCISM syllabus structure.
-            """
+            if "Topper Hand-written Chart" in study_mode:
+                system_instruction = f"""
+                You are a university topper and professor in Ayurveda (BAMS/MD).
+                Subject: {subject}
+                Topic: {topic}
+                Language: {language_preference}
+
+                Create study notes EXACTLY matching the handwritten topper note layout:
+                1. Main Title with Subject Tag:
+                   # 🌿 {topic}
+                   `{subject} | (BAMS / MD Exam Note)`
+                2. Two Core Entities / Concept Definition Boxes:
+                   - Clearly define entity ① and entity ②.
+                3. Pathogenesis / Samprapti Step-by-Step Flowchart:
+                   Present using clean text flow blocks with arrows:
+                   [Step 1: Nidana / Intake]
+                   ↓
+                   [Step 2: Agni Dushti]
+                   ↓
+                   [Step 3: Ama & Dosha Vitiation]
+                   ↓
+                   [Step 4: Srotodushti]
+                   ↓
+                   [Step 5: Manifestation of Disease]
+                4. Clinical Signs & Manifestations (Diseases / Lakshana):
+                   - Bulleted list categorized into Agnimandya, Twak Vikara, and Systemic.
+                5. Key Concept Box (> Blockquote)
+                6. Contemporary / Modern Correlation Box
+                7. Comparison Table (Difference in Disease Manifestation):
+                   | Feature | Entity 1 | Entity 2 |
+                   | :--- | :--- | :--- |
+                8. Exam Line / Punch Line: One memorable final exam sentence.
+                """
+            else:
+                system_instruction = f"""
+                You are a senior Ayurveda Acharya according to NCISM standards.
+                Academic Level: {bams_year}, Subject: {subject}, Study Mode: {study_mode}, Topic: {topic}, Language: {language_preference}.
+                Generate tailored, high-yield study material strictly aligned with '{study_mode}'.
+                - Format Sanskrit Shlokas inside blockquotes (> "Shloka").
+                - Bold key terms.
+                - Follow authentic NCISM syllabus structure.
+                """
+
             with st.spinner(f"⚡ AI आयुर्वेद तज्ज्ञ '{study_mode}' नुसार नोट्स तयार करत आहे..."):
                 try:
                     notes_text = ask_gemini(system_instruction)
@@ -513,11 +569,12 @@ with tab1:
                     st.markdown('</div>', unsafe_allow_html=True)
 
                     st.markdown("<br>", unsafe_allow_html=True)
-                    doc_html = create_printable_html_doc(topic, f"{bams_year} | {subject} | {study_mode}", notes_text)
+                    doc_export = create_exportable_doc(topic, f"{bams_year} | {subject} | {study_mode}", notes_text)
+                    
                     st.download_button(
-                        label="📥 सुंदर PDF / प्रिंट फॉरमॅट डाऊनलोड करा (.pdf)",
-                        data=doc_html.encode('utf-8'),
-                        file_name=f"{topic.replace(' ', '_')}_BAMS_Notes.html",
+                        label="📥 फोटो (Image) किंवा PDF सेव्ह करा (Download Suite)",
+                        data=doc_export.encode('utf-8'),
+                        file_name=f"{topic.replace(' ', '_')}_Export_Suite.html",
                         mime="text/html",
                         use_container_width=True
                     )
@@ -532,7 +589,7 @@ with tab2:
     <div class="hero-banner" style="background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%) !important;">
         <div class="hero-tag">🧪 रसशास्त्र व भैषज्य कल्पना स्पेशल</div>
         <div class="hero-title">आयुर्वेदिक औषध घटक व सविस्तर निर्माण विधी</div>
-        <div class="hero-desc">कोणतीही आयुर्वेदिक गोळी, वटी, चूर्ण, आसव-अरिष्ट, भस्म किंवा घृत कशापासून बनवले आहे आणि घरगुती/फार्मसीमध्ये कसे तयार करायचे ते सोप्या स्टेप्समध्ये शिका.</div>
+        <div class="hero-desc">कोणतीही आयुर्वेदिक गोळी, वटी, चूर्ण, आसव-अरिष्ट, भस्म किंवा घृत कशापासून बनवले आहे आणि कसे तयार करायचे ते सोप्या स्टेप्समध्ये शिका.</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -564,7 +621,7 @@ with tab2:
 
     medicine_name = st.text_input(
         "💊 गोळी किंवा औषधाचे नाव टाका:",
-        placeholder="उदा. आरोग्यवर्धिनी वटी, चंद्रप्रभावटी, सितोपलादी चूर्ण, त्रिभुवन कीर्ति रस, किंवा महामंजिष्ठादि काढा"
+        placeholder="उदा. आरोग्यवर्धिनी वटी, चंद्रप्रभावटी, सितोपलादी चूर्ण, किंवा त्रिभुवन कीर्ति रस"
     )
 
     generate_med_btn = st.button("🔬 औषध घटक व बनवण्याची पूर्ण कृती शिका", key="btn_med", use_container_width=True)
@@ -575,43 +632,21 @@ with tab2:
             st.warning("⚠️ कृपया औषधाचे नाव टाका.")
         else:
             med_prompt = f"""
-            You are a master Rasashastra and Bhaishajya Kalpana Acharya & Ayurvedic Pharmacologist.
+            You are a master Rasashastra and Bhaishajya Kalpana Acharya.
             Medicine: {medicine_name}
             Dosage Form: {dosage_form}
             Language: {m_lang}
 
-            Provide an exhaustive, practical, and highly detailed guide on how this medicine is formulated and manufactured:
-            
-            Structure strictly into:
-            # 🌿 {medicine_name} - घटक व परिपूर्ण निर्माण विधी
-
-            ## १. मूळ संदर्भ ग्रंथ आणि संदर्भ श्लोक (Classical Reference & Shloka)
-            - ग्रंथ (उदा. रसेंद्रसार संग्रह, शारंगधर संहिता, योगरत्नाकर इत्यादी)
-            - मूळ श्लोक blockquote मध्ये आणि त्याचा स्पष्ट अर्थ.
-
-            ## २. संपूर्ण घटक द्रव्ये व प्रमाण (Ingredients & Ratio Table)
-            - प्रत्येक घटक द्रव्याचे नाव (Sanskrit + Marathi)
-            - वापरलेला भाग (Root, Fruit, Shodhita Dhatu इत्यादी)
-            - अचूक प्रमाण / भाग (Parts / Ratio / Grams)
-            - भावना द्रव्ये (जर भावना दिली असेल तर)
-
-            ## ३. कच्चा माल शुद्धीकरण (Purification / Shodhana Procedure)
-            - या औषधात वापरलेले घटक (उदा. गुग्गुळ, पारद, गंधक, जयपाल, शिलाजित) कसे शुद्ध करावेत याची सविस्तर पूर्वतयारी.
-
-            ## ४. स्टेप-बाय-स्टेप निर्माण विधी (Step-by-Step Manufacturing Process)
-            - कृती १, कृती २, कृती ३ अशी अत्यंत सुटसुटीत आणि घरगुती किंवा प्रयोगशाळेत करता येईल अशी सोपी व अचूक पद्धत.
-            - मर्दन काळ (Mardan time), पाकाची वेळ आणि आवश्यक अग्नि (Mridu/Madhyam Agni).
-
-            ## ५. सिद्धी लक्षणे व गुणवत्ता चाचण्या (Purity Tests & Siddhi Lakshana)
-            - औषध परिपूर्ण तयार झाले हे ओळखण्याची लक्षणे (उदा. सुवर्णभस्म चाचण्या, वटीची हार्डनेस चाचणी).
-
-            ## ६. मात्रा (Dose), अनुपान (Anupana) व क्लिनिकल उपयोग
-            - रोगानुसार कोणासोबत द्यावे (मध, कोमट पाणी, दूध इत्यादी).
-            - मुख्य रोग अधिकार व फायदे.
-            - कोणी घेऊ नये (Contraindications & Precautions).
+            Provide an exhaustive, practical guide on how this medicine is formulated and manufactured:
+            1. Classical Reference & Shloka (blockquote)
+            2. Ingredients Table (Herb/Dhatu, Part, Ratio/Grams)
+            3. Raw Material Purification (Shodhana)
+            4. Step-by-Step Manufacturing (Mardan, Paka, Agni details)
+            5. Siddhi Lakshana & Quality Tests
+            6. Dose, Anupana & Clinical Uses
             """
 
-            with st.spinner(f"🔬 AI तज्ज्ञ '{medicine_name}' ची सविस्तर निर्माण पद्धत तयार करत आहे..."):
+            with st.spinner(f"🔬 AI तज्ज्ञ '{medicine_name}' ची निर्माण पद्धत तयार करत आहे..."):
                 try:
                     med_text = ask_gemini(med_prompt)
                     st.balloons()
@@ -622,11 +657,12 @@ with tab2:
                     st.markdown('</div>', unsafe_allow_html=True)
 
                     st.markdown("<br>", unsafe_allow_html=True)
-                    doc_html = create_printable_html_doc(f"{medicine_name} निर्माण विधी", f"{dosage_form} | Rasashastra & Bhaishajya Kalpana", med_text)
+                    doc_export = create_exportable_doc(f"{medicine_name} निर्माण विधी", f"{dosage_form} | Rasashastra", med_text)
+                    
                     st.download_button(
-                        label="📥 ही निर्माण कृती PDF मध्ये डाऊनलोड करा (.pdf)",
-                        data=doc_html.encode('utf-8'),
-                        file_name=f"{medicine_name.replace(' ', '_')}_Manufacturing_Guide.html",
+                        label="📥 फोटो (Image) किंवा PDF सेव्ह करा (Download Suite)",
+                        data=doc_export.encode('utf-8'),
+                        file_name=f"{medicine_name.replace(' ', '_')}_Manufacturing_Suite.html",
                         mime="text/html",
                         use_container_width=True
                     )
