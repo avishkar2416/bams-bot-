@@ -118,14 +118,13 @@ def ask_gemini(prompt, as_json=False):
     raise RuntimeError("गुगल सर्व्हर व्यस्त आहे. कृपया पुन्हा प्रयत्न करा.")
 
 # =========================================================================
-# अस्सल A4 Blue Ballpen Handwritten Sheet HTML Generator
+# अस्सल A4 Blue Ballpen + Red Highlighted Handwritten Sheet HTML Generator
 # =========================================================================
 def create_a4_handwritten_doc(data, subject_name, topic_name):
     marks = data.get("exam_marks", "10 Marks - LAQ")
     title = data.get("main_heading", topic_name)
     has_flowchart = data.get("include_flowchart", True)
     
-    # Left Column
     t1 = data.get("entity_1", {})
     t2 = data.get("entity_2", {})
     
@@ -175,7 +174,6 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Caveat:wght@600;700&display=swap');
 
-            /* Standard A4 Sheet Constraints */
             body {{
                 background-color: #e2e8f0;
                 margin: 0;
@@ -217,6 +215,17 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
                 box-sizing: border-box;
                 color: #143265; /* Realistic Blue Ballpen Ink */
                 position: relative;
+            }}
+
+            /* RED BACKGROUND HIGHLIGHTER (लाल बॅकग्राउंड टेक्स्ट) */
+            .hl-red {{
+                background-color: #ffe4e6 !important;
+                color: #991b1b !important;
+                padding: 2px 6px !important;
+                border-radius: 4px !important;
+                border: 1px solid #fecdd3 !important;
+                font-weight: 700 !important;
+                display: inline-block;
             }}
 
             /* Header Section */
@@ -386,7 +395,7 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
                 </div>
                 <div class="marks-tag-box">
                     <b>{subject_name}</b><br>
-                    <span style="color:#b91c1c;">🎯 {marks}</span>
+                    <span class="hl-red">🎯 {marks}</span>
                 </div>
             </div>
 
@@ -469,7 +478,7 @@ with tab1:
     st.markdown("""
     <div class="hero-banner">
         <h3 style="margin:0 0 6px 0;">🎯 BAMS A4 बॉलपेन Handwritten नोट्स</h3>
-        <p style="margin:0; font-size:13.5px; opacity:0.95;">खऱ्या A4 कागदावर निळ्या बॉलपेनने लिहिलेल्या शॉर्ट नोट्स, आवश्यक तेथेच फ्लोचार्ट, तुलनात्मक तक्ता आणि वर परीक्षेतील गुण (Marks Weightage).</p>
+        <p style="margin:0; font-size:13.5px; opacity:0.95;">खऱ्या A4 कागदावर निळ्या बॉलपेनने लिहिलेल्या शॉर्ट नोट्स, महत्वाच्या शब्दांना <b>Red Background Highlight</b>, फ्लोचार्ट आणि गुण (Marks Weightage).</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -528,7 +537,7 @@ with tab1:
     # Clean Blank Input Box
     topic = st.text_input(
         "🔍 अभ्यासाचा विषय / प्रश्न टाका:",
-        placeholder="उदा. Garavisha vs Dooshivisha, Pitta Dosha Prakar, किंवा Ashwagandha"
+        placeholder="उदा. Garavisha vs Dooshivisha, Pitta Dosha in Agada Tantra, किंवा Ashwagandha"
     )
 
     generate_notes_btn = st.button("🚀 सविस्तर अभ्यास नोट्स तयार करा", key="btn_notes", use_container_width=True)
@@ -547,6 +556,10 @@ with tab1:
                 Create crisp, highly concise handwritten exam notes for a single A4 page.
                 Determine if this is typically a 10-Mark LAQ or 5-Mark SAQ in university exams.
                 Only include flowchart steps IF it genuinely needs pathogenesis/stages.
+
+                CRITICAL INSTRUCTION FOR IMPORTANT TERMS:
+                - Wrap all crucial medical keywords, cardinal symptoms, important drugs, or main mechanisms inside `<span class="hl-red">...</span>` so they appear with a red background highlight!
+                Example: `<span class="hl-red">Ushna-Tikshna</span>`, `<span class="hl-red">Rakta Dhatu</span>`, `<span class="hl-red">Virechana</span>`, `<span class="hl-red">Ashraya-Ashrayi Bhava</span>`.
                 
                 Return ONLY valid JSON matching this schema:
                 {{
@@ -554,35 +567,41 @@ with tab1:
                     "main_heading": "Crisp Title of the Topic",
                     "include_flowchart": true or false,
                     "flowchart_steps": [
-                        "Step 1: Nidana / Cause",
+                        "Step 1: Nidana / Cause with <span class='hl-red'>keyword</span>",
                         "Step 2: Agni Dushti",
                         "Step 3: Ama + Dosha Vitiation",
-                        "Step 4: Srotas Blockage",
                         "Final: Disease Manifestation"
                     ],
                     "entity_1": {{
                         "title": "Concept 1",
-                        "definition": "1 crisp line definition",
-                        "key_points": ["Point 1", "Point 2", "Point 3", "Point 4"],
-                        "exam_key": "1 core mechanism sentence"
+                        "definition": "1 crisp line definition with <span class='hl-red'>important word</span>",
+                        "key_points": [
+                            "Point with <span class='hl-red'>vital keyword</span>",
+                            "Point 2",
+                            "Point 3 with <span class='hl-red'>critical symptom</span>"
+                        ],
+                        "exam_key": "1 core mechanism sentence with <span class='hl-red'>high-yield concept</span>"
                     }},
                     "entity_2": {{
                         "title": "Concept 2",
-                        "definition": "1 crisp line definition",
-                        "key_points": ["Point 1", "Point 2", "Point 3", "Point 4"],
-                        "exam_key": "1 clinical or contemporary correlation sentence"
+                        "definition": "1 crisp line definition with <span class='hl-red'>important word</span>",
+                        "key_points": [
+                            "Point with <span class='hl-red'>vital keyword</span>",
+                            "Point 2",
+                            "Point 3 with <span class='hl-red'>clinical treatment</span>"
+                        ],
+                        "exam_key": "1 clinical or contemporary correlation sentence with <span class='hl-red'>modern correlation</span>"
                     }},
                     "comparison_table": [
-                        {{"feature": "Nature", "point_1": "...", "point_2": "..."}},
-                        {{"feature": "Onset", "point_1": "...", "point_2": "..."}},
-                        {{"feature": "Mechanism", "point_1": "...", "point_2": "..."}},
-                        {{"feature": "Examples", "point_1": "...", "point_2": "..."}}
+                        {{"feature": "Nature", "point_1": "... with <span class='hl-red'>key</span>", "point_2": "..."}},
+                        {{"feature": "Cardinal Lakshana", "point_1": "<span class='hl-red'>...</span>", "point_2": "<span class='hl-red'>...</span>"}},
+                        {{"feature": "Treatment Line", "point_1": "<span class='hl-red'>...</span>", "point_2": "<span class='hl-red'>...</span>"}}
                     ],
-                    "exam_punch_line": "1 memorable sentence for final marks."
+                    "exam_punch_line": "1 memorable sentence with <span class='hl-red'>core punch</span> for final marks."
                 }}
                 """
 
-                with st.spinner("✍️ AI निळ्या बॉलपेनने A4 साईझ Handwritten Sheet तयार करत आहे..."):
+                with st.spinner("✍️ AI महत्त्वाच्या पॉईंट्सना Red Highlight करून A4 Handwritten Sheet तयार करत आहे..."):
                     try:
                         raw_json = ask_gemini(json_prompt, as_json=True)
                         clean_json = raw_json.strip()
@@ -641,7 +660,7 @@ with tab2:
 
     medicine_name = st.text_input("💊 गोळी किंवा औषधाचे नाव टाका:", placeholder="उदा. आरोग्यवर्धिनी वटी किंवा चंद्रप्रभावटी")
 
-    if st.button("🔬 औषध घटक व बनवण्याची कृती शिका", key="btn_med", use_container_width=True):
+    if st.button("🔬 औषध घटक व बनवण्याची कृती शिका", key="btn_med", use_container_width=True) :
         if not medicine_name.strip():
             st.warning("⚠️ कृपया औषधाचे नाव टाका.")
         else:
