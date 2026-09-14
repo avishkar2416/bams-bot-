@@ -16,11 +16,11 @@ st.set_page_config(
 # --- Base Theme & Mobile Clean UI ---
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Mukta:wght@400;600;700;800&display=swap');
 
     html, body, .stApp {
         background-color: #f4f6f8 !important;
-        font-family: 'Noto Sans Devanagari', 'Plus Jakarta Sans', sans-serif !important;
+        font-family: 'Mukta', 'Plus Jakarta Sans', sans-serif !important;
         color: #0f172a !important;
     }
 
@@ -118,7 +118,7 @@ def ask_gemini(prompt, as_json=False):
     raise RuntimeError("गुगल सर्व्हर व्यस्त आहे. कृपया पुन्हा प्रयत्न करा.")
 
 # =========================================================================
-# अस्सल A4 Blue Ballpen + Red Highlighted Handwritten Sheet HTML Generator
+# सुवाच्य आणि सरळ (Upright Clean Hand-Font) A4 HTML Generator
 # =========================================================================
 def create_a4_handwritten_doc(data, subject_name, topic_name):
     marks = data.get("exam_marks", "10 Marks - LAQ")
@@ -128,29 +128,27 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
     t1 = data.get("entity_1", {})
     t2 = data.get("entity_2", {})
     
-    # Flowchart HTML (Only if needed)
     flow_html = ""
     if has_flowchart and data.get("flowchart_steps"):
         flow_steps = "".join([f'<div class="box-step">{s}</div><div class="arrow">↓</div>' for s in data.get("flowchart_steps")[:-1]])
         flow_steps += f'<div class="cloud-step">{data.get("flowchart_steps")[-1]}</div>'
         flow_html = f"""
-        <div style="text-align:center; margin: 12px 0;">
+        <div style="text-align:center; margin: 10px 0 16px 0;">
             <span class="capsule-tag">Pathogenesis / Samprapti Flowchart</span>
             <div class="flow-wrap">{flow_steps}</div>
         </div>
         """
 
-    # Table rows
     table_rows = "".join([f'<tr><td><b>{r.get("feature","")}</b></td><td>{r.get("point_1","")}</td><td>{r.get("point_2","")}</td></tr>' for r in data.get("comparison_table", [])])
     table_html = ""
     if table_rows:
         table_html = f"""
-        <div style="margin-top: 15px;">
+        <div style="margin-top: 14px;">
             <div class="sec-heading">★ Quick Exam Comparison Table:</div>
             <table class="hw-table">
                 <thead>
                     <tr>
-                        <th style="width:28%;">Feature</th>
+                        <th style="width:26%;">Feature</th>
                         <th>{t1.get('title','Part 1')}</th>
                         <th>{t2.get('title','Part 2')}</th>
                     </tr>
@@ -160,19 +158,19 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
         </div>
         """
 
-    # High-yield points list
     p1_html = "".join([f'<li>{p}</li>' for p in t1.get("key_points", [])])
     p2_html = "".join([f'<li>{p}</li>' for p in t2.get("key_points", [])])
 
     full_html = f"""
     <!DOCTYPE html>
-    <html lang="en">
+    <html lang="mr">
     <head>
         <meta charset="UTF-8">
         <title>{topic_name} - A4 Handwritten Notes</title>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Caveat:wght@600;700&display=swap');
+            /* सुवाच्य, सरळ आणि स्पष्ट फॉन्ट्स: इंग्रजीसाठी Architects Daughter आणि मराठीसाठी Mukta */
+            @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Mukta:wght@500;600;700;800&display=swap');
 
             body {{
                 background-color: #e2e8f0;
@@ -181,7 +179,8 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                font-family: 'Kalam', cursive;
+                font-family: 'Architects Daughter', 'Mukta', sans-serif;
+                -webkit-font-smoothing: antialiased;
             }}
 
             .action-bar {{
@@ -202,26 +201,26 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
                 box-shadow: 0 4px 14px rgba(2,132,199,0.3);
             }}
 
-            /* True A4 Canvas with Blue Ballpen Ink */
+            /* True A4 Paper Container */
             .a4-paper {{
                 width: 794px;
                 min-height: 1123px;
-                background: #fdfdfb;
-                background-image: linear-gradient(#f1f5f9 1px, transparent 1px);
-                background-size: 100% 28px;
+                background: #ffffff;
                 border: 2px solid #0f2b5c;
                 box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-                padding: 35px 38px;
+                padding: 30px 34px;
                 box-sizing: border-box;
-                color: #143265; /* Realistic Blue Ballpen Ink */
+                color: #123060; /* Realistic Neat Blue Ballpen Ink */
                 position: relative;
+                font-style: normal !important;
+                letter-spacing: 0.2px;
             }}
 
-            /* RED BACKGROUND HIGHLIGHTER (लाल बॅकग्राउंड टेक्स्ट) */
+            /* RED TEXT HIGHLIGHTER - Clean and Sharp */
             .hl-red {{
                 background-color: #ffe4e6 !important;
-                color: #991b1b !important;
-                padding: 2px 6px !important;
+                color: #b91c1c !important;
+                padding: 1px 5px !important;
                 border-radius: 4px !important;
                 border: 1px solid #fecdd3 !important;
                 font-weight: 700 !important;
@@ -233,111 +232,112 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                border-bottom: 2px solid #143265;
+                border-bottom: 2px solid #123060;
                 padding-bottom: 10px;
-                margin-bottom: 16px;
+                margin-bottom: 14px;
             }}
             .title-box {{
-                border: 2px solid #143265;
+                border: 2px solid #123060;
                 border-radius: 10px;
-                padding: 6px 18px;
-                font-size: 22px;
+                padding: 6px 16px;
+                font-size: 21px;
                 font-weight: 700;
-                width: 70%;
+                width: 68%;
                 text-align: center;
-                background: rgba(255,255,255,0.85);
+                background: #ffffff;
             }}
             .marks-tag-box {{
-                border: 2px solid #143265;
+                border: 2px solid #123060;
                 border-radius: 8px;
                 padding: 6px 12px;
                 text-align: center;
                 font-size: 14px;
                 font-weight: 700;
-                background: rgba(255,255,255,0.85);
+                background: #ffffff;
             }}
 
             /* 2 Columns Layout */
             .dual-grid {{
                 display: flex;
-                gap: 18px;
+                gap: 16px;
             }}
             .col-half {{
                 flex: 1;
                 padding: 0 8px;
             }}
             .col-half:first-child {{
-                border-right: 1.5px dashed #143265;
+                border-right: 1.5px dashed #123060;
             }}
 
             .capsule-badge {{
                 display: inline-block;
-                border: 2px solid #143265;
-                border-radius: 16px;
-                padding: 2px 14px;
-                font-size: 18px;
+                border: 2px solid #123060;
+                border-radius: 14px;
+                padding: 2px 12px;
+                font-size: 17px;
                 font-weight: 700;
-                margin-bottom: 8px;
-                background: rgba(255,255,255,0.9);
+                margin-bottom: 6px;
+                background: #ffffff;
             }}
             .capsule-tag {{
                 display: inline-block;
-                border: 1.5px solid #143265;
-                border-radius: 12px;
-                padding: 1px 10px;
-                font-size: 13px;
+                border: 1.5px solid #123060;
+                border-radius: 10px;
+                padding: 2px 12px;
+                font-size: 13.5px;
                 font-weight: 700;
-                background: rgba(255,255,255,0.9);
+                background: #ffffff;
             }}
 
-            /* Flowchart */
+            /* Flowchart Boxes */
             .box-step {{
-                border: 1.5px solid #143265;
+                border: 1.5px solid #123060;
                 border-radius: 8px;
-                padding: 4px 10px;
-                font-size: 13px;
-                font-weight: 700;
-                width: 80%;
+                padding: 5px 12px;
+                font-size: 13.5px;
+                font-weight: 600;
+                width: 82%;
                 margin: auto;
                 background: #ffffff;
             }}
             .arrow {{
-                font-size: 16px;
+                font-size: 15px;
                 font-weight: 800;
                 margin: 2px 0;
             }}
             .cloud-step {{
-                border: 2px dashed #143265;
-                border-radius: 18px;
-                padding: 5px 12px;
-                font-size: 13px;
+                border: 2px dashed #123060;
+                border-radius: 16px;
+                padding: 6px 14px;
+                font-size: 13.5px;
                 font-weight: 700;
-                width: 84%;
+                width: 85%;
                 margin: auto;
                 background: #ffffff;
             }}
 
             /* Lists */
             ul.hw-list {{
-                margin: 6px 0 12px 0;
+                margin: 6px 0 10px 0;
                 padding-left: 18px;
                 font-size: 14px;
-                line-height: 1.45;
+                line-height: 1.5;
             }}
             ul.hw-list li {{ margin-bottom: 5px; }}
 
             /* Key concept & Exam line */
             .key-concept-box {{
-                border: 2px dashed #143265;
-                border-radius: 12px;
+                border: 1.5px dashed #123060;
+                border-radius: 10px;
                 padding: 8px 12px;
                 font-size: 13.5px;
-                margin: 10px 0;
-                background: rgba(255,255,255,0.85);
+                margin: 8px 0;
+                background: #fafafa;
+                line-height: 1.45;
             }}
 
             .sec-heading {{
-                font-size: 16px;
+                font-size: 15px;
                 font-weight: 700;
                 text-decoration: underline;
                 margin: 10px 0 6px 0;
@@ -348,26 +348,27 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
                 width: 100%;
                 border-collapse: collapse;
                 font-size: 13.5px;
-                margin-bottom: 14px;
-                background: rgba(255,255,255,0.9);
+                margin-bottom: 12px;
+                background: #ffffff;
             }}
             .hw-table th, .hw-table td {{
-                border: 1.5px solid #143265;
-                padding: 5px 8px;
+                border: 1.5px solid #123060;
+                padding: 6px 8px;
                 text-align: left;
             }}
 
             .exam-line {{
-                border-top: 2px solid #143265;
+                border-top: 2px solid #123060;
                 padding-top: 8px;
-                margin-top: 14px;
+                margin-top: 12px;
                 font-size: 14px;
                 font-weight: 700;
+                line-height: 1.4;
             }}
 
             .footer-tag {{
                 position: absolute;
-                bottom: 12px;
+                bottom: 10px;
                 right: 25px;
                 font-size: 11px;
                 opacity: 0.7;
@@ -406,7 +407,7 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
             <div class="dual-grid">
                 <div class="col-half">
                     <div class="capsule-badge">① {t1.get('title','Core Concept')}</div>
-                    <p style="margin:4px 0 8px 0; font-size:14px;"><b>Def:</b> {t1.get('definition','')}</p>
+                    <p style="margin:4px 0 6px 0; font-size:13.5px;"><b>Def:</b> {t1.get('definition','')}</p>
                     <div class="sec-heading">High-Yield Exam Points:</div>
                     <ul class="hw-list">{p1_html}</ul>
                     <div class="key-concept-box">
@@ -416,7 +417,7 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
 
                 <div class="col-half">
                     <div class="capsule-badge">② {t2.get('title','Clinical Correlation')}</div>
-                    <p style="margin:4px 0 8px 0; font-size:14px;"><b>Def:</b> {t2.get('definition','')}</p>
+                    <p style="margin:4px 0 6px 0; font-size:13.5px;"><b>Def:</b> {t2.get('definition','')}</p>
                     <div class="sec-heading">Clinical / Systemic Features:</div>
                     <ul class="hw-list">{p2_html}</ul>
                     <div class="key-concept-box">
@@ -478,7 +479,7 @@ with tab1:
     st.markdown("""
     <div class="hero-banner">
         <h3 style="margin:0 0 6px 0;">🎯 BAMS A4 बॉलपेन Handwritten नोट्स</h3>
-        <p style="margin:0; font-size:13.5px; opacity:0.95;">खऱ्या A4 कागदावर निळ्या बॉलपेनने लिहिलेल्या शॉर्ट नोट्स, महत्वाच्या शब्दांना <b>Red Background Highlight</b>, फ्लोचार्ट आणि गुण (Marks Weightage).</p>
+        <p style="margin:0; font-size:13.5px; opacity:0.95;">सरळ, स्वच्छ आणि सुवाच्य अक्षरे (Clean Straight Hand-Font), महत्वाच्या शब्दांना <b>Red Highlight</b>, फ्लोचार्ट आणि गुण (Marks Weightage).</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -530,14 +531,13 @@ with tab1:
     with r2_col2:
         language_preference = st.radio(
             "🌐 माध्यम (Language):",
-            ["Simple Indian English + Sanskrit", "मराठी (संस्कृत श्लोक + सोपा अर्थ)"],
+            ["मराठी (संस्कृत श्लोक + सोपा अर्थ + मॉडर्न टर्म्स)", "Simple Indian English + Sanskrit"],
             horizontal=True
         )
 
-    # Clean Blank Input Box
     topic = st.text_input(
         "🔍 अभ्यासाचा विषय / प्रश्न टाका:",
-        placeholder="उदा. Garavisha vs Dooshivisha, Pitta Dosha in Agada Tantra, किंवा Ashwagandha"
+        placeholder="उदा. Pitta Dosha Swaroopa, Garavisha vs Dooshivisha, किंवा Ashwagandha"
     )
 
     generate_notes_btn = st.button("🚀 सविस्तर अभ्यास नोट्स तयार करा", key="btn_notes", use_container_width=True)
@@ -553,13 +553,14 @@ with tab1:
                 Topic: {topic}
                 Language: {language_preference}
 
-                Create crisp, highly concise handwritten exam notes for a single A4 page.
+                Create crisp, highly readable handwritten exam notes for an A4 page.
                 Determine if this is typically a 10-Mark LAQ or 5-Mark SAQ in university exams.
                 Only include flowchart steps IF it genuinely needs pathogenesis/stages.
 
-                CRITICAL INSTRUCTION FOR IMPORTANT TERMS:
-                - Wrap all crucial medical keywords, cardinal symptoms, important drugs, or main mechanisms inside `<span class="hl-red">...</span>` so they appear with a red background highlight!
-                Example: `<span class="hl-red">Ushna-Tikshna</span>`, `<span class="hl-red">Rakta Dhatu</span>`, `<span class="hl-red">Virechana</span>`, `<span class="hl-red">Ashraya-Ashrayi Bhava</span>`.
+                IMPORTANT:
+                - Keep sentences neat, short, and very easy to read.
+                - Wrap all crucial medical keywords, cardinal symptoms, important drugs, or main mechanisms inside `<span class="hl-red">...</span>` so they get a red background highlight!
+                Example: `<span class="hl-red">Ushna-Tikshna</span>`, `<span class="hl-red">Rakta Dhatu</span>`, `<span class="hl-red">Virechana</span>`.
                 
                 Return ONLY valid JSON matching this schema:
                 {{
@@ -593,7 +594,7 @@ with tab1:
                         "exam_key": "1 clinical or contemporary correlation sentence with <span class='hl-red'>modern correlation</span>"
                     }},
                     "comparison_table": [
-                        {{"feature": "Nature", "point_1": "... with <span class='hl-red'>key</span>", "point_2": "..."}},
+                        {{"feature": "Nature / Guna", "point_1": "... with <span class='hl-red'>key</span>", "point_2": "..."}},
                         {{"feature": "Cardinal Lakshana", "point_1": "<span class='hl-red'>...</span>", "point_2": "<span class='hl-red'>...</span>"}},
                         {{"feature": "Treatment Line", "point_1": "<span class='hl-red'>...</span>", "point_2": "<span class='hl-red'>...</span>"}}
                     ],
@@ -601,7 +602,7 @@ with tab1:
                 }}
                 """
 
-                with st.spinner("✍️ AI महत्त्वाच्या पॉईंट्सना Red Highlight करून A4 Handwritten Sheet तयार करत आहे..."):
+                with st.spinner("✍️ AI सरळ आणि सुवाच्य हस्ताक्षरात A4 Sheet तयार करत आहे..."):
                     try:
                         raw_json = ask_gemini(json_prompt, as_json=True)
                         clean_json = raw_json.strip()
@@ -613,9 +614,8 @@ with tab1:
                         a4_html = create_a4_handwritten_doc(sheet_data, subject, topic)
 
                         st.balloons()
-                        st.success(f"✅ A4 Handwritten Sheet तयार झाली आहे! (अपेक्षित गुण: {sheet_data.get('exam_marks')})")
+                        st.success(f"✅ स्पष्ट आणि सुवाच्य A4 Sheet तयार झाली आहे! (अपेक्षित गुण: {sheet_data.get('exam_marks')})")
 
-                        # On-Screen Viewer inside Streamlit
                         st.components.v1.html(a4_html, height=1250, scrolling=True)
 
                     except Exception as e:
@@ -656,11 +656,11 @@ with tab2:
             ["Vati / Gutika (गोळी / वटी)", "Churna (चूर्ण)", "Asava & Arishta (आसव व अरिष्ट)", "Taila / Ghrita (सिद्ध तेल व घृत)", "Bhasma & Pishti (भस्म व पिष्टी)"]
         )
     with m_col2:
-        m_lang = st.radio("🌐 भाषा:", ["Simple Indian English", "मराठी"], horizontal=True, key="m_lang")
+        m_lang = st.radio("🌐 भाषा:", ["मराठी", "Simple Indian English"], horizontal=True, key="m_lang")
 
     medicine_name = st.text_input("💊 गोळी किंवा औषधाचे नाव टाका:", placeholder="उदा. आरोग्यवर्धिनी वटी किंवा चंद्रप्रभावटी")
 
-    if st.button("🔬 औषध घटक व बनवण्याची कृती शिका", key="btn_med", use_container_width=True) :
+    if st.button("🔬 औषध घटक व बनवण्याची कृती शिका", key="btn_med", use_container_width=True):
         if not medicine_name.strip():
             st.warning("⚠️ कृपया औषधाचे नाव टाका.")
         else:
