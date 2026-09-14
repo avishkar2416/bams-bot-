@@ -104,18 +104,31 @@ if not api_key:
 
 client = genai.Client(api_key=api_key)
 
-def ask_gemini(prompt, as_json=False):
-    models = ['gemini-2.5-flash', 'models/gemini-3.6-flash', 'models/gemini-2.5-pro']
-    for m in models:
-        try:
-            config = types.GenerateContentConfig(response_mime_type="application/json") if as_json else None
-            res = client.models.generate_content(model=m, contents=prompt, config=config)
-            if res and res.text:
-                return res.text
-        except Exception:
-            time.sleep(1)
-            continue
-    raise RuntimeError("गुगल सर्व्हर व्यस्त आहे. कृपया पुन्हा प्रयत्न करा.")
+# =========================================================================
+# FREE BULLETPROOF API CALLER WITH CACHING & EXPONENTIAL BACKOFF
+# =========================================================================
+@st.cache_data(show_spinner=False, ttl=86400)
+def cached_ask_gemini(prompt: str, as_json: bool = False):
+    models = ['gemini-2.5-flash', 'gemini-2.5-pro']
+    last_err = None
+
+    for model_name in models:
+        for attempt in range(3):
+            try:
+                config = types.GenerateContentConfig(response_mime_type="application/json") if as_json else None
+                res = client.models.generate_content(
+                    model=model_name,
+                    contents=prompt,
+                    config=config
+                )
+                if res and res.text:
+                    return res.text
+            except Exception as e:
+                last_err = e
+                time.sleep(2 * (attempt + 1))  # स्मार्ट वेट (गुगल कोटा मोकळा होईपर्यंत शांतपणे थांबणे)
+                continue
+
+    raise RuntimeError(f"तांत्रिक अडचण आली: {last_err}")
 
 # =========================================================================
 # अस्सल A4 Blue Ballpen Handwritten Sheet HTML Generator
@@ -540,7 +553,6 @@ with tab1:
         )
 
     with r2_col2:
-        # तंतोतंत विचारलेले २ पर्याय
         language_preference = st.radio(
             "🌐 माध्यम (Language):",
             [
@@ -550,10 +562,10 @@ with tab1:
             horizontal=True
         )
 
-    # पूर्णपणे रिकामा इनपुट बॉक्स
+    # Clean Blank Input Box
     topic = st.text_input(
         "🔍 अभ्यासाचा विषय / प्रश्न टाका:",
-        placeholder="उदा. पित्त दोषाचे स्वरूप व गुणधर्म, गरविष व दूषीविष, किंवा अश्वगंधा"
+        placeholder="उदा. पित्त दोषाचे स्वरूप व गुणधर्म, गरविष व दूषीविष, किंवा Pitta Dosha"
     )
 
     generate_notes_btn = st.button("🚀 सविस्तर अभ्यास नोट्स तयार करा", key="btn_notes", use_container_width=True)
@@ -568,10 +580,10 @@ with tab1:
                 if is_marathi:
                     lang_rule = """
                     LANGUAGE & TONE INSTRUCTION:
-                    - Write in clear, natural Marathi as spoken in Maharashtra.
-                    - Include authentic Sanskrit Shlokas / concepts where necessary, along with their simple Marathi meaning.
-                    - Add simple modern/English medical terms in parentheses for important points (उदा. 'पित्त दोषाचे स्वरूप व गुणधर्म (Pitta Dosha Swaroopa & Attributes)', 'पाचक पित्त (Pachaka Pitta)', 'रक्त धातू दुष्टी (Blood vitiation)').
-                    - Marks weightage should be in Marathi (उदा. '१० गुण - दीर्घोत्तरी (LAQ)' किंवा '५ गुण - लघुत्तरी (SAQ)').
+                    - Write in very simple, natural Marathi as spoken in Maharashtra.
+                    - Include authentic Sanskrit concepts/shlokas with simple Marathi explanation.
+                    - Add simple English terms in parentheses for important points (उदा. 'पित्त दोषाचे स्वरूप व गुणधर्म (Pitta Dosha Swaroopa & Attributes)', 'पाचक पित्त (Pachaka Pitta)').
+                    - Marks weightage in Marathi (उदा. '१० गुण - दीर्घोत्तरी (LAQ)' किंवा '५ गुण - लघुत्तरी (SAQ)').
                     """
                 else:
                     lang_rule = """
@@ -579,7 +591,7 @@ with tab1:
                     """
 
                 json_prompt = f"""
-                You are a senior Ayurveda Professor and BAMS University Paper Setter in Maharashtra.
+                You are a senior Ayurveda Professor and BAMS University Paper Setter.
                 Subject: {subject}
                 Topic: {topic}
                 Language Selected: {language_preference}
@@ -636,7 +648,7 @@ with tab1:
 
                 with st.spinner("✍️ AI A4 Sheet तयार करत आहे..."):
                     try:
-                        raw_json = ask_gemini(json_prompt, as_json=True)
+                        raw_json = cached_ask_gemini(json_prompt, as_json=True)
                         clean_json = raw_json.strip()
                         if clean_json.startswith("```json"): clean_json = clean_json[7:]
                         if clean_json.startswith("```"): clean_json = clean_json[3:]
@@ -664,7 +676,7 @@ with tab1:
                 """
                 with st.spinner(f"⚡ AI आयुर्वेद तज्ज्ञ '{study_mode}' नुसार नोट्स तयार करत आहे..."):
                     try:
-                        notes_text = ask_gemini(system_instruction)
+                        notes_text = cached_ask_gemini(system_instruction, as_json=False)
                         st.balloons()
                         st.success("✅ नोट्स तयार झाल्या आहेत!")
                         st.markdown(notes_text)
@@ -700,7 +712,7 @@ with tab2:
             with st.spinner(f"🔬 AI तज्ज्ञ '{medicine_name}' ची निर्माण पद्धत तयार करत आहे..."):
                 try:
                     med_prompt = f"Explain manufacturing of {medicine_name} ({dosage_form}) in simple spoken {m_lang} with ingredients table, purification, and steps."
-                    res_text = ask_gemini(med_prompt)
+                    res_text = cached_ask_gemini(med_prompt, as_json=False)
                     st.success("✅ माहिती तयार झाली आहे!")
                     st.markdown(res_text)
                 except Exception as e:
