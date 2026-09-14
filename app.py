@@ -209,34 +209,36 @@ if not api_key:
 client = genai.Client(api_key=api_key)
 
 # =========================================================================
-# 100% STABLE FREE-TIER CALLER (High Daily Quota Models Only)
+# 100% STABLE CALLER (OFFICIAL GEMINI-3.6-FLASH WITH SMART RETRY)
 # =========================================================================
 @st.cache_data(show_spinner=False, ttl=86400)
 def cached_ask_gemini(prompt: str, as_json: bool = False):
-    models = ['gemini-2.5-flash', 'gemini-2.0-flash']
+    # गुगलच्या सूचनेनुसार अधिकृत मॉडेल
+    model_name = 'gemini-3.6-flash'
     last_err = None
 
-    for model_name in models:
-        for attempt in range(3):
-            try:
-                config = types.GenerateContentConfig(response_mime_type="application/json") if as_json else None
-                res = client.models.generate_content(
-                    model=model_name,
-                    contents=prompt,
-                    config=config
-                )
-                if res and res.text:
-                    return res.text
-            except Exception as e:
-                last_err = e
-                err_str = str(e)
-                if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
-                    time.sleep(6 * (attempt + 1))
-                else:
-                    time.sleep(2)
-                continue
+    for attempt in range(3):
+        try:
+            config = types.GenerateContentConfig(response_mime_type="application/json") if as_json else None
+            res = client.models.generate_content(
+                model=model_name,
+                contents=prompt,
+                config=config
+            )
+            if res and res.text:
+                return res.text
+        except Exception as e:
+            last_err = e
+            err_str = str(e)
+            # ४२९ आल्यास गुगलच्या सूचनेनुसार १५ सेकंद थांबून आपोआप पुन्हा प्रयत्न करेल
+            if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+                time.sleep(16)
+            else:
+                time.sleep(3)
+            continue
 
     raise RuntimeError(f"तांत्रिक अडचण आली: {last_err}")
+
 
 # =========================================================================
 # A4 BLUE BALLPEN HANDWRITTEN SHEET GENERATOR
