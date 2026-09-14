@@ -105,15 +105,19 @@ if not api_key:
 client = genai.Client(api_key=api_key)
 
 # =========================================================================
-# FREE BULLETPROOF API CALLER WITH CACHING & EXPONENTIAL BACKOFF
+# 100% STABLE GOOGLE GEMINI CALLER (Updated Models & Caching)
 # =========================================================================
 @st.cache_data(show_spinner=False, ttl=86400)
 def cached_ask_gemini(prompt: str, as_json: bool = False):
-    models = ['gemini-2.5-flash', 'gemini-2.5-pro']
+    models = [
+        'gemini-2.5-flash',
+        'gemini-3.1-pro-preview',
+        'gemini-3.6-flash'
+    ]
     last_err = None
 
     for model_name in models:
-        for attempt in range(3):
+        for attempt in range(2):
             try:
                 config = types.GenerateContentConfig(response_mime_type="application/json") if as_json else None
                 res = client.models.generate_content(
@@ -125,13 +129,13 @@ def cached_ask_gemini(prompt: str, as_json: bool = False):
                     return res.text
             except Exception as e:
                 last_err = e
-                time.sleep(2 * (attempt + 1))  # स्मार्ट वेट (गुगल कोटा मोकळा होईपर्यंत शांतपणे थांबणे)
+                time.sleep(1.5)
                 continue
 
     raise RuntimeError(f"तांत्रिक अडचण आली: {last_err}")
 
 # =========================================================================
-# अस्सल A4 Blue Ballpen Handwritten Sheet HTML Generator
+# A4 Blue Ballpen Handwritten Sheet HTML Generator
 # =========================================================================
 def create_a4_handwritten_doc(data, subject_name, topic_name, is_marathi=True):
     marks = data.get("exam_marks", "१० गुण - दीर्घोत्तरी (LAQ)" if is_marathi else "10 Marks - LAQ")
@@ -562,7 +566,6 @@ with tab1:
             horizontal=True
         )
 
-    # Clean Blank Input Box
     topic = st.text_input(
         "🔍 अभ्यासाचा विषय / प्रश्न टाका:",
         placeholder="उदा. पित्त दोषाचे स्वरूप व गुणधर्म, गरविष व दूषीविष, किंवा Pitta Dosha"
@@ -580,7 +583,7 @@ with tab1:
                 if is_marathi:
                     lang_rule = """
                     LANGUAGE & TONE INSTRUCTION:
-                    - Write in very simple, natural Marathi as spoken in Maharashtra.
+                    - Write in clear, natural Marathi as spoken in Maharashtra.
                     - Include authentic Sanskrit concepts/shlokas with simple Marathi explanation.
                     - Add simple English terms in parentheses for important points (उदा. 'पित्त दोषाचे स्वरूप व गुणधर्म (Pitta Dosha Swaroopa & Attributes)', 'पाचक पित्त (Pachaka Pitta)').
                     - Marks weightage in Marathi (उदा. '१० गुण - दीर्घोत्तरी (LAQ)' किंवा '५ गुण - लघुत्तरी (SAQ)').
@@ -591,7 +594,7 @@ with tab1:
                     """
 
                 json_prompt = f"""
-                You are a senior Ayurveda Professor and BAMS University Paper Setter.
+                You are a senior Ayurveda Professor and BAMS University Paper Setter in Maharashtra.
                 Subject: {subject}
                 Topic: {topic}
                 Language Selected: {language_preference}
