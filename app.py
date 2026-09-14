@@ -118,23 +118,36 @@ def ask_gemini(prompt, as_json=False):
     raise RuntimeError("गुगल सर्व्हर व्यस्त आहे. कृपया पुन्हा प्रयत्न करा.")
 
 # =========================================================================
-# सुवाच्य, बोल्ड हेडिंग A4 HTML Generator
+# अस्सल १००% शुद्ध मराठी व देवनागरी A4 HTML Generator
 # =========================================================================
-def create_a4_handwritten_doc(data, subject_name, topic_name):
-    marks = data.get("exam_marks", "10 Marks - LAQ")
+def create_a4_handwritten_doc(data, subject_name, topic_name, is_marathi=True):
+    marks = data.get("exam_marks", "१० गुण - दीर्घोत्तरी" if is_marathi else "10 Marks - LAQ")
     title = data.get("main_heading", topic_name)
     has_flowchart = data.get("include_flowchart", True)
     
     t1 = data.get("entity_1", {})
     t2 = data.get("entity_2", {})
     
+    # Marathi vs English dynamic UI labels
+    lbl_flowchart = "संप्राप्ती प्रवाह तक्ता (फ्लोचार्ट)" if is_marathi else "Pathogenesis / Samprapti Flowchart"
+    lbl_exam_points = "परीक्षेसाठी महत्त्वाचे मुद्दे:" if is_marathi else "High-Yield Exam Points:"
+    lbl_clinical = "लक्षणे, विकार व चिकित्सा:" if is_marathi else "Clinical / Systemic Features:"
+    lbl_key_concept = "★ मुख्य संकल्पना (की-कॉन्सेप्ट):" if is_marathi else "★ Key Exam Concept:"
+    lbl_modern = "★ आधुनिक वैद्यकीय सांगड:" if is_marathi else "★ Contemporary / Modern Link:"
+    lbl_table = "★ परीक्षा तुलनात्मक तक्ता:" if is_marathi else "★ Quick Exam Comparison Table:"
+    lbl_feature = "मुद्दा / लक्षण" if is_marathi else "Feature"
+    lbl_punch = "✍️ परीक्षेसाठी मुख्य सूत्र (निष्कर्ष):" if is_marathi else "✍️ Exam Punch Line:"
+    lbl_btn_png = "📸 A4 बॉलपेन फोटो डाऊनलोड करा (.PNG)" if is_marathi else "📸 Download A4 Note (.PNG)"
+    lbl_btn_pdf = "📄 थेट PDF प्रिंट करा" if is_marathi else "📄 Print / Save as PDF"
+    lbl_def = "व्याख्या:" if is_marathi else "Def:"
+
     flow_html = ""
     if has_flowchart and data.get("flowchart_steps"):
         flow_steps = "".join([f'<div class="box-step">{s}</div><div class="arrow">↓</div>' for s in data.get("flowchart_steps")[:-1]])
         flow_steps += f'<div class="cloud-step">{data.get("flowchart_steps")[-1]}</div>'
         flow_html = f"""
         <div style="text-align:center; margin: 10px 0 16px 0;">
-            <span class="capsule-tag">Pathogenesis / Samprapti Flowchart</span>
+            <span class="capsule-tag">{lbl_flowchart}</span>
             <div class="flow-wrap">{flow_steps}</div>
         </div>
         """
@@ -144,13 +157,13 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
     if table_rows:
         table_html = f"""
         <div style="margin-top: 14px;">
-            <div class="sec-heading">★ Quick Exam Comparison Table:</div>
+            <div class="sec-heading">{lbl_table}</div>
             <table class="hw-table">
                 <thead>
                     <tr>
-                        <th style="width:26%;">Feature</th>
-                        <th>{t1.get('title','Part 1')}</th>
-                        <th>{t2.get('title','Part 2')}</th>
+                        <th style="width:26%;">{lbl_feature}</th>
+                        <th>{t1.get('title','विभाग १')}</th>
+                        <th>{t2.get('title','विभाग २')}</th>
                     </tr>
                 </thead>
                 <tbody>{table_rows}</tbody>
@@ -169,7 +182,7 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
         <title>{topic_name} - A4 Handwritten Notes</title>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
         <style>
-            @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Mukta:wght@500;600;700;800;900&display=swap');
+            @import url('https://fonts.googleapis.com/css2?family=Mukta:wght@500;600;700;800;900&family=Architects+Daughter&display=swap');
 
             body {{
                 background-color: #e2e8f0;
@@ -178,7 +191,7 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                font-family: 'Architects Daughter', 'Mukta', sans-serif;
+                font-family: 'Mukta', 'Architects Daughter', sans-serif;
                 -webkit-font-smoothing: antialiased;
             }}
 
@@ -212,14 +225,14 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
                 color: #123060;
                 position: relative;
                 font-style: normal !important;
-                letter-spacing: 0.2px;
+                letter-spacing: 0.1px;
             }}
 
             /* RED TEXT HIGHLIGHTER */
             .hl-red {{
                 background-color: #ffe4e6 !important;
                 color: #b91c1c !important;
-                padding: 1px 5px !important;
+                padding: 1px 6px !important;
                 border-radius: 4px !important;
                 border: 1px solid #fecdd3 !important;
                 font-weight: 700 !important;
@@ -236,7 +249,6 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
                 margin-bottom: 14px;
             }}
             
-            /* EXTRA BOLD & PROMINENT MAIN TITLE */
             .title-box {{
                 border: 2.5px solid #123060;
                 border-radius: 12px;
@@ -247,13 +259,11 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
                 text-align: center;
                 background: #ffffff;
                 color: #0a1f42 !important;
-                box-shadow: 0 2px 8px rgba(18, 48, 96, 0.08);
             }}
             .title-box span {{
                 border-bottom: 3px double #123060;
                 padding-bottom: 2px;
                 display: inline-block;
-                letter-spacing: 0.5px;
             }}
 
             .marks-tag-box {{
@@ -284,7 +294,7 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
                 border: 2px solid #123060;
                 border-radius: 14px;
                 padding: 2px 12px;
-                font-size: 17px;
+                font-size: 18px;
                 font-weight: 800;
                 margin-bottom: 6px;
                 background: #ffffff;
@@ -293,8 +303,8 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
                 display: inline-block;
                 border: 1.5px solid #123060;
                 border-radius: 10px;
-                padding: 2px 12px;
-                font-size: 13.5px;
+                padding: 2px 14px;
+                font-size: 14px;
                 font-weight: 700;
                 background: #ffffff;
             }}
@@ -304,7 +314,7 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
                 border: 1.5px solid #123060;
                 border-radius: 8px;
                 padding: 5px 12px;
-                font-size: 13.5px;
+                font-size: 14px;
                 font-weight: 600;
                 width: 82%;
                 margin: auto;
@@ -319,7 +329,7 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
                 border: 2px dashed #123060;
                 border-radius: 16px;
                 padding: 6px 14px;
-                font-size: 13.5px;
+                font-size: 14px;
                 font-weight: 700;
                 width: 85%;
                 margin: auto;
@@ -330,8 +340,8 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
             ul.hw-list {{
                 margin: 6px 0 10px 0;
                 padding-left: 18px;
-                font-size: 14px;
-                line-height: 1.5;
+                font-size: 14.5px;
+                line-height: 1.55;
             }}
             ul.hw-list li {{ margin-bottom: 5px; }}
 
@@ -340,14 +350,14 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
                 border: 1.5px dashed #123060;
                 border-radius: 10px;
                 padding: 8px 12px;
-                font-size: 13.5px;
+                font-size: 14px;
                 margin: 8px 0;
                 background: #fafafa;
                 line-height: 1.45;
             }}
 
             .sec-heading {{
-                font-size: 15px;
+                font-size: 16px;
                 font-weight: 700;
                 text-decoration: underline;
                 margin: 10px 0 6px 0;
@@ -357,7 +367,7 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
             .hw-table {{
                 width: 100%;
                 border-collapse: collapse;
-                font-size: 13.5px;
+                font-size: 14px;
                 margin-bottom: 12px;
                 background: #ffffff;
             }}
@@ -371,9 +381,9 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
                 border-top: 2px solid #123060;
                 padding-top: 8px;
                 margin-top: 12px;
-                font-size: 14px;
+                font-size: 14.5px;
                 font-weight: 700;
-                line-height: 1.4;
+                line-height: 1.45;
             }}
 
             .footer-tag {{
@@ -394,8 +404,8 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
     </head>
     <body>
         <div class="action-bar">
-            <button class="btn-action" onclick="downloadA4Image()">📸 A4 बॉलपेन फोटो डाऊनलोड करा (.PNG)</button>
-            <button class="btn-action" style="background:#059669;" onclick="window.print()">📄 थेट PDF प्रिंट करा</button>
+            <button class="btn-action" onclick="downloadA4Image()">{lbl_btn_png}</button>
+            <button class="btn-action" style="background:#059669;" onclick="window.print()">{lbl_btn_pdf}</button>
         </div>
 
         <div class="a4-paper" id="a4Canvas">
@@ -416,22 +426,22 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
             <!-- 2-Column High-Yield Bullet Notes -->
             <div class="dual-grid">
                 <div class="col-half">
-                    <div class="capsule-badge">① {t1.get('title','Core Concept')}</div>
-                    <p style="margin:4px 0 6px 0; font-size:13.5px;"><b>Def:</b> {t1.get('definition','')}</p>
-                    <div class="sec-heading">High-Yield Exam Points:</div>
+                    <div class="capsule-badge">① {t1.get('title','संकल्पना १')}</div>
+                    <p style="margin:4px 0 6px 0; font-size:14px;"><b>{lbl_def}</b> {t1.get('definition','')}</p>
+                    <div class="sec-heading">{lbl_exam_points}</div>
                     <ul class="hw-list">{p1_html}</ul>
                     <div class="key-concept-box">
-                        <b>★ Key Exam Concept:</b><br>{t1.get('exam_key','')}
+                        <b>{lbl_key_concept}</b><br>{t1.get('exam_key','')}
                     </div>
                 </div>
 
                 <div class="col-half">
-                    <div class="capsule-badge">② {t2.get('title','Clinical Correlation')}</div>
-                    <p style="margin:4px 0 6px 0; font-size:13.5px;"><b>Def:</b> {t2.get('definition','')}</p>
-                    <div class="sec-heading">Clinical / Systemic Features:</div>
+                    <div class="capsule-badge">② {t2.get('title','संकल्पना २')}</div>
+                    <p style="margin:4px 0 6px 0; font-size:14px;"><b>{lbl_def}</b> {t2.get('definition','')}</p>
+                    <div class="sec-heading">{lbl_clinical}</div>
                     <ul class="hw-list">{p2_html}</ul>
                     <div class="key-concept-box">
-                        <b>★ Contemporary / Modern Link:</b><br>{t2.get('exam_key','')}
+                        <b>{lbl_modern}</b><br>{t2.get('exam_key','')}
                     </div>
                 </div>
             </div>
@@ -441,7 +451,7 @@ def create_a4_handwritten_doc(data, subject_name, topic_name):
 
             <!-- Concluding Punch Line -->
             <div class="exam-line">
-                ✍️ <b>Exam Punch Line:</b> → "{data.get('exam_punch_line','')}"
+                {lbl_punch} → "{data.get('exam_punch_line','')}"
             </div>
 
             <div class="footer-tag">
@@ -489,7 +499,7 @@ with tab1:
     st.markdown("""
     <div class="hero-banner">
         <h3 style="margin:0 0 6px 0;">🎯 BAMS A4 बॉलपेन Handwritten नोट्स</h3>
-        <p style="margin:0; font-size:13.5px; opacity:0.95;">ठळक मुख्य हेडिंग (Extra Bold Title), सरळ सुवाच्य अक्षरे, महत्वाच्या शब्दांना <b>Red Highlight</b>, फ्लोचार्ट आणि गुण (Marks Weightage).</p>
+        <p style="margin:0; font-size:13.5px; opacity:0.95;">शुद्ध मराठी माध्यम (Zero English), ठळक मुख्य हेडिंग, महत्वाच्या शब्दांना <b>Red Highlight</b>, फ्लोचार्ट आणि गुण (Marks Weightage).</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -541,13 +551,13 @@ with tab1:
     with r2_col2:
         language_preference = st.radio(
             "🌐 माध्यम (Language):",
-            ["मराठी (संस्कृत श्लोक + सोपा अर्थ + मॉडर्न टर्म्स)", "Simple Indian English + Sanskrit"],
+            ["मराठी (अस्सल मराठी + संस्कृत श्लोक - इंग्रजी शब्द नको)", "Simple Indian English + Sanskrit"],
             horizontal=True
         )
 
     topic = st.text_input(
         "🔍 अभ्यासाचा विषय / प्रश्न टाका:",
-        placeholder="उदा. Pitta Dosha Swaroopa, Garavisha vs Dooshivisha, किंवा Ashwagandha"
+        placeholder="उदा. पित्त दोष स्वरूप, गुण व प्रकोप लक्षणे, गरविष व दूषीविष, किंवा अश्वगंधा"
     )
 
     generate_notes_btn = st.button("🚀 सविस्तर अभ्यास नोट्स तयार करा", key="btn_notes", use_container_width=True)
@@ -556,63 +566,79 @@ with tab1:
         if not topic.strip():
             st.warning("⚠️ कृपया अभ्यासाचा विषय प्रविष्ट करा.")
         else:
+            is_marathi = "मराठी" in language_preference
+
             if "A4 Blue Ballpen" in study_mode:
+                if is_marathi:
+                    lang_rule = """
+                    STRICT MARATHI LANGUAGE INSTRUCTION:
+                    - The student has chosen MARATHI. You MUST generate 100% of the content in Marathi (Devanagari) and Sanskrit.
+                    - DO NOT use English words or Roman script anywhere (NO English words in brackets like '(Metabolism)', '(Burning)', '(Inflammation)', '(Pitta Dosha)').
+                    - Use authentic Ayurvedic Marathi words: उदा. Metabolism ऐवजी 'चयापचय', Inflammation ऐवजी 'शोथ किंवा दाह', Purgation ऐवजी 'विरेचन'.
+                    - Exam marks should be written in Marathi (उदा. '१० गुण - दीर्घोत्तरी प्रश्न' किंवा '५ गुण - लघुत्तरी प्रश्न').
+                    """
+                else:
+                    lang_rule = """
+                    Write in simple, clear Indian English with Sanskrit Ayurvedic terminology.
+                    """
+
                 json_prompt = f"""
                 You are a senior Ayurveda Professor and BAMS University Paper Setter.
                 Subject: {subject}
                 Topic: {topic}
-                Language: {language_preference}
+                Language Selected: {language_preference}
+
+                {lang_rule}
 
                 Create crisp, highly readable handwritten exam notes for an A4 page.
                 Determine if this is typically a 10-Mark LAQ or 5-Mark SAQ in university exams.
                 Only include flowchart steps IF it genuinely needs pathogenesis/stages.
 
-                IMPORTANT:
-                - Keep sentences neat, short, and very easy to read.
+                RED HIGHLIGHT INSTRUCTION:
                 - Wrap all crucial medical keywords, cardinal symptoms, important drugs, or main mechanisms inside `<span class="hl-red">...</span>` so they get a red background highlight!
-                Example: `<span class="hl-red">Ushna-Tikshna</span>`, `<span class="hl-red">Rakta Dhatu</span>`, `<span class="hl-red">Virechana</span>`.
+                Example: `<span class="hl-red">उष्ण-तीक्ष्ण</span>`, `<span class="hl-red">रक्त धातू</span>`, `<span class="hl-red">विरेचन</span>`.
                 
                 Return ONLY valid JSON matching this schema:
                 {{
-                    "exam_marks": "10 Marks - LAQ" or "5 Marks - SAQ",
-                    "main_heading": "Crisp Title of the Topic",
+                    "exam_marks": "{'१० गुण - दीर्घोत्तरी' if is_marathi else '10 Marks - LAQ'}",
+                    "main_heading": "{'मराठीत ठळक शीर्षक' if is_marathi else 'Crisp Title of the Topic'}",
                     "include_flowchart": true or false,
                     "flowchart_steps": [
-                        "Step 1: Nidana / Cause with <span class='hl-red'>keyword</span>",
-                        "Step 2: Agni Dushti",
-                        "Step 3: Ama + Dosha Vitiation",
-                        "Final: Disease Manifestation"
+                        "पायरी १: निदान / हेतू सोबत <span class='hl-red'>महत्त्वाचा शब्द</span>",
+                        "पायरी २: अग्नी दुष्टी",
+                        "पायरी ३: आम निर्मिती व दोष प्रकोप",
+                        "अंतिम: व्याधी लक्षणे"
                     ],
                     "entity_1": {{
-                        "title": "Concept 1",
-                        "definition": "1 crisp line definition with <span class='hl-red'>important word</span>",
+                        "title": "{'संकल्पना १' if is_marathi else 'Concept 1'}",
+                        "definition": "१ ओळीची सुटसुटीत व्याख्या <span class='hl-red'>महत्त्वाचा शब्द</span>",
                         "key_points": [
-                            "Point with <span class='hl-red'>vital keyword</span>",
-                            "Point 2",
-                            "Point 3 with <span class='hl-red'>critical symptom</span>"
+                            "मुद्दा १ <span class='hl-red'>महत्त्वाचा घटक</span>",
+                            "मुद्दा २",
+                            "मुद्दा ३ <span class='hl-red'>प्रधान लक्षण</span>"
                         ],
-                        "exam_key": "1 core mechanism sentence with <span class='hl-red'>high-yield concept</span>"
+                        "exam_key": "मुख्य परीक्षा संकल्पना <span class='hl-red'>महत्त्वाचा मुद्दा</span>"
                     }},
                     "entity_2": {{
-                        "title": "Concept 2",
-                        "definition": "1 crisp line definition with <span class='hl-red'>important word</span>",
+                        "title": "{'संकल्पना २' if is_marathi else 'Concept 2'}",
+                        "definition": "१ ओळीची सुटसुटीत व्याख्या <span class='hl-red'>महत्त्वाचा शब्द</span>",
                         "key_points": [
-                            "Point with <span class='hl-red'>vital keyword</span>",
-                            "Point 2",
-                            "Point 3 with <span class='hl-red'>clinical treatment</span>"
+                            "मुद्दा १ <span class='hl-red'>महत्त्वाचा घटक</span>",
+                            "मुद्दा २",
+                            "मुद्दा ३ <span class='hl-red'>चिकित्सा उपक्रम</span>"
                         ],
-                        "exam_key": "1 clinical or contemporary correlation sentence with <span class='hl-red'>modern correlation</span>"
+                        "exam_key": "चिकित्सा किंवा आधुनिक सांगड <span class='hl-red'>महत्त्वाचा मुद्दा</span>"
                     }},
                     "comparison_table": [
-                        {{"feature": "Nature / Guna", "point_1": "... with <span class='hl-red'>key</span>", "point_2": "..."}},
-                        {{"feature": "Cardinal Lakshana", "point_1": "<span class='hl-red'>...</span>", "point_2": "<span class='hl-red'>...</span>"}},
-                        {{"feature": "Treatment Line", "point_1": "<span class='hl-red'>...</span>", "point_2": "<span class='hl-red'>...</span>"}}
+                        {{"feature": "{'गुणधर्म / स्वरूप' if is_marathi else 'Nature / Guna'}", "point_1": "... <span class='hl-red'>शब्द</span>", "point_2": "..."}},
+                        {{"feature": "{'प्रधान लक्षणे' if is_marathi else 'Cardinal Lakshana'}", "point_1": "<span class='hl-red'>...</span>", "point_2": "<span class='hl-red'>...</span>"}},
+                        {{"feature": "{'चिकित्सा सूत्र' if is_marathi else 'Treatment Line'}", "point_1": "<span class='hl-red'>...</span>", "point_2": "<span class='hl-red'>...</span>"}}
                     ],
-                    "exam_punch_line": "1 memorable sentence with <span class='hl-red'>core punch</span> for final marks."
+                    "exam_punch_line": "परीक्षेसाठी १ मुख्य अंतिम निष्कर्ष वाक्य <span class='hl-red'>मुख्य सूत्र</span>."
                 }}
                 """
 
-                with st.spinner("✍️ AI ठळक हेडिंगसह A4 Sheet तयार करत आहे..."):
+                with st.spinner("✍️ AI शुद्ध मराठीत A4 Sheet तयार करत आहे..."):
                     try:
                         raw_json = ask_gemini(json_prompt, as_json=True)
                         clean_json = raw_json.strip()
@@ -621,10 +647,10 @@ with tab1:
                         if clean_json.endswith("```"): clean_json = clean_json[:-3]
 
                         sheet_data = json.loads(clean_json.strip())
-                        a4_html = create_a4_handwritten_doc(sheet_data, subject, topic)
+                        a4_html = create_a4_handwritten_doc(sheet_data, subject, topic, is_marathi=is_marathi)
 
                         st.balloons()
-                        st.success(f"✅ ठळक हेडिंगसह A4 Sheet तयार झाली आहे! (अपेक्षित गुण: {sheet_data.get('exam_marks')})")
+                        st.success(f"✅ शुद्ध मराठीत A4 Sheet तयार झाली आहे! (अपेक्षित गुण: {sheet_data.get('exam_marks')})")
 
                         st.components.v1.html(a4_html, height=1250, scrolling=True)
 
@@ -636,6 +662,7 @@ with tab1:
                 You are a senior Ayurveda Acharya according to NCISM standards.
                 Academic Level: {bams_year}, Subject: {subject}, Study Mode: {study_mode}, Topic: {topic}, Language: {language_preference}.
                 Generate tailored, high-yield study material strictly aligned with '{study_mode}'.
+                - If Marathi is selected, use 100% pure Marathi/Sanskrit without English words.
                 - Format Sanskrit Shlokas inside blockquotes (> "Shloka").
                 - Bold all key terms.
                 """
