@@ -209,15 +209,15 @@ if not api_key:
 client = genai.Client(api_key=api_key)
 
 # =========================================================================
-# STABLE GEMINI CALLER (Auto-Fallback Models)
+# 100% STABLE FREE-TIER CALLER (High Daily Quota Models Only)
 # =========================================================================
 @st.cache_data(show_spinner=False, ttl=86400)
 def cached_ask_gemini(prompt: str, as_json: bool = False):
-    models = ['gemini-2.5-flash', 'gemini-3.1-pro-preview', 'gemini-3.6-flash']
+    models = ['gemini-2.5-flash', 'gemini-2.0-flash']
     last_err = None
 
     for model_name in models:
-        for attempt in range(2):
+        for attempt in range(3):
             try:
                 config = types.GenerateContentConfig(response_mime_type="application/json") if as_json else None
                 res = client.models.generate_content(
@@ -229,7 +229,11 @@ def cached_ask_gemini(prompt: str, as_json: bool = False):
                     return res.text
             except Exception as e:
                 last_err = e
-                time.sleep(1.5)
+                err_str = str(e)
+                if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+                    time.sleep(6 * (attempt + 1))
+                else:
+                    time.sleep(2)
                 continue
 
     raise RuntimeError(f"तांत्रिक अडचण आली: {last_err}")
