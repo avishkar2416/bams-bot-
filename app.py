@@ -2092,36 +2092,25 @@ function downloadA4Image() {
 # PREMIUM NAVBAR
 # ============================================================
 
-st.markdown("""
+st.html("""
 <div class="premium-nav">
-
     <div class="brand">
-
-        <div class="brand-mark">
-            🪔
-        </div>
+        <div class="brand-mark">🪔</div>
 
         <div>
-
-            <div class="brand-title">
-                🌿 AyurVeda AI
-            </div>
+            <div class="brand-title">🌿 AyurVeda AI</div>
 
             <div class="brand-sub">
-                BAMS STUDY STUDIO •
-                FESTIVE PREMIUM EDITION
+                BAMS STUDY STUDIO • FESTIVE PREMIUM EDITION
             </div>
-
         </div>
-
     </div>
 
     <div class="creator-pill">
         ✦ Created by Avishkar Alase
     </div>
-
 </div>
-""", unsafe_allow_html=True)
+""")
 
 
 # ============================================================
