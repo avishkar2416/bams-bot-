@@ -3,7 +3,6 @@ from google import genai
 from google.genai import types
 import json
 import time
-import markdown
 
 # --- Page Setup ---
 st.set_page_config(
@@ -241,7 +240,7 @@ def render_photo_identical_sheet(data, subject_name, topic_name, is_marathi=True
     aushadha_list = "".join([f"<li>{a}</li>" for a in data.get("aushadha", [])])
     punch_line = data.get("punch_line", "")
 
-    # Labels based on Language
+    # Labels
     lbl_def = "व्याख्या (Definition)" if is_marathi else "Definition"
     lbl_sthana = "स्थान (Location)" if is_marathi else "Location (Sthana)"
     lbl_sthana_main = "मुख्य स्थान" if is_marathi else "Primary Seat"
@@ -558,14 +557,14 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- 2 Main Tabs (दोन्ही मुख्य टॅब्स परत आणले) ---
+# --- 2 Main Tabs ---
 tab1, tab2 = st.tabs([
     "📖 BAMS स्टडी नोट्स (Syllabus Notes)",
     "🧪 औषध घटक व निर्माण विधी (Medicine & Manufacturing)"
 ])
 
 # =========================================================================
-# TAB 1: SYLLABUS STUDY NOTES (सर्व ऑप्शन्स पूर्ववत)
+# TAB 1: SYLLABUS STUDY NOTES
 # =========================================================================
 with tab1:
     st.markdown("""
@@ -647,17 +646,14 @@ with tab1:
             if "A4 Blue Ballpen" in study_mode:
                 if is_marathi:
                     lang_rule = """
-                    LANGUAGE INSTRUCTION (MARATHI):
-                    - Generate notes in natural, simple spoken Marathi with Sanskrit terms.
-                    - Add simple English terms in parentheses for important points (e.g. 'लहान आंत्र (Small intestine)', 'दाह (Burning sensation)').
-                    - Marks weightage in Marathi (e.g. '10 Marks (LAQ)' or '5 Marks (SAQ)').
+                    Write in natural, simple spoken Marathi with Sanskrit terms and simple English in parentheses.
+                    Marks weightage in Marathi (e.g. 10 Marks - LAQ).
                     """
                 else:
                     lang_rule = """
-                    STRICT ZERO-MARATHI INSTRUCTION (100% PURE ENGLISH):
-                    - The user chose 'Simple Indian English + Sanskrit'.
-                    - ABSOLUTELY DO NOT WRITE ANY MARATHI/DEVANAGARI SCRIPT ANYWHERE!
-                    - Every single section, definition, flow step, and word must be in English with English-transliterated Sanskrit terms.
+                    STRICT INSTRUCTION: The user selected 'Simple Indian English + Sanskrit'.
+                    Write 100% in pure English Roman script. Absolutely no Devanagari script anywhere.
+                    All titles, flowchart steps ('Step 1:'), terms ('Ushna', 'Tikshna', 'Pitta Prakopa') and points must be in English.
                     """
 
                 json_prompt = f"""
@@ -668,58 +664,47 @@ with tab1:
 
                 {lang_rule}
 
-                Generate crisp exam notes matching this JSON schema:
+                Generate crisp exam notes strictly matching this JSON schema:
                 {{
                     "title": "{topic}",
                     "marks": "{'10 Marks (LAQ)' if is_marathi else '10 Marks (LAQ)'}",
-                    "definition": "{'जे द्रव्य शरीरामध्ये <span class=\\'hl-red\\'>पाचन, दहन, रूपांतरण व उष्णता</span> निर्माण करते त्याला पित्त दोष म्हणतात.' if is_marathi else 'The bio-principle responsible for digestion, heat and metabolic transformations.'}",
-                    "definition_sub": "It is the bio-transformative principle in the body",
-                    "sthana_main": "{'आमाशय, ग्रहणी, लहान आंत्र (Small intestine)' if is_marathi else 'Grahani, Amashaya, Small intestine'}",
+                    "definition": "{'पाचन, दहन व उष्णता निर्माण करणारे द्रव्य.' if is_marathi else 'The bio-principle responsible for digestion, heat and metabolic transformations.'}",
+                    "definition_sub": "{'शरीरातील परिवर्तनाचे मुख्य तत्त्व' if is_marathi else 'Bio-transformative principle in the body'}",
+                    "sthana_main": "{'आमाशय, ग्रहणी, लहान आंत्र' if is_marathi else 'Grahani, Amashaya, Small intestine'}",
                     "sthana_sub": "{'रक्त, यकृत, प्लीहा, स्वेद, नेत्र' if is_marathi else 'Rakta, Yakrit, Pleeha, Sweda, Netra'}",
-                    "gunadharma": "<span class='hl-red'>{'उष्ण, तीक्ष्ण, लघु, द्रव, सार, अम्ल, कटु' if is_marathi else 'Ushna, Tikshna, Laghu, Drava, Sara, Amla, Katu'}</span>",
-                    "gunadharma_en": "Hot, Sharp, Light, Liquid, Spreading, Sour, Pungent",
+                    "gunadharma": "<span class='hl-red'>{'उष्ण, तीक्ष्ण, लघु, द्रव' if is_marathi else 'Ushna, Tikshna, Laghu, Drava'}</span>",
+                    "gunadharma_en": "Hot, Sharp, Light, Liquid",
                     "karya": [
-                        "{'अन्न पचन व धातूंचे रूपांतरण' if is_marathi else 'Digestion of food & tissue transformation'}",
-                        "{'देहाला उष्णता व तापमान प्रदान करणे' if is_marathi else 'Maintaining normal body temperature'}",
-                        "{'वर्ण, प्रभा, बुद्धी, दृष्टी प्रदान करणे' if is_marathi else 'Providing vision, complexion, and intellect'}",
-                        "{'मूत्र, पुरीष, स्वेद यांचे नियमन' if is_marathi else 'Excretion and regulation of body wastes'}"
+                        "{'अन्न पचन व रूपांतरण' if is_marathi else 'Digestion & tissue metabolism'}",
+                        "{'देहाला उष्णता प्रदान करणे' if is_marathi else 'Body temperature regulation'}"
                     ],
                     "types": [
-                        {{"name": "{'पाचक पित्त' if is_marathi else 'Pachaka Pitta'}", "desc": "{'आमाशय व ग्रहणी स्थित' if is_marathi else 'Located in Grahani / Stomach'}"}},
-                        {{"name": "{'रंजक पित्त' if is_marathi else 'Ranjaka Pitta'}", "desc": "{'यकृत व प्लीहा स्थित' if is_marathi else 'Located in Liver & Spleen'}"}},
-                        {{"name": "{'साधक पित्त' if is_marathi else 'Sadhaka Pitta'}", "desc": "{'हृदय व मन स्थित' if is_marathi else 'Located in Heart & Mind'}"}},
-                        {{"name": "{'आलोचक पित्त' if is_marathi else 'Alochaka Pitta'}", "desc": "{'नेत्र स्थित' if is_marathi else 'Located in Eyes / Vision'}"}},
-                        {{"name": "{'भ्राजक पित्त' if is_marathi else 'Bhrajaka Pitta'}", "desc": "{'त्वचा स्थित' if is_marathi else 'Located in Skin'}"}}
+                        {{"name": "{'पाचक पित्त' if is_marathi else 'Pachaka Pitta'}", "desc": "{'आमाशय व ग्रहणी' if is_marathi else 'Located in Stomach / Grahani'}"}},
+                        {{"name": "{'रंजक पित्त' if is_marathi else 'Ranjaka Pitta'}", "desc": "{'यकृत व प्लीहा' if is_marathi else 'Located in Liver & Spleen'}"}}
                     ],
                     "nidana": [
-                        "<span class='hl-red'>{'अतिउष्ण, अम्ल, लवण आहार' if is_marathi else 'Intake of Ushna, Amla, Lavana diet'}</span>",
-                        "{'क्रोध, अतिताप, उपवास' if is_marathi else 'Excessive anger, sun exposure, irregular fasting'}"
+                        "{'अतिउष्ण, अम्ल, लवण आहार' if is_marathi else 'Intake of Ushna, Amla, Lavana diet'}"
                     ],
                     "lakshana": [
-                        "{'दाह (Burning sensation)' if is_marathi else 'Burning sensation (Daha)'}",
-                        "{'तृष्णा, पीत-नेत्र-मूत्र' if is_marathi else 'Excess thirst, yellowish stool & urine'}",
-                        "{'अम्लपित्त, रक्तपित्त लक्षणे' if is_marathi else 'Hyperacidity and bleeding tendencies'}"
+                        "{'दाह, तृष्णा, पीत नेत्र' if is_marathi else 'Burning sensation, excessive thirst'}"
                     ],
                     "sidebar_box_title": "{'Pitta = Agni' if is_marathi else 'Core Concept'}",
-                    "sidebar_box_points": ["Transformation", "Metabolism", "Heat Regulation", "Intelligence"],
+                    "sidebar_box_points": ["Transformation", "Metabolism", "Heat Regulation"],
                     "samprapti_steps": [
-                        "{'निदान सेवन' if is_marathi else 'Intake of Etiology (Nidana)'}",
-                        "{'दोष संचय व प्रकोप' if is_marathi else 'Dosha Aggravation (Prakopa)'}",
-                        "{'रक्त धातू दुष्टी' if is_marathi else 'Vitiation of Rakta Dhatu'}",
-                        "{'व्याधी निर्मिती' if is_marathi else 'Disease Manifestation'}"
+                        "{'निदान सेवन' if is_marathi else 'Step 1: Intake of Nidana'}",
+                        "{'दोष प्रकोप' if is_marathi else 'Step 2: Pitta Prakopa'}",
+                        "{'रक्त दुष्टी' if is_marathi else 'Step 3: Rakta Dhatu Vitiation'}",
+                        "{'व्याधी निर्मिती' if is_marathi else 'Final: Manifestation of Pittaja Disease'}"
                     ],
                     "chikitsa": [
                         "{'शीत, मधुर, तिक्त आहार' if is_marathi else 'Sheetal, Madhura and Tikta Ahara'}",
-                        "<span class='hl-red'>{'विरेचन' if is_marathi else 'Virechana'}</span> {'हे श्रेष्ठ शोधन' if is_marathi else 'is the prime purificatory treatment'}",
-                        "{'तिक्तघृत व शतधौत घृत वापर' if is_marathi else 'Use of Tikta Ghrita and Sheeta Upachara'}"
+                        "<span class='hl-red'>{'विरेचन' if is_marathi else 'Virechana'}</span> {'हे श्रेष्ठ शोधन' if is_marathi else 'is the prime purificatory treatment'}"
                     ],
                     "aushadha": [
-                        "{'आवळा (Amalaki)' if is_marathi else 'Amalaki (Emblica officinalis)'}",
-                        "{'गुडुची (Guduchi)' if is_marathi else 'Guduchi (Tinospora cordifolia)'}",
-                        "{'शतधौत घृत' if is_marathi else 'Shatadhouta Ghrita'}",
-                        "{'सारिवा, उशीर' if is_marathi else 'Sariva and Ushira'}"
+                        "{'आवळा (Amalaki)' if is_marathi else 'Amalaki'}",
+                        "{'गुडुची (Guduchi)' if is_marathi else 'Guduchi'}"
                     ],
-                    "punch_line": "{'पित्त हे दहन, पाचन व रूपांतरण करणारे उष्ण द्रव्य आहे.' if is_marathi else 'Pitta represents the metabolic fire; Virechana is its supreme treatment.'}"
+                    "punch_line": "{'पित्त हे दहन व पाचन करणारे उष्ण द्रव्य आहे.' if is_marathi else 'Pitta represents metabolic fire; Virechana is supreme treatment.'}"
                 }}
                 """
 
@@ -760,7 +745,7 @@ with tab1:
                         st.error(f"त्रुटी: {e}")
 
 # =========================================================================
-# TAB 2: MEDICINE FORMULATION & MANUFACTURING (औषध निर्माण विधी पूर्ववत)
+# TAB 2: MEDICINE FORMULATION & MANUFACTURING (औषध निर्माण विधी)
 # =========================================================================
 with tab2:
     st.markdown("""
