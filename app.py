@@ -3,6 +3,7 @@ from google import genai
 from google.genai import types
 import json
 import time
+import html
 
 
 # ============================================================
@@ -18,46 +19,43 @@ st.set_page_config(
 
 
 # ============================================================
-# 🎨 PREMIUM GLOBAL CSS
+# 🎨 PREMIUM APP DESIGN
 # ============================================================
 
 st.markdown("""
 <style>
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Mukta:wght@400;500;600;700;800&display=swap');
-
-
-/* =========================================================
-   ROOT
-   ========================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Mukta:wght@400;500;600;700;800;900&display=swap');
 
 :root {
     --orange: #ea580c;
     --saffron: #d97706;
     --gold: #f59e0b;
-    --dark-red: #7f1d1d;
+    --deep: #7c2d12;
     --cream: #fffaf0;
+    --paper: #fffdf7;
     --ink: #172033;
-    --muted: #667085;
 }
 
 
-/* =========================================================
-   MAIN APP
-   ========================================================= */
+/* ============================================================
+   APP BACKGROUND
+   ============================================================ */
 
+html,
+body,
 .stApp {
 
     background:
         radial-gradient(
             circle at 5% 0%,
-            rgba(251,191,36,0.18),
+            rgba(251,191,36,.18),
             transparent 25%
         ),
         radial-gradient(
-            circle at 95% 8%,
-            rgba(234,88,12,0.12),
-            transparent 24%
+            circle at 95% 5%,
+            rgba(234,88,12,.12),
+            transparent 25%
         ),
         linear-gradient(
             180deg,
@@ -71,46 +69,14 @@ st.markdown("""
         'Plus Jakarta Sans',
         sans-serif !important;
 
-    color: var(--ink);
+    color:
+        var(--ink) !important;
 }
 
 
-/* subtle pattern */
-
-.stApp::before {
-
-    content: "";
-
-    position: fixed;
-
-    inset: 0;
-
-    pointer-events: none;
-
-    opacity: 0.18;
-
-    background-image:
-        radial-gradient(
-            #b45309 0.6px,
-            transparent 0.6px
-        );
-
-    background-size: 25px 25px;
-
-    mask-image:
-        linear-gradient(
-            to bottom,
-            black,
-            transparent 75%
-        );
-
-    z-index: 0;
-}
-
-
-/* =========================================================
-   STREAMLIT CLEANUP
-   ========================================================= */
+/* ============================================================
+   STREAMLIT CLEAN
+   ============================================================ */
 
 #MainMenu {
     visibility: hidden;
@@ -124,47 +90,21 @@ header[data-testid="stHeader"] {
     background: transparent !important;
 }
 
-div[data-testid="stDecoration"] {
-    display: none;
-}
-
 .block-container {
 
     max-width: 1380px;
 
     padding-top:
-        1.1rem !important;
+        1rem !important;
 
     padding-bottom:
         3rem !important;
 }
 
 
-/* =========================================================
-   GLOBAL TEXT
-   ========================================================= */
-
-h1,
-h2,
-h3,
-h4,
-h5,
-p,
-label,
-span {
-
-    font-family:
-        'Mukta',
-        'Plus Jakarta Sans',
-        sans-serif !important;
-
-    color: var(--ink);
-}
-
-
-/* =========================================================
+/* ============================================================
    NAVBAR
-   ========================================================= */
+   ============================================================ */
 
 .premium-nav {
 
@@ -178,51 +118,45 @@ span {
 
     justify-content: space-between;
 
-    gap: 20px;
+    gap: 15px;
 
-    padding: 14px 17px;
+    padding: 13px 16px;
 
     margin-bottom: 20px;
 
+    border-radius: 23px;
+
     border:
         1px solid
-        rgba(245,158,11,0.30);
-
-    border-radius: 24px;
+        rgba(217,119,6,.25);
 
     background:
-        rgba(255,255,255,0.76);
+        rgba(255,255,255,.78);
 
     backdrop-filter:
-        blur(22px);
-
-    -webkit-backdrop-filter:
-        blur(22px);
+        blur(20px);
 
     box-shadow:
-        0 16px 45px
-        rgba(120,53,15,0.09);
+        0 14px 40px
+        rgba(120,53,15,.08);
 }
 
 
 .premium-nav::after {
 
-    content: "";
+    content: "ॐ";
 
     position: absolute;
 
-    width: 230px;
+    right: 22px;
 
-    height: 230px;
+    top: -35px;
 
-    right: -110px;
+    font-size: 110px;
 
-    top: -150px;
+    color: #d97706;
 
-    border-radius: 50%;
-
-    background:
-        rgba(251,191,36,0.16);
+    opacity: .045;
 }
 
 
@@ -232,7 +166,7 @@ span {
 
     align-items: center;
 
-    gap: 12px;
+    gap: 11px;
 
     position: relative;
 
@@ -242,9 +176,9 @@ span {
 
 .brand-mark {
 
-    width: 48px;
+    width: 46px;
 
-    height: 48px;
+    height: 46px;
 
     display: flex;
 
@@ -252,25 +186,24 @@ span {
 
     justify-content: center;
 
-    border-radius: 16px;
+    border-radius: 15px;
 
     background:
         linear-gradient(
             145deg,
-            #fff8dc,
+            #fff9df,
             #fef3c7
         );
 
     border:
         1px solid
-        #f3ce68;
+        #f2cf72;
 
     box-shadow:
-        inset 0 1px white,
-        0 8px 20px
-        rgba(180,83,9,0.13);
+        0 7px 18px
+        rgba(180,83,9,.12);
 
-    font-size: 25px;
+    font-size: 24px;
 }
 
 
@@ -280,7 +213,7 @@ span {
         'Plus Jakarta Sans',
         sans-serif !important;
 
-    font-size: 20px;
+    font-size: 19px;
 
     font-weight: 800;
 
@@ -302,17 +235,17 @@ span {
 
 .brand-sub {
 
-    margin-top: 2px;
-
     color:
         #9a5a13 !important;
 
-    font-size: 10px;
+    font-size:
+        9px;
 
-    font-weight: 800;
+    font-weight:
+        800;
 
     letter-spacing:
-        0.6px;
+        .5px;
 }
 
 
@@ -323,66 +256,60 @@ span {
     z-index: 2;
 
     padding:
-        9px 14px;
+        8px 13px;
 
     border:
         1px solid
-        rgba(245,158,11,0.28);
+        rgba(217,119,6,.25);
 
     border-radius:
         999px;
 
     background:
-        linear-gradient(
-            180deg,
-            #fffdf5,
-            #fff6dc
-        );
+        #fff8e6;
 
     color:
         #8a4b08 !important;
 
     font-size:
-        12px;
+        11px;
 
     font-weight:
         800;
-
-    box-shadow:
-        0 6px 18px
-        rgba(180,83,9,0.08);
 }
 
 
-/* =========================================================
+/* ============================================================
    HERO
-   ========================================================= */
+   ============================================================ */
 
 .hero {
 
-    position: relative;
+    position:
+        relative;
 
-    overflow: hidden;
+    overflow:
+        hidden;
 
     padding:
-        32px 32px 29px;
+        29px 30px;
 
     margin-bottom:
-        22px;
+        21px;
 
     border-radius:
-        29px;
+        27px;
 
     background:
         radial-gradient(
-            circle at 86% 12%,
-            rgba(255,255,255,0.18),
-            transparent 20%
+            circle at 88% 8%,
+            rgba(255,255,255,.18),
+            transparent 22%
         ),
         radial-gradient(
-            circle at 3% 100%,
-            rgba(251,191,36,0.20),
-            transparent 28%
+            circle at 0% 100%,
+            rgba(251,191,36,.16),
+            transparent 30%
         ),
         linear-gradient(
             135deg,
@@ -393,57 +320,59 @@ span {
 
     border:
         1px solid
-        rgba(254,240,138,0.65);
+        rgba(254,240,138,.55);
 
     box-shadow:
-        0 24px 55px
-        rgba(127,29,29,0.20);
+        0 22px 50px
+        rgba(127,29,29,.18);
 }
 
 
 .hero::after {
 
-    content: "ॐ";
+    content:
+        "✦";
 
-    position: absolute;
+    position:
+        absolute;
 
-    right: 38px;
+    right:
+        35px;
 
-    top: -15px;
+    top:
+        5px;
 
-    font-family: serif;
+    font-size:
+        120px;
 
-    font-size: 170px;
+    color:
+        white;
 
-    line-height: 1;
-
-    color: white;
-
-    opacity: 0.07;
+    opacity:
+        .07;
 }
 
 
 .hero-kicker {
 
-    display: inline-flex;
-
-    align-items: center;
+    display:
+        inline-flex;
 
     padding:
-        6px 12px;
+        5px 11px;
 
     border:
         1px solid
-        rgba(255,255,255,0.30);
+        rgba(255,255,255,.3);
 
     border-radius:
         999px;
 
     background:
-        rgba(255,255,255,0.12);
+        rgba(255,255,255,.12);
 
     color:
-        #ffffff !important;
+        white !important;
 
     font-size:
         11px;
@@ -452,52 +381,52 @@ span {
         800;
 
     letter-spacing:
-        0.6px;
+        .4px;
 }
 
 
 .hero-title {
 
     color:
-        #ffffff !important;
+        white !important;
 
     font-family:
         'Plus Jakarta Sans',
         sans-serif !important;
 
     font-size:
-        31px;
+        29px;
 
     font-weight:
         800;
 
     margin:
-        12px 0 7px;
+        11px 0 6px;
 }
 
 
 .hero-description {
 
-    color:
-        rgba(255,255,255,0.91) !important;
-
     max-width:
-        900px;
+        920px;
+
+    margin:
+        0;
+
+    color:
+        rgba(255,255,255,.9) !important;
 
     font-size:
         14px;
 
     line-height:
-        1.65;
-
-    margin:
-        0;
+        1.6;
 }
 
 
-/* =========================================================
+/* ============================================================
    SECTION TITLE
-   ========================================================= */
+   ============================================================ */
 
 .section-title {
 
@@ -508,20 +437,20 @@ span {
         center;
 
     gap:
-        10px;
+        9px;
 
     margin:
-        5px 0 12px;
+        6px 0 11px;
 
     color:
-        #6b3410 !important;
+        #63350f !important;
 
     font-family:
         'Plus Jakarta Sans',
         sans-serif !important;
 
     font-size:
-        15px;
+        14px;
 
     font-weight:
         800;
@@ -530,16 +459,17 @@ span {
 
 .section-title::before {
 
-    content: "";
+    content:
+        "";
 
     width:
         4px;
 
     height:
-        19px;
+        18px;
 
     border-radius:
-        10px;
+        20px;
 
     background:
         linear-gradient(
@@ -549,33 +479,33 @@ span {
 }
 
 
-/* =========================================================
+/* ============================================================
    INPUTS
-   ========================================================= */
+   ============================================================ */
 
 div[data-baseweb="select"] > div,
 div[data-baseweb="input"] > div,
 div[data-baseweb="textarea"] > div {
 
     background:
-        rgba(255,255,255,0.94) !important;
+        rgba(255,255,255,.94) !important;
 
     border:
         1px solid
         #ead8c2 !important;
 
     border-radius:
-        15px !important;
+        14px !important;
 
     min-height:
-        48px;
+        47px;
 
     box-shadow:
-        0 4px 15px
-        rgba(120,53,15,0.035) !important;
+        0 4px 14px
+        rgba(120,53,15,.035) !important;
 
     transition:
-        all 0.2s ease !important;
+        .2s ease !important;
 }
 
 
@@ -584,11 +514,11 @@ div[data-baseweb="input"] > div:hover,
 div[data-baseweb="textarea"] > div:hover {
 
     border-color:
-        #e7a51d !important;
+        #e5a629 !important;
 
     box-shadow:
-        0 8px 25px
-        rgba(217,119,6,0.12) !important;
+        0 7px 20px
+        rgba(217,119,6,.12) !important;
 }
 
 
@@ -608,17 +538,17 @@ textarea {
     color:
         #59320e !important;
 
+    font-size:
+        12.5px !important;
+
     font-weight:
         800 !important;
-
-    font-size:
-        13px !important;
 }
 
 
-/* =========================================================
+/* ============================================================
    RADIO
-   ========================================================= */
+   ============================================================ */
 
 div[role="radiogroup"] {
 
@@ -630,50 +560,45 @@ div[role="radiogroup"] {
 div[role="radiogroup"] label {
 
     background:
-        rgba(255,255,255,0.70);
+        rgba(255,255,255,.72);
 
     border:
         1px solid
-        rgba(180,83,9,0.12);
+        rgba(180,83,9,.12);
 
     border-radius:
-        12px;
+        11px;
 
     padding:
-        7px 10px;
-
-    transition:
-        0.2s ease;
+        6px 9px;
 }
 
 
-div[role="radiogroup"] label:hover {
-
-    border-color:
-        #e8ad36;
-
-    transform:
-        translateY(-1px);
-}
-
-
-/* =========================================================
+/* ============================================================
    BUTTON
-   ========================================================= */
+   ============================================================ */
 
 div.stButton > button {
 
     min-height:
-        54px !important;
+        53px !important;
 
     border:
-        none !important;
+        0 !important;
 
     border-radius:
-        17px !important;
+        16px !important;
 
     color:
-        #ffffff !important;
+        white !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ea580c,
+            #d97706 52%,
+            #b45309
+        ) !important;
 
     font-family:
         'Plus Jakarta Sans',
@@ -685,20 +610,12 @@ div.stButton > button {
     font-weight:
         800 !important;
 
-    background:
-        linear-gradient(
-            135deg,
-            #ea580c,
-            #d97706 52%,
-            #b45309
-        ) !important;
-
     box-shadow:
-        0 13px 30px
-        rgba(194,65,12,0.25) !important;
+        0 12px 28px
+        rgba(194,65,12,.25) !important;
 
     transition:
-        all 0.18s ease !important;
+        .2s ease !important;
 }
 
 
@@ -708,56 +625,45 @@ div.stButton > button:hover {
         translateY(-2px) !important;
 
     box-shadow:
-        0 18px 38px
-        rgba(194,65,12,0.34) !important;
+        0 17px 34px
+        rgba(194,65,12,.32) !important;
 }
 
 
-div.stButton > button:active {
-
-    transform:
-        scale(0.98) !important;
-}
-
-
-/* =========================================================
+/* ============================================================
    TABS
-   ========================================================= */
+   ============================================================ */
 
 .stTabs [data-baseweb="tab-list"] {
 
     gap:
-        7px;
-
-    padding:
         6px;
 
+    padding:
+        5px;
+
     border-radius:
-        19px;
+        18px;
 
     background:
-        rgba(255,255,255,0.66);
+        rgba(255,255,255,.68);
 
     border:
         1px solid
-        rgba(180,83,9,0.11);
-
-    box-shadow:
-        0 10px 28px
-        rgba(120,53,15,0.05);
+        rgba(180,83,9,.10);
 }
 
 
 .stTabs [data-baseweb="tab"] {
 
     height:
-        48px;
+        46px;
 
     padding:
-        0 20px !important;
+        0 18px !important;
 
     border-radius:
-        13px !important;
+        12px !important;
 
     color:
         #71400f !important;
@@ -766,7 +672,7 @@ div.stButton > button:active {
         800 !important;
 
     border:
-        none !important;
+        0 !important;
 }
 
 
@@ -783,8 +689,8 @@ div.stButton > button:active {
         #9a3412 !important;
 
     box-shadow:
-        0 6px 18px
-        rgba(217,119,6,0.13);
+        0 5px 16px
+        rgba(217,119,6,.12);
 }
 
 
@@ -795,73 +701,37 @@ div.stButton > button:active {
 }
 
 
-/* =========================================================
+/* ============================================================
    RESULT CARD
-   ========================================================= */
+   ============================================================ */
 
 .result-card {
 
     padding:
-        22px 24px;
+        21px 23px;
 
     border:
         1px solid
-        rgba(180,83,9,0.13);
+        rgba(180,83,9,.12);
 
     border-radius:
-        22px;
+        20px;
 
     background:
-        rgba(255,255,255,0.76);
+        rgba(255,255,255,.78);
 
     box-shadow:
-        0 14px 40px
-        rgba(120,53,15,0.06);
+        0 13px 36px
+        rgba(120,53,15,.06);
 
     margin-top:
         10px;
 }
 
 
-/* =========================================================
-   MEDICINE HERO
-   ========================================================= */
-
-.medicine-hero {
-
-    background:
-        radial-gradient(
-            circle at 90% 10%,
-            rgba(255,255,255,0.16),
-            transparent 20%
-        ),
-        linear-gradient(
-            135deg,
-            #075e54,
-            #0f766e 52%,
-            #115e59
-        );
-
-    box-shadow:
-        0 24px 55px
-        rgba(15,118,110,0.20);
-}
-
-
-/* =========================================================
-   SUCCESS
-   ========================================================= */
-
-div[data-testid="stAlert"] {
-
-    border-radius:
-        15px !important;
-}
-
-
-/* =========================================================
+/* ============================================================
    FOOTER
-   ========================================================= */
+   ============================================================ */
 
 .footer {
 
@@ -869,10 +739,10 @@ div[data-testid="stAlert"] {
         center;
 
     margin-top:
-        42px;
+        40px;
 
     padding:
-        20px 10px 5px;
+        20px 10px 4px;
 
     color:
         #8a5a20 !important;
@@ -894,7 +764,7 @@ div[data-testid="stAlert"] {
         1px;
 
     margin:
-        0 auto 12px;
+        0 auto 11px;
 
     background:
         linear-gradient(
@@ -906,103 +776,100 @@ div[data-testid="stAlert"] {
 }
 
 
-/* =========================================================
+/* ============================================================
    MOBILE
-   ========================================================= */
+   ============================================================ */
 
 @media (max-width: 768px) {
 
     .block-container {
 
         padding-left:
-            0.8rem !important;
+            .75rem !important;
 
         padding-right:
-            0.8rem !important;
+            .75rem !important;
     }
 
 
     .premium-nav {
 
         padding:
-            11px 12px;
+            10px 11px;
 
         border-radius:
-            19px;
+            18px;
     }
 
 
     .brand-mark {
 
         width:
-            42px;
+            40px;
 
         height:
-            42px;
+            40px;
 
         font-size:
-            22px;
+            21px;
     }
 
 
     .brand-title {
 
         font-size:
-            16px;
+            15px;
     }
 
 
     .brand-sub {
 
         font-size:
-            8px;
-
-        letter-spacing:
-            0.3px;
+            7.5px;
     }
 
 
     .creator-pill {
 
         font-size:
-            9px;
+            8px;
 
         padding:
-            7px 9px;
+            6px 8px;
     }
 
 
     .hero {
 
         padding:
-            24px 19px;
+            23px 18px;
 
         border-radius:
-            23px;
+            21px;
     }
 
 
     .hero-title {
 
         font-size:
-            23px;
+            22px;
     }
 
 
     .hero-description {
 
         font-size:
-            12.5px;
+            12px;
     }
 
 
     .stTabs [data-baseweb="tab"] {
 
         padding:
-            0 9px !important;
+            0 8px !important;
 
         font-size:
-            11px !important;
+            10.5px !important;
     }
 
 }
@@ -1035,7 +902,7 @@ client = genai.Client(
 
 
 # ============================================================
-# 🤖 GEMINI FUNCTION
+# 🤖 GEMINI CALL
 # ============================================================
 
 @st.cache_data(
@@ -1063,21 +930,15 @@ def cached_ask_gemini(
                     response_mime_type="application/json"
                 )
 
-
             response = client.models.generate_content(
-
                 model=model_name,
-
                 contents=prompt,
-
                 config=config
             )
-
 
             if response and response.text:
 
                 return response.text
-
 
         except Exception as error:
 
@@ -1097,14 +958,13 @@ def cached_ask_gemini(
 
                 time.sleep(2)
 
-
     raise RuntimeError(
         f"तांत्रिक अडचण आली: {last_error}"
     )
 
 
 # ============================================================
-# 📝 A4 HANDWRITTEN SHEET
+# 📄 A4 HANDWRITTEN SHEET GENERATOR
 # ============================================================
 
 def create_a4_handwritten_doc(
@@ -1114,36 +974,52 @@ def create_a4_handwritten_doc(
     is_marathi=True
 ):
 
-    marks = data.get(
-        "exam_marks",
-        "१० गुण - दीर्घोत्तरी (LAQ)"
-        if is_marathi
-        else
-        "10 Marks - LAQ"
+    # --------------------------------------------------------
+    # SAFE DATA
+    # --------------------------------------------------------
+
+    marks = str(
+        data.get(
+            "exam_marks",
+            "१० गुण - दीर्घोत्तरी (LAQ)"
+            if is_marathi
+            else
+            "10 Marks - LAQ"
+        )
     )
 
-
-    title = data.get(
-        "main_heading",
-        topic_name
+    title = str(
+        data.get(
+            "main_heading",
+            topic_name
+        )
     )
 
-
-    t1 = data.get(
+    entity1 = data.get(
         "entity_1",
         {}
     )
 
-
-    t2 = data.get(
+    entity2 = data.get(
         "entity_2",
         {}
     )
 
+    flow_steps = data.get(
+        "flowchart_steps",
+        []
+    )
 
-    include_flowchart = data.get(
-        "include_flowchart",
-        False
+    include_flowchart = bool(
+        data.get(
+            "include_flowchart",
+            False
+        )
+    )
+
+    comparison = data.get(
+        "comparison_table",
+        []
     )
 
 
@@ -1151,82 +1027,85 @@ def create_a4_handwritten_doc(
     # LABELS
     # --------------------------------------------------------
 
-    lbl_flow = (
-        "संप्राप्ती प्रवाह तक्ता"
-        if is_marathi
-        else
-        "PATHOGENESIS FLOWCHART"
-    )
+    if is_marathi:
 
-    lbl_points = (
-        "परीक्षेसाठी महत्त्वाचे मुद्दे"
-        if is_marathi
-        else
-        "HIGH-YIELD EXAM POINTS"
-    )
+        label_definition = "व्याख्या"
 
-    lbl_clinical = (
-        "लक्षणे, विकार व चिकित्सा"
-        if is_marathi
-        else
-        "CLINICAL / SYSTEMIC FEATURES"
-    )
+        label_points_1 = "परीक्षेसाठी महत्त्वाचे मुद्दे"
 
-    lbl_key = (
-        "★ मुख्य संकल्पना"
-        if is_marathi
-        else
-        "★ KEY EXAM CONCEPT"
-    )
+        label_points_2 = "लक्षणे व चिकित्सा"
 
-    lbl_modern = (
-        "★ आधुनिक वैद्यकीय सांगड"
-        if is_marathi
-        else
-        "★ CONTEMPORARY / MODERN LINK"
-    )
+        label_key = "★ मुख्य संकल्पना"
 
-    lbl_table = (
-        "★ परीक्षा तुलनात्मक तक्ता"
-        if is_marathi
-        else
-        "★ QUICK EXAM COMPARISON"
-    )
+        label_modern = "★ परीक्षेसाठी महत्त्वाचा मुद्दा"
 
-    lbl_feature = (
-        "मुद्दा / लक्षण"
-        if is_marathi
-        else
-        "Feature"
-    )
+        label_flow = "संप्राप्ती / प्रवाह तक्ता"
 
-    lbl_punch = (
-        "✍️ परीक्षेसाठी मुख्य सूत्र"
-        if is_marathi
-        else
-        "✍️ EXAM PUNCH LINE"
-    )
+        label_table = "★ परीक्षा तुलनात्मक तक्ता"
 
-    lbl_def = (
-        "व्याख्या:"
-        if is_marathi
-        else
-        "Definition:"
-    )
+        label_feature = "मुद्दा / लक्षण"
 
-    lbl_png = (
-        "📸 A4 PNG जतन करा"
-        if is_marathi
-        else
-        "📸 SAVE A4 PNG"
-    )
+        label_punch = "✍️ परीक्षेसाठी मुख्य सूत्र"
 
-    lbl_pdf = (
-        "📄 PDF / PRINT"
-        if is_marathi
-        else
-        "📄 PDF / PRINT"
-    )
+        label_png = "📸 A4 PNG जतन करा"
+
+        label_print = "📄 PDF / PRINT"
+
+    else:
+
+        label_definition = "Definition"
+
+        label_points_1 = "High-Yield Exam Points"
+
+        label_points_2 = "Clinical Features & Treatment"
+
+        label_key = "★ Key Exam Concept"
+
+        label_modern = "★ Important Exam Point"
+
+        label_flow = "Pathogenesis / Flowchart"
+
+        label_table = "★ Quick Exam Comparison"
+
+        label_feature = "Feature"
+
+        label_punch = "✍️ Exam Punch Line"
+
+        label_png = "📸 Save A4 PNG"
+
+        label_print = "📄 PDF / PRINT"
+
+
+    # --------------------------------------------------------
+    # POINT LISTS
+    # --------------------------------------------------------
+
+    points1_html = ""
+
+    for point in entity1.get(
+        "key_points",
+        []
+    ):
+
+        points1_html += (
+            "<li>"
+            + str(point)
+            + "</li>"
+        )
+
+
+    points2_html = ""
+
+    for point in entity2.get(
+        "key_points",
+        []
+    ):
+
+        points2_html += (
+            "<li>"
+            + str(point)
+            + "</li>"
+        )
 
 
     # --------------------------------------------------------
@@ -1235,165 +1114,152 @@ def create_a4_handwritten_doc(
 
     flow_html = ""
 
-    steps = data.get(
-        "flowchart_steps",
-        []
-    )
+    if include_flowchart and flow_steps:
 
+        flow_parts = []
 
-    if include_flowchart and steps:
+        for index, step in enumerate(
+            flow_steps[:4]
+        ):
 
-        parts = []
+            if index == len(flow_steps[:4]) - 1:
 
-        for index, step in enumerate(steps):
-
-            if index == len(steps) - 1:
-
-                parts.append(
-                    f'<div class="a4-cloud">{step}</div>'
+                flow_parts.append(
+                    '<div class="flow-final">'
+                    + str(step)
+                    + '</div>'
                 )
 
             else:
 
-                parts.append(
-                    f'<div class="a4-step">{step}</div>'
+                flow_parts.append(
+                    '<div class="flow-step">'
+                    + str(step)
+                    + '</div>'
                 )
 
-                parts.append(
-                    '<div class="a4-arrow">↓</div>'
+                flow_parts.append(
+                    '<div class="flow-arrow">↓</div>'
                 )
 
 
-        flow_html = f"""
-        <div class="a4-flow">
-
-            <div class="a4-label">
-                {lbl_flow}
-            </div>
-
-            <div class="a4-flow-body">
-                {''.join(parts)}
-            </div>
-
-        </div>
-        """
-
-
-    # --------------------------------------------------------
-    # POINTS
-    # --------------------------------------------------------
-
-    points_1 = "".join(
-
-        f"<li>{point}</li>"
-
-        for point in t1.get(
-            "key_points",
-            []
+        flow_html = (
+            '<div class="flow-section">'
+            '<div class="flow-label">'
+            + label_flow +
+            '</div>'
+            '<div class="flow-body">'
+            + "".join(flow_parts) +
+            '</div>'
+            '</div>'
         )
-    )
-
-
-    points_2 = "".join(
-
-        f"<li>{point}</li>"
-
-        for point in t2.get(
-            "key_points",
-            []
-        )
-    )
 
 
     # --------------------------------------------------------
-    # TABLE
+    # COMPARISON TABLE
     # --------------------------------------------------------
-
-    table_rows = ""
-
-    for row in data.get(
-        "comparison_table",
-        []
-    ):
-
-        table_rows += f"""
-        <tr>
-
-            <td>
-                <b>
-                    {row.get("feature","")}
-                </b>
-            </td>
-
-            <td>
-                {row.get("point_1","")}
-            </td>
-
-            <td>
-                {row.get("point_2","")}
-            </td>
-
-        </tr>
-        """
-
 
     table_html = ""
 
-    if table_rows:
+    if comparison:
 
-        table_html = f"""
-        <div class="a4-section-title">
-            {lbl_table}
-        </div>
+        rows = ""
 
-        <table class="a4-table">
+        for row in comparison[:3]:
 
-            <thead>
+            rows += (
+                "<tr>"
+                "<td><b>"
+                + str(
+                    row.get(
+                        "feature",
+                        ""
+                    )
+                )
+                + "</b></td>"
+                "<td>"
+                + str(
+                    row.get(
+                        "point_1",
+                        ""
+                    )
+                )
+                + "</td>"
+                "<td>"
+                + str(
+                    row.get(
+                        "point_2",
+                        ""
+                    )
+                )
+                + "</td>"
+                "</tr>"
+            )
 
-                <tr>
 
-                    <th style="width:25%;">
-                        {lbl_feature}
-                    </th>
-
-                    <th>
-                        {t1.get("title","Concept 1")}
-                    </th>
-
-                    <th>
-                        {t2.get("title","Concept 2")}
-                    </th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-                {table_rows}
-            </tbody>
-
-        </table>
-        """
-
-
-    font_family = (
-        "'Mukta', sans-serif"
-        if is_marathi
-        else
-        "'Patrick Hand', 'Caveat', cursive, sans-serif"
-    )
+        table_html = (
+            '<div class="section-heading">'
+            + label_table +
+            '</div>'
+            '<table class="compare-table">'
+            '<thead>'
+            '<tr>'
+            '<th>'
+            + label_feature +
+            '</th>'
+            '<th>'
+            + str(
+                entity1.get(
+                    "title",
+                    "Concept 1"
+                )
+            )
+            + '</th>'
+            '<th>'
+            + str(
+                entity2.get(
+                    "title",
+                    "Concept 2"
+                )
+            )
+            + '</th>'
+            '</tr>'
+            '</thead>'
+            '<tbody>'
+            + rows +
+            '</tbody>'
+            '</table>'
+        )
 
 
     # --------------------------------------------------------
-    # A4 HTML
-    #
+    # FONT
+    # --------------------------------------------------------
+
+    if is_marathi:
+
+        font_family = "'Mukta', sans-serif"
+
+    else:
+
+        font_family = (
+            "'Patrick Hand', "
+            "'Caveat', "
+            "cursive, sans-serif"
+        )
+
+
+    # ========================================================
     # IMPORTANT:
-    # This is a normal string, NOT an f-string.
-    # Therefore CSS {} will NEVER create Python
-    # f-string syntax errors.
-    # --------------------------------------------------------
+    #
+    # DO NOT MAKE THIS HTML AN F-STRING.
+    #
+    # CSS contains { }.
+    # Normal string avoids the previous
+    # "f-string expecting a }" error.
+    # ========================================================
 
-    html = """
+    html_doc = """
 <!DOCTYPE html>
 
 <html>
@@ -1420,7 +1286,7 @@ body {
 
     margin: 0;
 
-    padding: 20px 10px;
+    padding: 18px 10px;
 
     background: #edf1f6;
 
@@ -1433,27 +1299,24 @@ body {
     font-family: FONT_FAMILY;
 }
 
-.a4-actions {
+.action-bar {
 
     display: flex;
 
     gap: 10px;
 
-    margin-bottom: 16px;
+    margin-bottom: 15px;
 
-    font-family:
-        Arial,
-        sans-serif;
+    font-family: Arial, sans-serif;
 }
 
-.a4-button {
+.action-button {
 
     border: 0;
 
     border-radius: 11px;
 
-    padding:
-        11px 17px;
+    padding: 10px 16px;
 
     color: white;
 
@@ -1469,11 +1332,11 @@ body {
         );
 
     box-shadow:
-        0 7px 18px
+        0 6px 17px
         rgba(3,105,161,.25);
 }
 
-.a4-button.green {
+.action-button.green {
 
     background:
         linear-gradient(
@@ -1483,201 +1346,190 @@ body {
         );
 }
 
+
+/* ========================================================
+   REAL A4
+   ======================================================== */
+
 .a4-paper {
 
-    width:
-        794px;
+    width: 794px;
 
-    min-height:
-        1123px;
+    min-height: 1123px;
 
-    position:
-        relative;
+    position: relative;
 
-    overflow:
-        hidden;
+    overflow: hidden;
 
-    background:
-        #fffef9;
+    padding: 25px 28px;
+
+    background: #fffef9;
 
     border:
         2px solid
         #17325f;
 
     box-shadow:
-        0 18px 45px
+        0 17px 45px
         rgba(15,23,42,.18);
 
-    padding:
-        28px 31px;
+    color: #17325f;
 
-    color:
-        #17325f;
+    font-size: 15px;
 
-    font-size:
-        15px;
-
-    line-height:
-        1.42;
+    line-height: 1.40;
 }
+
+
+/* ruled notebook paper */
 
 .a4-paper::before {
 
     content: "";
 
-    position:
-        absolute;
+    position: absolute;
 
-    inset:
-        0;
+    inset: 0;
 
-    pointer-events:
-        none;
+    pointer-events: none;
 
-    opacity:
-        .20;
+    opacity: .18;
 
     background:
         repeating-linear-gradient(
             0deg,
             transparent 0,
             transparent 29px,
-            rgba(23,50,95,.08) 30px
+            rgba(23,50,95,.10) 30px
         );
 }
 
+
 .a4-paper > * {
 
-    position:
-        relative;
+    position: relative;
 
-    z-index:
-        1;
+    z-index: 1;
 }
 
-.a4-header {
 
-    display:
-        flex;
+/* ========================================================
+   HEADER
+   ======================================================== */
 
-    align-items:
-        center;
+.header {
 
-    justify-content:
-        space-between;
+    display: flex;
 
-    gap:
-        14px;
+    justify-content: space-between;
 
-    padding-bottom:
-        10px;
+    align-items: center;
 
-    margin-bottom:
-        12px;
+    gap: 14px;
+
+    padding-bottom: 9px;
+
+    margin-bottom: 10px;
 
     border-bottom:
         2px solid
         #17325f;
 }
 
-.a4-title {
 
-    width:
-        69%;
+.main-title {
 
-    padding:
-        8px 13px;
+    width: 69%;
+
+    padding: 7px 12px;
 
     border:
         2px solid
         #17325f;
 
-    border-radius:
-        10px;
+    border-radius: 10px;
 
-    background:
-        white;
+    background: white;
 
-    text-align:
-        center;
+    text-align: center;
 
-    font-size:
-        21px;
+    font-size: 21px;
 
-    font-weight:
-        800;
+    font-weight: 800;
 }
 
-.a4-title span {
+
+.main-title span {
 
     border-bottom:
         2px double
         #17325f;
+
+    padding-bottom: 1px;
 }
 
-.a4-marks {
 
-    padding:
-        6px 10px;
+.marks-box {
+
+    padding: 5px 9px;
 
     border:
         2px solid
         #17325f;
 
-    border-radius:
-        8px;
+    border-radius: 8px;
 
-    background:
-        white;
+    background: white;
 
-    text-align:
-        center;
+    text-align: center;
 
-    font-size:
-        12px;
+    font-size: 12px;
 
-    font-weight:
-        800;
+    font-weight: 800;
 }
+
+
+/* ========================================================
+   RED HIGHLIGHT
+   ======================================================== */
 
 .hl-red {
 
-    display:
-        inline-block;
-
-    background:
-        #ffe1e5;
-
-    color:
-        #b42318;
+    display: inline-block;
 
     padding:
-        1px 4px;
+        0 4px;
+
+    border-radius: 4px;
+
+    background: #ffe0e5;
+
+    color: #b42318;
 
     border:
         1px solid
         #fecdd3;
 
-    border-radius:
-        4px;
-
-    font-weight:
-        800;
+    font-weight: 800;
 }
 
-.a4-flow {
 
-    text-align:
-        center;
+/* ========================================================
+   FLOWCHART
+   ======================================================== */
+
+.flow-section {
+
+    text-align: center;
 
     margin:
-        7px 0 13px;
+        5px 0 11px;
 }
 
-.a4-label {
 
-    display:
-        inline-block;
+.flow-label {
+
+    display: inline-block;
 
     padding:
         2px 10px;
@@ -1699,22 +1551,24 @@ body {
         800;
 }
 
-.a4-flow-body {
+
+.flow-body {
 
     margin-top:
-        6px;
+        5px;
 }
 
-.a4-step {
+
+.flow-step {
 
     width:
-        82%;
+        78%;
 
     margin:
-        auto;
+        0 auto;
 
     padding:
-        4px 9px;
+        3px 8px;
 
     border:
         1.4px solid
@@ -1727,62 +1581,70 @@ body {
         white;
 
     font-size:
-        13px;
+        12.5px;
 
     font-weight:
         600;
 }
 
-.a4-cloud {
+
+.flow-final {
 
     width:
-        86%;
+        82%;
 
     margin:
-        auto;
+        0 auto;
 
     padding:
-        5px 10px;
+        4px 8px;
 
     border:
         1.7px dashed
         #17325f;
 
     border-radius:
-        14px;
+        13px;
 
     background:
-        white;
+        #fffaf3;
 
     font-size:
-        13px;
+        12.5px;
 
     font-weight:
         800;
 }
 
-.a4-arrow {
 
-    margin:
-        1px 0;
+.flow-arrow {
+
+    font-size:
+        13px;
 
     font-weight:
         900;
 
-    font-size:
-        13px;
+    margin:
+        0;
 }
 
-.a4-columns {
+
+/* ========================================================
+   MAIN TWO COLUMN ANSWER
+   ======================================================== */
+
+.answer-columns {
 
     display:
         flex;
 
     gap:
-        14px;
+        13px;
 }
 
-.a4-column {
+
+.answer-column {
 
     flex:
         1;
@@ -1791,14 +1653,20 @@ body {
         0 5px;
 }
 
-.a4-column:first-child {
+
+.answer-column:first-child {
 
     border-right:
-        1.3px dashed
+        1.4px dashed
         #17325f;
 }
 
-.a4-badge {
+
+/* ========================================================
+   BADGE
+   ======================================================== */
+
+.concept-badge {
 
     display:
         inline-block;
@@ -1807,7 +1675,7 @@ body {
         2px 10px;
 
     margin-bottom:
-        4px;
+        3px;
 
     border:
         1.5px solid
@@ -1826,19 +1694,29 @@ body {
         800;
 }
 
-.a4-definition {
+
+/* ========================================================
+   DEFINITION
+   ======================================================== */
+
+.definition {
 
     margin:
-        3px 0 5px;
+        2px 0 5px;
 
     font-size:
         13px;
 }
 
-.a4-section-title {
+
+/* ========================================================
+   SECTION HEADING
+   ======================================================== */
+
+.section-heading {
 
     margin:
-        7px 0 3px;
+        6px 0 3px;
 
     font-size:
         14px;
@@ -1850,10 +1728,15 @@ body {
         underline;
 }
 
-.a4-list {
+
+/* ========================================================
+   LIST
+   ======================================================== */
+
+.exam-list {
 
     margin:
-        3px 0 7px;
+        2px 0 6px;
 
     padding-left:
         17px;
@@ -1862,16 +1745,25 @@ body {
         13px;
 }
 
-.a4-list li {
+
+.exam-list li {
 
     margin-bottom:
         3px;
 }
 
-.a4-key {
+
+/* ========================================================
+   KEY BOX
+   ======================================================== */
+
+.key-box {
 
     padding:
-        6px 9px;
+        6px 8px;
+
+    margin-top:
+        5px;
 
     border:
         1.4px dashed
@@ -1881,16 +1773,21 @@ body {
         8px;
 
     background:
-        #fbfbf8;
+        #fcfcf8;
 
     font-size:
-        12.5px;
+        12px;
 
     line-height:
-        1.4;
+        1.35;
 }
 
-.a4-table {
+
+/* ========================================================
+   TABLE
+   ======================================================== */
+
+.compare-table {
 
     width:
         100%;
@@ -1899,30 +1796,32 @@ body {
         collapse;
 
     margin:
-        4px 0 9px;
+        3px 0 8px;
 
     background:
         white;
 
     font-size:
-        12.5px;
+        12px;
 }
 
-.a4-table th,
-.a4-table td {
 
-    padding:
-        4px 7px;
+.compare-table th,
+.compare-table td {
 
     border:
         1.3px solid
         #17325f;
 
+    padding:
+        4px 6px;
+
     text-align:
         left;
 }
 
-.a4-table th {
+
+.compare-table th {
 
     background:
         #f8fafc;
@@ -1931,7 +1830,12 @@ body {
         800;
 }
 
-.a4-punch {
+
+/* ========================================================
+   EXAM PUNCH
+   ======================================================== */
+
+.exam-punch {
 
     margin-top:
         8px;
@@ -1944,22 +1848,27 @@ body {
         #17325f;
 
     font-size:
-        13.5px;
+        13px;
 
     font-weight:
         800;
 }
 
-.a4-footer {
+
+/* ========================================================
+   FOOTER
+   ======================================================== */
+
+.paper-footer {
 
     position:
         absolute;
 
     right:
-        22px;
+        20px;
 
     bottom:
-        8px;
+        7px;
 
     font-family:
         Arial,
@@ -1972,6 +1881,11 @@ body {
         .55;
 }
 
+
+/* ========================================================
+   PRINT
+   ======================================================== */
+
 @media print {
 
     body {
@@ -1983,7 +1897,7 @@ body {
             white;
     }
 
-    .a4-actions {
+    .action-bar {
 
         display:
             none;
@@ -2003,20 +1917,23 @@ body {
 
 </head>
 
+
 <body>
 
-<div class="a4-actions">
+
+<div class="action-bar">
 
 <button
-class="a4-button"
-onclick="downloadA4()">
-PNG_TEXT
+class="action-button"
+onclick="downloadPNG()">
+PNG_BUTTON
 </button>
 
+
 <button
-class="a4-button green"
+class="action-button green"
 onclick="window.print()">
-PDF_TEXT
+PRINT_BUTTON
 </button>
 
 </div>
@@ -2027,9 +1944,11 @@ class="a4-paper"
 id="a4Canvas">
 
 
-<div class="a4-header">
+<!-- HEADER -->
 
-<div class="a4-title">
+<div class="header">
+
+<div class="main-title">
 
 <span>
 TITLE_TEXT
@@ -2038,7 +1957,7 @@ TITLE_TEXT
 </div>
 
 
-<div class="a4-marks">
+<div class="marks-box">
 
 <b>
 SUBJECT_TEXT
@@ -2058,21 +1977,26 @@ SUBJECT_TEXT
 FLOW_HTML
 
 
-<div class="a4-columns">
+<!-- ANSWER -->
+
+<div class="answer-columns">
 
 
-<div class="a4-column">
+<!-- LEFT -->
 
+<div class="answer-column">
 
-<div class="a4-badge">
+<div class="concept-badge">
+
 ① T1_TITLE
+
 </div>
 
 
-<div class="a4-definition">
+<div class="definition">
 
 <b>
-DEF_TEXT
+DEFINITION_TEXT:
 </b>
 
 T1_DEFINITION
@@ -2080,21 +2004,21 @@ T1_DEFINITION
 </div>
 
 
-<div class="a4-section-title">
+<div class="section-heading">
 
-POINTS_TEXT
+POINTS_1_TITLE
 
 </div>
 
 
-<ul class="a4-list">
+<ul class="exam-list">
 
 T1_POINTS
 
 </ul>
 
 
-<div class="a4-key">
+<div class="key-box">
 
 <b>
 KEY_TEXT
@@ -2106,25 +2030,24 @@ T1_KEY
 
 </div>
 
-
 </div>
 
 
+<!-- RIGHT -->
 
-<div class="a4-column">
+<div class="answer-column">
 
-
-<div class="a4-badge">
+<div class="concept-badge">
 
 ② T2_TITLE
 
 </div>
 
 
-<div class="a4-definition">
+<div class="definition">
 
 <b>
-DEF_TEXT
+DEFINITION_TEXT:
 </b>
 
 T2_DEFINITION
@@ -2132,21 +2055,21 @@ T2_DEFINITION
 </div>
 
 
-<div class="a4-section-title">
+<div class="section-heading">
 
-CLINICAL_TEXT
+POINTS_2_TITLE
 
 </div>
 
 
-<ul class="a4-list">
+<ul class="exam-list">
 
 T2_POINTS
 
 </ul>
 
 
-<div class="a4-key">
+<div class="key-box">
 
 <b>
 MODERN_TEXT
@@ -2158,8 +2081,8 @@ T2_KEY
 
 </div>
 
-
 </div>
+
 
 </div>
 
@@ -2167,7 +2090,9 @@ T2_KEY
 TABLE_HTML
 
 
-<div class="a4-punch">
+<!-- PUNCH -->
+
+<div class="exam-punch">
 
 PUNCH_TEXT
 
@@ -2178,7 +2103,7 @@ PUNCH_TEXT
 </div>
 
 
-<div class="a4-footer">
+<div class="paper-footer">
 
 🌿 AyurVeda AI • BAMS Study Studio • Avishkar Alase
 
@@ -2190,7 +2115,7 @@ PUNCH_TEXT
 
 <script>
 
-function downloadA4() {
+function downloadPNG() {
 
     const element =
         document.getElementById(
@@ -2204,24 +2129,23 @@ function downloadA4() {
             useCORS: true,
             backgroundColor: "#fffef9"
         }
-    ).then(
-        function(canvas) {
+    ).then(function(canvas) {
 
-            const link =
-                document.createElement("a");
+        const link =
+            document.createElement("a");
 
-            link.download =
-                "AyurVeda_AI_A4_Notes.png";
+        link.download =
+            "AyurVeda_AI_A4_Notes.png";
 
-            link.href =
-                canvas.toDataURL(
-                    "image/png"
-                );
+        link.href =
+            canvas.toDataURL(
+                "image/png"
+            );
 
-            link.click();
+        link.click();
 
-        }
-    );
+    });
+
 }
 
 </script>
@@ -2233,7 +2157,7 @@ function downloadA4() {
 
 
     # ========================================================
-    # SAFE REPLACEMENTS
+    # REPLACE PLACEHOLDERS
     # ========================================================
 
     replacements = {
@@ -2241,46 +2165,46 @@ function downloadA4() {
         "FONT_FAMILY":
             font_family,
 
-        "PNG_TEXT":
-            lbl_png,
+        "PNG_BUTTON":
+            label_png,
 
-        "PDF_TEXT":
-            lbl_pdf,
+        "PRINT_BUTTON":
+            label_print,
 
         "TITLE_TEXT":
-            str(title),
+            title,
 
         "SUBJECT_TEXT":
             str(subject_name),
 
         "MARKS_TEXT":
-            str(marks),
+            marks,
 
         "FLOW_HTML":
             flow_html,
 
         "T1_TITLE":
             str(
-                t1.get(
+                entity1.get(
                     "title",
-                    "Concept 1"
+                    "Core Concept"
                 )
             ),
 
         "T2_TITLE":
             str(
-                t2.get(
+                entity2.get(
                     "title",
-                    "Concept 2"
+                    "Clinical Features"
                 )
             ),
 
-        "DEF_TEXT":
-            lbl_def,
+        "DEFINITION_TEXT":
+            label_definition,
 
         "T1_DEFINITION":
             str(
-                t1.get(
+                entity1.get(
                     "definition",
                     ""
                 )
@@ -2288,33 +2212,33 @@ function downloadA4() {
 
         "T2_DEFINITION":
             str(
-                t2.get(
+                entity2.get(
                     "definition",
                     ""
                 )
             ),
 
-        "POINTS_TEXT":
-            lbl_points,
+        "POINTS_1_TITLE":
+            label_points_1,
 
-        "CLINICAL_TEXT":
-            lbl_clinical,
+        "POINTS_2_TITLE":
+            label_points_2,
 
         "T1_POINTS":
-            points_1,
+            points1_html,
 
         "T2_POINTS":
-            points_2,
+            points2_html,
 
         "KEY_TEXT":
-            lbl_key,
+            label_key,
 
         "MODERN_TEXT":
-            lbl_modern,
+            label_modern,
 
         "T1_KEY":
             str(
-                t1.get(
+                entity1.get(
                     "exam_key",
                     ""
                 )
@@ -2322,7 +2246,7 @@ function downloadA4() {
 
         "T2_KEY":
             str(
-                t2.get(
+                entity2.get(
                     "exam_key",
                     ""
                 )
@@ -2332,7 +2256,7 @@ function downloadA4() {
             table_html,
 
         "PUNCH_TEXT":
-            lbl_punch,
+            label_punch,
 
         "EXAM_PUNCH":
             str(
@@ -2346,17 +2270,17 @@ function downloadA4() {
 
     for key, value in replacements.items():
 
-        html = html.replace(
+        html_doc = html_doc.replace(
             key,
             value
         )
 
 
-    return html
+    return html_doc
 
 
 # ============================================================
-# 🌿 PREMIUM NAVBAR
+# 🌿 NAVBAR
 # ============================================================
 
 st.html("""
@@ -2392,7 +2316,7 @@ st.html("""
 
 
 # ============================================================
-# 📖 MAIN TABS
+# 📚 TABS
 # ============================================================
 
 tab1, tab2 = st.tabs([
@@ -2416,14 +2340,13 @@ with tab1:
         </span>
 
         <div class="hero-title">
-            🎯 A4 Handwritten Notes, redesigned.
+            🎯 A4 Handwritten Exam Notes
         </div>
 
         <p class="hero-description">
-            University-focused Ayurveda notes with clean hierarchy,
-            exam-weightage, flowcharts, comparison tables,
-            red-highlighted keywords and polished handwritten
-            A4 output — designed specially for BAMS students.
+            फक्त exam मध्ये लिहायला लागेल तेवढेच content.
+            Clean headings, important keywords, आवश्यक flowchart
+            आणि university-focused answer format.
         </p>
 
     </div>
@@ -2438,7 +2361,7 @@ with tab1:
 
 
     # --------------------------------------------------------
-    # YEAR + SUBJECT
+    # ACADEMIC YEAR + SUBJECT
     # --------------------------------------------------------
 
     col1, col2 = st.columns(
@@ -2450,7 +2373,7 @@ with tab1:
 
         bams_year = st.selectbox(
 
-            "BAMS वर्ष / Academic Year",
+            "🎓 BAMS वर्ष / Academic Year",
 
             [
                 "BAMS 1st Professional (प्रथम वर्ष)",
@@ -2469,24 +2392,36 @@ with tab1:
 
             [
                 "Agada Tantra & Vyavahara Ayurveda (अगद तंत्र)",
+
                 "Kriya Sharir (क्रिया शारीर)",
+
                 "Rachana Sharir (रचना शारीर)",
+
                 "Dravyaguna Vijnana (द्रव्यगुण विज्ञान)",
+
                 "Rasashastra & Bhaishajya Kalpana (रसशास्त्र व भैषज्य कल्पना)",
+
                 "Roga Nidan & Vikriti Vigyan (रोगनिदान)",
+
                 "Samhita Siddhant & Charak Samhita (संहिता सिद्धांत)",
+
                 "Kayachikitsa (कायचिकित्सा)",
+
                 "Panchakarma (पंचकर्म)",
+
                 "Shalya Tantra (शल्य तंत्र)",
+
                 "Shalakya Tantra (शालाक्य तंत्र)",
+
                 "Prasuti Tantra & Stri Roga (प्रसूति तंत्र व स्त्रीरोग)",
+
                 "Kaumarbhritya (कौमारभृत्य)"
             ]
         )
 
 
     # --------------------------------------------------------
-    # STUDY MODE + LANGUAGE
+    # MODE + LANGUAGE
     # --------------------------------------------------------
 
     col3, col4 = st.columns(
@@ -2501,15 +2436,15 @@ with tab1:
             "🎯 Study Mode",
 
             [
-                "📋 A4 Blue Ballpen Handwritten Sheet (अस्सल A4 पेन नोट्स)",
+                "📋 A4 Blue Ballpen Handwritten Sheet",
 
-                "📖 Comprehensive Notes (संपूर्ण सविस्तर अभ्यास नोट्स)",
+                "📖 Comprehensive Notes",
 
-                "📜 Only Shlokas & Meanings (फक्त मूळ श्लोक, अन्वय व अर्थ)",
+                "📜 Only Shlokas & Meanings",
 
-                "📝 10-Mark LAQ Answer Format (दीर्घोत्तरी प्रश्न-उत्तर फॉरमॅट)",
+                "📝 10-Mark LAQ Answer Format",
 
-                "⚡ Quick Revision / Viva Voce Points (तोंडी परीक्षेसाठी महत्त्वाचे मुद्दे)"
+                "⚡ Quick Revision / Viva Voce Points"
             ]
         )
 
@@ -2521,7 +2456,8 @@ with tab1:
             "🌐 माध्यम / Language",
 
             [
-                "मराठी (संस्कृत श्लोक + सोपा अर्थ + मॉडर्न टर्म्स)",
+                "मराठी (संस्कृत + सोपा अर्थ + Modern Terms)",
+
                 "Simple Indian English + Sanskrit"
             ],
 
@@ -2544,22 +2480,18 @@ with tab1:
     )
 
 
-    # --------------------------------------------------------
-    # GENERATE BUTTON
-    # --------------------------------------------------------
-
     generate_btn = st.button(
 
-        "🚀  Generate Premium Study Notes",
+        "🚀  Generate Exam-Ready Notes",
 
-        key="btn_notes",
+        key="generate_notes",
 
         use_container_width=True
     )
 
 
     # ========================================================
-    # GENERATE
+    # GENERATE NOTES
     # ========================================================
 
     if generate_btn:
@@ -2568,11 +2500,12 @@ with tab1:
         if not topic.strip():
 
             st.warning(
-                "⚠️ कृपया अभ्यासाचा विषय प्रविष्ट करा."
+                "⚠️ कृपया Topic / Question टाका."
             )
 
 
         else:
+
 
             is_marathi = (
                 "मराठी"
@@ -2580,61 +2513,65 @@ with tab1:
             )
 
 
-            # ==================================================
+            # =================================================
             # A4 MODE
-            # ==================================================
+            # =================================================
 
             if "A4 Blue Ballpen" in study_mode:
 
 
                 if is_marathi:
 
-                    language_rule = """
+                    language_instruction = """
 
-LANGUAGE RULE:
+LANGUAGE:
 
-Write in simple, natural Marathi.
+Write in simple natural Marathi used by
+BAMS students in Maharashtra.
 
-Use authentic Sanskrit Ayurveda terminology.
+Use Sanskrit Ayurveda terms where appropriate.
 
-Explain difficult concepts in easy Marathi.
+Use simple English medical terms in brackets
+only when genuinely useful.
 
-Use English medical terms in brackets
-where helpful.
+Do not use unnecessarily literary Marathi.
 
 """
 
                 else:
 
-                    language_rule = """
+                    language_instruction = """
 
-LANGUAGE RULE:
+LANGUAGE:
 
-Write 100% in English.
+STRICT ENGLISH + ROMAN SANSKRIT ONLY.
 
-Use Roman Sanskrit transliteration.
+Do NOT use Marathi.
 
-DO NOT use Marathi or Devanagari.
+Do NOT use Devanagari.
 
-Example:
+Examples:
 
 Pitta Dosha
-
 Ushna Guna
-
 Tikshna Guna
-
 Rakta Dhatu
-
 Virechana
+Pachaka Pitta
 
 """
 
 
+                # =================================================
+                # EXAM-ONLY PROMPT
+                # =================================================
+
                 prompt = f"""
 
-You are a senior Ayurveda Professor
-and BAMS University Paper Setter.
+You are a senior BAMS Ayurveda Professor,
+University examiner and question paper setter.
+
+You are preparing ONE handwritten exam sheet.
 
 Academic Year:
 {bams_year}
@@ -2642,151 +2579,303 @@ Academic Year:
 Subject:
 {subject}
 
-Topic:
+Topic / Question:
 {topic}
 
-Language:
-{language_preference}
-
-{language_rule}
+{language_instruction}
 
 
-TASK:
+=========================================================
+MOST IMPORTANT OBJECTIVE
+=========================================================
 
-Create highly exam-oriented,
-crisp one-page A4 handwritten notes.
+CREATE ONLY EXAM-WRITING CONTENT.
 
-Determine whether this topic is better
-for 10 Marks LAQ or 5 Marks SAQ.
+The student will use your output directly
+to write a university answer.
 
-Use flowchart ONLY when genuinely useful.
+DO NOT create comprehensive study notes.
 
-Highlight important keywords using:
+DO NOT write a textbook explanation.
 
-<span class="hl-red">keyword</span>
+DO NOT add unnecessary information.
 
+DO NOT repeat concepts.
+
+DO NOT add motivational content.
+
+DO NOT add long paragraphs.
+
+Every point must help the student score marks.
+
+=========================================================
+MARKS
+=========================================================
+
+Decide whether the topic should be:
+
+5 Marks - SAQ
+
+OR
+
+10 Marks - LAQ
+
+For short-note topics:
+choose 5 Marks.
+
+For topics requiring multiple headings such as
+Nidana, Samprapti, Lakshana and Chikitsa:
+choose 10 Marks.
+
+=========================================================
+5 MARK ANSWER
+=========================================================
+
+Target approximately 120-170 words.
+
+Include only:
+
+• Definition
+• 4-6 important points
+• Essential Lakshana / features
+• Essential Chikitsa if applicable
+• One short conclusion
+
+=========================================================
+10 MARK ANSWER
+=========================================================
+
+Target approximately 220-300 words.
+
+Include only relevant sections:
+
+• Definition
+• Nidana / Causes
+• Samprapti
+• Lakshana
+• Classification if important
+• Chikitsa
+• Important drugs / procedures if relevant
+• One flowchart OR comparison table if useful
+• Conclusion
+
+DO NOT force every section.
+
+=========================================================
+FLOWCHART
+=========================================================
+
+Use flowchart ONLY if the topic genuinely
+has a sequence or Samprapti.
+
+Maximum 4 steps.
+
+Example:
+
+Nidana
+↓
+Dosha Prakopa
+↓
+Dushya involvement
+↓
+Vyadhi manifestation
+
+If not useful:
+
+include_flowchart = false
+
+flowchart_steps = []
+
+=========================================================
+COMPARISON TABLE
+=========================================================
+
+Use comparison ONLY if the question contains
+two entities that students need to differentiate.
+
+Maximum 3 rows.
+
+Otherwise:
+
+comparison_table = []
+
+=========================================================
+RED HIGHLIGHT
+=========================================================
+
+Highlight only very important exam keywords.
+
+Use exactly:
+
+<span class="hl-red">KEYWORD</span>
+
+Highlight:
+
+• Cardinal symptoms
+• Important Dosha
+• Important Guna
+• Important Nidana
+• Important Chikitsa
+• Important drugs
+• Important classical terms
+• Important mechanisms
+
+Do NOT highlight whole sentences.
+
+=========================================================
+EXAM STYLE
+=========================================================
+
+Write like a BAMS student writing an answer sheet.
+
+Use:
+
+• Short headings
+• Numbered points
+• Short bullets
+• Simple sentences
+• Classical terminology
+• High-yield facts
+
+Avoid:
+
+• Long explanations
+• Repetition
+• History
+• Research discussion
+• Excessive modern correlation
+• Unnecessary examples
+• Unnecessary references
+
+=========================================================
+IMPORTANT
+=========================================================
+
+The complete answer MUST comfortably fit
+on ONE A4 handwritten sheet.
+
+LESS CONTENT + MORE MARKS.
+
+=========================================================
+OUTPUT
+=========================================================
 
 Return ONLY valid JSON.
 
-JSON FORMAT:
+No Markdown.
+
+No explanation outside JSON.
+
+Use exactly:
 
 {{
     "exam_marks": "10 Marks - LAQ",
 
-    "main_heading": "Topic Heading",
+    "main_heading": "Clean Topic Heading",
 
-    "include_flowchart": true,
+    "include_flowchart": false,
 
-    "flowchart_steps": [
-        "Step 1",
-        "Step 2",
-        "Step 3",
-        "Final"
-    ],
+    "flowchart_steps": [],
 
     "entity_1": {{
+        "title": "Definition & Core Points",
 
-        "title": "Concept 1",
-
-        "definition": "Short definition",
+        "definition": "1-2 line exam-ready definition with <span class='hl-red'>important keyword</span>",
 
         "key_points": [
-            "Point 1",
-            "Point 2",
-            "Point 3"
+            "Important point 1",
+            "Important point 2",
+            "Important point 3",
+            "Important point 4",
+            "Important point 5"
         ],
 
-        "exam_key": "Important exam concept"
+        "exam_key": "One very important exam concept."
     }},
 
     "entity_2": {{
+        "title": "Lakshana & Chikitsa",
 
-        "title": "Concept 2",
-
-        "definition": "Short definition",
+        "definition": "",
 
         "key_points": [
-            "Point 1",
-            "Point 2",
-            "Point 3"
+            "Essential Lakshana",
+            "Essential Lakshana",
+            "Important Chikitsa",
+            "Important drug or procedure",
+            "Important management point"
         ],
 
-        "exam_key": "Clinical or modern correlation"
+        "exam_key": "One high-yield exam point."
     }},
 
-    "comparison_table": [
+    "comparison_table": [],
 
-        {{
-            "feature": "Feature",
-            "point_1": "Point",
-            "point_2": "Point"
-        }},
-
-        {{
-            "feature": "Clinical Signs",
-            "point_1": "Point",
-            "point_2": "Point"
-        }},
-
-        {{
-            "feature": "Treatment",
-            "point_1": "Point",
-            "point_2": "Point"
-        }}
-
-    ],
-
-    "exam_punch_line":
-        "One memorable exam conclusion"
+    "exam_punch_line": "One short memorable conclusion."
 }}
 
+=========================================================
+FINAL CHECK
+=========================================================
+
+Before returning JSON silently check:
+
+1. Can this be written in the university exam?
+2. Is the content only what is needed for marks?
+3. Is it short enough for one A4 sheet?
+4. Are unnecessary explanations removed?
+5. Are important keywords highlighted?
+6. Is the selected 5/10 mark level appropriate?
+7. Is the language correct?
+
+Return ONLY JSON.
 """
 
 
                 with st.spinner(
-                    "✍️ Premium A4 handwritten sheet तयार करत आहे..."
+                    "✍️ Exam-ready A4 handwritten sheet तयार करत आहे..."
                 ):
 
 
                     try:
 
-                        raw = cached_ask_gemini(
+                        raw_json = cached_ask_gemini(
                             prompt,
                             as_json=True
                         )
 
 
-                        clean = raw.strip()
+                        clean_json = raw_json.strip()
 
 
-                        if clean.startswith(
+                        if clean_json.startswith(
                             "```json"
                         ):
 
-                            clean = clean[7:]
+                            clean_json = clean_json[7:]
 
 
-                        if clean.startswith(
+                        if clean_json.startswith(
                             "```"
                         ):
 
-                            clean = clean[3:]
+                            clean_json = clean_json[3:]
 
 
-                        if clean.endswith(
+                        if clean_json.endswith(
                             "```"
                         ):
 
-                            clean = clean[:-3]
+                            clean_json = clean_json[:-3]
 
 
-                        data = json.loads(
-                            clean.strip()
+                        sheet_data = json.loads(
+                            clean_json.strip()
                         )
 
 
                         st.success(
-                            "✅ Premium A4 Sheet तयार झाली!"
+                            "✅ Exam-ready A4 Sheet तयार झाली!"
                         )
 
 
@@ -2794,7 +2883,7 @@ JSON FORMAT:
 
                             create_a4_handwritten_doc(
 
-                                data,
+                                sheet_data,
 
                                 subject,
 
@@ -2803,7 +2892,7 @@ JSON FORMAT:
                                 is_marathi=is_marathi
                             ),
 
-                            height=1280,
+                            height=1290,
 
                             scrolling=True
                         )
@@ -2812,23 +2901,22 @@ JSON FORMAT:
                     except Exception as error:
 
                         st.error(
-                            f"❌ त्रुटी: {error}"
+                            f"❌ A4 Sheet तयार करताना त्रुटी: {error}"
                         )
 
 
-            # ==================================================
-            # NORMAL NOTES
-            # ==================================================
+            # =================================================
+            # OTHER MODES
+            # =================================================
 
             else:
 
 
-                prompt = f"""
+                normal_prompt = f"""
 
-You are a senior Ayurveda Acharya
-according to NCISM academic standards.
+You are a senior BAMS Ayurveda Professor.
 
-Academic Level:
+Academic Year:
 {bams_year}
 
 Subject:
@@ -2843,10 +2931,9 @@ Topic:
 Language:
 {language_preference}
 
-
 Create high-yield BAMS study material.
 
-Strictly follow selected study mode.
+Strictly follow the selected study mode.
 
 Use:
 
@@ -2854,35 +2941,34 @@ Use:
 • Short paragraphs
 • Exam-focused bullets
 • Bold important terms
-• Sanskrit transliteration
-• Tables where useful
-• Flowcharts where useful
+• Sanskrit terminology
+• Tables where genuinely useful
+• Flowcharts where genuinely useful
 
-If English is selected,
+If English is selected:
 use English + Roman Sanskrit.
 
-For Sanskrit shlokas,
-use Markdown blockquotes.
+Do not add unnecessary information.
 
-Make the answer useful for university exams.
+Make the answer useful for university examinations.
 """
 
 
                 with st.spinner(
-                    "⚡ AI exam-ready notes तयार करत आहे..."
+                    "⚡ AI exam notes तयार करत आहे..."
                 ):
 
 
                     try:
 
                         notes = cached_ask_gemini(
-                            prompt,
+                            normal_prompt,
                             as_json=False
                         )
 
 
                         st.success(
-                            "✅ Premium Notes तयार झाल्या!"
+                            "✅ Notes तयार झाल्या!"
                         )
 
 
@@ -2911,14 +2997,31 @@ Make the answer useful for university exams.
 
 
 # ============================================================
-# 🧪 TAB 2 — MEDICINE
+# 🧪 TAB 2 — MEDICINE & MANUFACTURING
 # ============================================================
 
 with tab2:
 
 
     st.html("""
-    <div class="hero medicine-hero">
+    <div class="hero"
+         style="
+         background:
+         radial-gradient(
+             circle at 88% 8%,
+             rgba(255,255,255,.16),
+             transparent 22%
+         ),
+         linear-gradient(
+             135deg,
+             #075e54,
+             #0f766e 55%,
+             #115e59
+         );
+         box-shadow:
+         0 22px 50px
+         rgba(15,118,110,.18);
+         ">
 
         <span class="hero-kicker">
             🌿 RASAUSHADHI VIDHI • FORMULATION LAB
@@ -2929,9 +3032,9 @@ with tab2:
         </div>
 
         <p class="hero-description">
-            Ayurvedic formulation ingredients, Shodhana,
-            preparation sequence, quality-control concepts
-            and high-yield BAMS exam points — all in one place.
+            Ayurvedic formulation ingredients, preparation sequence,
+            Shodhana concepts, manufacturing steps and
+            exam-focused points in a clean format.
         </p>
 
     </div>
@@ -2958,9 +3061,13 @@ with tab2:
 
             [
                 "Vati / Gutika (गोळी / वटी)",
+
                 "Churna (चूर्ण)",
+
                 "Asava & Arishta (आसव व अरिष्ट)",
+
                 "Taila / Ghrita (सिद्ध तेल व घृत)",
+
                 "Bhasma & Pishti (भस्म व पिष्टी)"
             ]
         )
@@ -2996,9 +3103,9 @@ with tab2:
 
     medicine_btn = st.button(
 
-        "🔬  Generate Formulation & Manufacturing Guide",
+        "🔬  Generate Formulation Guide",
 
-        key="btn_medicine",
+        key="medicine_generate",
 
         use_container_width=True
     )
@@ -3019,10 +3126,10 @@ with tab2:
 
             medicine_prompt = f"""
 
-You are a senior Ayurveda Professor.
+You are a senior Ayurveda Professor
+teaching BAMS students.
 
-Explain the following Ayurvedic formulation
-for BAMS academic study.
+Explain this Ayurvedic formulation:
 
 Medicine:
 {medicine_name}
@@ -3033,43 +3140,32 @@ Dosage Form:
 Language:
 {medicine_language}
 
+Provide exam-oriented educational information.
 
 Include:
 
 1. Introduction
-
-2. Classical therapeutic purpose
-
-3. Ingredients table
-
+2. Classical purpose
+3. Ingredients
 4. Shodhana / purification if applicable
-
-5. Manufacturing / preparation sequence
-
-6. Important process points
-
+5. Preparation sequence
+6. Important manufacturing points
 7. Quality-control concepts
+8. Important BAMS exam points
+9. Classical dose and Anupana as academic information
+10. Safety precautions
 
-8. Important exam points
-
-9. Classical dose and Anupana
-   only as educational context
-
-10. Important safety precautions
-
+Keep the explanation clear and structured.
 
 Clearly distinguish classical Ayurvedic
-description from modern safety,
-quality and regulatory practices.
+description from modern safety and quality practices.
 
 Do not provide personalized medical advice.
-
-Use clean headings and tables.
 """
 
 
             with st.spinner(
-                f"🔬 {medicine_name} चे premium formulation notes तयार करत आहे..."
+                "🔬 Formulation Guide तयार करत आहे..."
             ):
 
 
@@ -3126,11 +3222,8 @@ st.html("""
     <br><br>
 
     <strong>AyurVeda AI</strong>
-
-    • BAMS Study Studio •
-
-    Crafted with ❤️ by
-
+    • BAMS Study Studio
+    • Crafted with ❤️ by
     <strong>Avishkar Alase</strong>
 
 </div>
