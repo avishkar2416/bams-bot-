@@ -21,7 +21,7 @@ def get_current_festival_theme():
     now = datetime.now()
     month, day = now.month, now.day
 
-    # 1. गणेशोत्सव कालावधी
+    # 1. Ganeshotsav
     if month == 9 and 12 <= day <= 26:
         return {
             "name": "ganeshotsav",
@@ -38,7 +38,7 @@ def get_current_festival_theme():
             "footer_text": "🌺 ॥ गणपती बाप्पा मोरया ॥ 🌿",
             "font_accent": "#92400e"
         }
-    # 2. नवरात्री व दसरा
+    # 2. Navratri & Dussehra
     elif month == 10 and 10 <= day <= 24:
         return {
             "name": "navratri",
@@ -55,7 +55,7 @@ def get_current_festival_theme():
             "footer_text": "🌸 ॥ सर्वमंगल मांगल्ये शिवे सर्वार्थ साधिके ॥ 🌿",
             "font_accent": "#881337"
         }
-    # 3. दिवाळी
+    # 3. Diwali
     elif month == 11 and 4 <= day <= 14:
         return {
             "name": "diwali",
@@ -72,7 +72,7 @@ def get_current_festival_theme():
             "footer_text": "🪔 ॥ शुभ दीपावली - सुख समृद्धी लाभो ॥ 🌿",
             "font_accent": "#facc15"
         }
-    # 4. इतर नियमित दिवस (Emerald Ayurvedic Green)
+    # 4. Default Emerald Ayurvedic Green
     else:
         return {
             "name": "ayurveda_classic",
@@ -92,7 +92,7 @@ def get_current_festival_theme():
 
 th = get_current_festival_theme()
 
-# --- STYLES ---
+# --- CSS STYLES ---
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Mukta:wght@400;600;700;800;900&display=swap');
@@ -119,7 +119,7 @@ st.markdown(f"""
         backdrop-filter: blur(18px);
         border: 2px solid {th['border_color']} !important;
         border-radius: 24px;
-        margin-bottom: 22px;
+        margin-bottom: 16px;
         box-shadow: 0 12px 35px -8px rgba(0, 0, 0, 0.08);
     }}
     .brand-title {{
@@ -211,6 +211,7 @@ st.markdown(f"""
     }}
     .stTabs [aria-selected="true"] * {{ color: #ffffff !important; }}
 
+    /* Language Selection Custom Chip Cards */
     div[data-testid="stRadio"] > div[role="radiogroup"] {{
         display: flex !important;
         gap: 12px !important;
@@ -267,7 +268,7 @@ st.markdown(f"""
 # --- API Setup ---
 api_key = st.secrets.get("GEMINI_API_KEY", "")
 if not api_key:
-    st.error("⚠️ कृपया Settings > Secrets मध्ये GEMINI_API_KEY कॉन्फिगर करा.")
+    st.error("⚠️ Krupaya Settings > Secrets madhye GEMINI_API_KEY configure kara.")
     st.stop()
 
 client = genai.Client(api_key=api_key)
@@ -291,10 +292,10 @@ def cached_ask_gemini(prompt: str, as_json: bool = False):
             else:
                 time.sleep(2)
             continue
-    raise RuntimeError("गुगल सर्व्हर व्यस्त आहे. कृपया पुन्हा प्रयत्न करा.")
+    raise RuntimeError("Google server busy aahe. Krupaya kahi velane prayatna kara.")
 
 # =========================================================================
-# अस्सल फोटोसारखी A4 HANDWRITTEN NOTE RENDERER
+# A4 HANDWRITTEN NOTE RENDERER
 # =========================================================================
 def render_photo_identical_sheet(data, subject_name, topic_name, is_marathi=True):
     title = data.get("title", topic_name)
@@ -500,7 +501,37 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# --- 5 Main Tabs (Case Study व Research सह) ---
+# --- Silent Ayurvedic Ambient Music Player ---
+st.markdown("""
+<div style="
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(12px); 
+    border: 1.5px solid #fed7aa; 
+    border-radius: 18px; 
+    padding: 8px 18px; 
+    margin-bottom: 20px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 20px;">🎵</span>
+        <div>
+            <div style="font-weight: 800; font-size: 13.5px; color: #92400e;">Ayurvedic Healing & Study Beats</div>
+            <small style="color: #64748b; font-size: 11px;">शांत मन, एकाग्र अभ्यास (Silent Meditation Ambience)</small>
+        </div>
+    </div>
+    <div>
+        <audio controls loop style="height: 32px; outline: none;">
+            <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=meditation-flute-112195.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# --- 5 Main Tabs ---
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📖 BAMS स्टडी नोट्स व प्रश्नसंच (Syllabus & PYQ)",
     "🧪 औषध घटक व निर्माण विधी (Medicine & Manufacturing)",
@@ -821,7 +852,7 @@ with tab3:
                     st.error(f"त्रुटी: {e}")
 
 # =========================================================================
-# TAB 4: NAVIN FEATURE - CLINICAL CASE STUDY
+# TAB 4: CLINICAL CASE STUDY
 # =========================================================================
 with tab4:
     st.markdown("""
@@ -877,7 +908,7 @@ with tab4:
                     st.error(f"त्रुटी: {e}")
 
 # =========================================================================
-# TAB 5: NAVIN FEATURE - RESEARCH & EVIDENCE
+# TAB 5: RESEARCH & EVIDENCE
 # =========================================================================
 with tab5:
     st.markdown("""
