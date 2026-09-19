@@ -119,7 +119,7 @@ st.markdown(f"""
         backdrop-filter: blur(18px);
         border: 2px solid {th['border_color']} !important;
         border-radius: 24px;
-        margin-bottom: 16px;
+        margin-bottom: 12px;
         box-shadow: 0 12px 35px -8px rgba(0, 0, 0, 0.08);
     }}
     .brand-title {{
@@ -211,7 +211,6 @@ st.markdown(f"""
     }}
     .stTabs [aria-selected="true"] * {{ color: #ffffff !important; }}
 
-    /* Language Selection Custom Chip Cards */
     div[data-testid="stRadio"] > div[role="radiogroup"] {{
         display: flex !important;
         gap: 12px !important;
@@ -268,7 +267,7 @@ st.markdown(f"""
 # --- API Setup ---
 api_key = st.secrets.get("GEMINI_API_KEY", "")
 if not api_key:
-    st.error("⚠️ Krupaya Settings > Secrets madhye GEMINI_API_KEY configure kara.")
+    st.error("⚠️ कृपया Settings > Secrets मध्ये GEMINI_API_KEY कॉन्फिगर करा.")
     st.stop()
 
 client = genai.Client(api_key=api_key)
@@ -292,10 +291,10 @@ def cached_ask_gemini(prompt: str, as_json: bool = False):
             else:
                 time.sleep(2)
             continue
-    raise RuntimeError("Google server busy aahe. Krupaya kahi velane prayatna kara.")
+    raise RuntimeError("गुगल सर्व्हर व्यस्त आहे. कृपया पुन्हा प्रयत्न करा.")
 
 # =========================================================================
-# A4 HANDWRITTEN NOTE RENDERER
+# अस्सल फोटोसारखी A4 HANDWRITTEN NOTE RENDERER
 # =========================================================================
 def render_photo_identical_sheet(data, subject_name, topic_name, is_marathi=True):
     title = data.get("title", topic_name)
@@ -501,33 +500,34 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# --- Silent Ayurvedic Ambient Music Player ---
+# =========================================================================
+# 🌧️ HIDDEN AUTO-PLAY RAAG MALHAR MUSIC THERAPY ENGINE
+# =========================================================================
 st.markdown("""
-<div style="
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between; 
-    background: rgba(255, 255, 255, 0.85); 
-    backdrop-filter: blur(12px); 
-    border: 1.5px solid #fed7aa; 
-    border-radius: 18px; 
-    padding: 8px 18px; 
-    margin-bottom: 20px; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-">
-    <div style="display: flex; align-items: center; gap: 10px;">
-        <span style="font-size: 20px;">🎵</span>
-        <div>
-            <div style="font-weight: 800; font-size: 13.5px; color: #92400e;">Ayurvedic Healing & Study Beats</div>
-            <small style="color: #64748b; font-size: 11px;">शांत मन, एकाग्र अभ्यास (Silent Meditation Ambience)</small>
-        </div>
-    </div>
-    <div>
-        <audio controls loop style="height: 32px; outline: none;">
-            <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=meditation-flute-112195.mp3" type="audio/mpeg">
-            Your browser does not support the audio element.
-        </audio>
-    </div>
+<div style="display: none;">
+    <audio id="bgMusic" autoplay loop preload="auto">
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=meditation-flute-112195.mp3" type="audio/mpeg">
+    </audio>
+</div>
+
+<script>
+    function startMusic() {
+        var audio = document.getElementById("bgMusic");
+        if (audio) {
+            audio.volume = 0.35;
+            audio.play().catch(function(e) {
+                console.log("Autoplay waiting for interaction:", e);
+            });
+        }
+    }
+    document.addEventListener("DOMContentLoaded", startMusic);
+    window.addEventListener("load", startMusic);
+    document.addEventListener("click", startMusic, { once: true });
+    document.addEventListener("touchstart", startMusic, { once: true });
+</script>
+
+<div style="text-align: right; margin-top: -6px; margin-bottom: 14px; font-size: 11.5px; font-weight: 700; color: #92400e;">
+    🌧️ <i>Background: "RAAG MALHAR" Healing with Ragas: The Power of Music Therapy</i>
 </div>
 """, unsafe_allow_html=True)
 
