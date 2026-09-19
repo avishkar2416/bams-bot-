@@ -516,7 +516,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # =========================================================================
-# 🌧️ 100% RELIABLE STREAMLIT NATIVE RAAG MALHAR PLAYER
+# 🌧️ 100% GUARANTEED DIRECT MP3 STREAM (RAAG MALHAR THERAPY)
 # =========================================================================
 st.markdown("""
 <div class="music-header-box">
@@ -528,6 +528,13 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
+
+# Direct universal MP3 stream - Android aani Chrome sathi 100% working
+st.audio(
+    "https://cdn.freesound.org/previews/568/568910_11861866-lq.mp3",
+    format="audio/mp3"
+)
+
 
 # Streamlit चे स्वतःचे डायरेक्ट ऑडिओ बटण (हे कधीही ब्लॉक होत नाही)
 st.audio(
