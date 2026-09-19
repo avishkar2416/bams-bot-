@@ -3,6 +3,7 @@ from google import genai
 from google.genai import types
 import json
 import time
+import urllib.parse
 
 # --- Page Setup ---
 st.set_page_config(
@@ -160,6 +161,27 @@ st.markdown("""
         color: #ffffff !important;
     }
 
+    /* WhatsApp Button Style */
+    .wa-share-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #25d366;
+        color: white !important;
+        text-decoration: none;
+        padding: 12px 22px;
+        border-radius: 14px;
+        font-weight: 800;
+        font-size: 15px;
+        box-shadow: 0 6px 18px rgba(37, 211, 102, 0.35);
+        transition: all 0.2s ease;
+        margin-top: 10px;
+    }
+    .wa-share-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 22px rgba(37, 211, 102, 0.5);
+    }
+
     .app-footer {
         text-align: center;
         padding: 40px 10px 15px 10px;
@@ -173,7 +195,7 @@ st.markdown("""
 # --- API Setup ---
 api_key = st.secrets.get("GEMINI_API_KEY", "")
 if not api_key:
-    st.error("⚠️ कृपया Settings > Secrets मध्ये GEMINI_API_KEY कॉन्फिगर करा.")
+    st.error("⚠️ Krupaya Settings > Secrets madhye GEMINI_API_KEY configure kara.")
     st.stop()
 
 client = genai.Client(api_key=api_key)
@@ -197,10 +219,10 @@ def cached_ask_gemini(prompt: str, as_json: bool = False):
             else:
                 time.sleep(2)
             continue
-    raise RuntimeError("गुगल सर्व्हर व्यस्त आहे. कृपया पुन्हा प्रयत्न करा.")
+    raise RuntimeError("Google server busy aahe. Krupaya kahi sekandanni punha prayatna kara.")
 
 # =========================================================================
-# अस्सल फोटोसारखी A4 HANDWRITTEN NOTE GENERATOR
+# PHOTO IDENTICAL A4 SHEET RENDERER
 # =========================================================================
 def render_photo_identical_sheet(data, subject_name, topic_name, is_marathi=True):
     title = data.get("title", topic_name)
@@ -445,8 +467,8 @@ def render_photo_identical_sheet(data, subject_name, topic_name, is_marathi=True
     </head>
     <body>
         <div class="action-bar">
-            <button class="btn-action" onclick="downloadSheet()">📸 फोटो डाऊनलोड करा (.PNG)</button>
-            <button class="btn-action" style="background:#059669;" onclick="window.print()">📄 प्रिंट करा / PDF सेव्ह करा</button>
+            <button class="btn-action" onclick="downloadSheet()">📸 Photo Download Kara (.PNG)</button>
+            <button class="btn-action" style="background:#059669;" onclick="window.print()">📄 Print Kara / PDF Save Kara</button>
         </div>
 
         <div class="a4-container" id="captureCanvas">
@@ -557,21 +579,22 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- 2 Main Tabs ---
-tab1, tab2 = st.tabs([
-    "📖 BAMS स्टडी नोट्स (Syllabus Notes)",
-    "🧪 औषध घटक व निर्माण विधी (Medicine & Manufacturing)"
+# --- 3 Main Tabs ---
+tab1, tab2, tab3 = st.tabs([
+    "📖 BAMS स्टडी नोट्स व प्रश्नसंच (Syllabus & PYQ)",
+    "🧪 औषध घटक व निर्माण विधी (Medicine & Manufacturing)",
+    "🎯 AI BAMS Viva-Voce Simulator (तोंडी परीक्षा)"
 ])
 
 # =========================================================================
-# TAB 1: SYLLABUS STUDY NOTES
+# TAB 1: SYLLABUS STUDY NOTES & UNIVERSITY PYQ SOLVER
 # =========================================================================
 with tab1:
     st.markdown("""
     <div class="ganesha-hero">
         <div class="festive-tag">🌺 ॥ श्री गणेशाय नमः ॥ 🌺</div>
-        <h3 style="margin:0 0 6px 0; font-weight:900;">🎯 BAMS A4 बॉलपेन Handwritten नोट्स</h3>
-        <p style="margin:0; font-size:13.5px; opacity:0.95;">ठळक मुख्य हेडिंग, सुवाच्य अक्षरे, महत्वाच्या शब्दांना <b>Red Highlight</b>, फ्लोचार्ट आणि गुण (Marks Weightage).</p>
+        <h3 style="margin:0 0 6px 0; font-weight:900;">🎯 BAMS A4 बॉलपेन Handwritten नोट्स व PYQ Solver</h3>
+        <p style="margin:0; font-size:13.5px; opacity:0.95;">ठळक मुख्य हेडिंग, सुवाच्य अक्षरे, महत्वाच्या शब्दांना <b>Red Highlight</b>, फ्लोचार्ट आणि मागील ५ वर्षांचे विद्यापीठ प्रश्नोत्तर.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -613,6 +636,7 @@ with tab1:
             "🎯 अभ्यासाचा प्रकार निवडा (Study Mode):",
             [
                 "📋 A4 Blue Ballpen Handwritten Sheet (अस्सल A4 पेन नोट्स)",
+                "🎯 MUHS / NCISM Past 5 Years Questions & Model Answer Key",
                 "📖 Comprehensive Notes (संपूर्ण सविस्तर अभ्यास नोट्स)",
                 "📜 Only Shlokas & Meanings (फक्त मूळ श्लोक, अन्वय व अर्थ)",
                 "📝 10-Mark LAQ Answer Format (दीर्घोत्तरी प्रश्न-उत्तर फॉरमॅट)",
@@ -639,7 +663,7 @@ with tab1:
 
     if generate_notes_btn:
         if not topic.strip():
-            st.warning("⚠️ कृपया अभ्यासाचा विषय प्रविष्ट करा.")
+            st.warning("⚠️ Krupaya abhyasacha vishay pravishtha kara.")
         else:
             is_marathi = "मराठी" in language_preference
 
@@ -720,11 +744,53 @@ with tab1:
                         a4_html = render_photo_identical_sheet(sheet_data, subject, topic, is_marathi=is_marathi)
 
                         st.balloons()
-                        st.success(f"✅ अस्सल वही-फोटो शीट तयार झाली आहे! (अपेक्षित गुण: {sheet_data.get('marks')})")
+                        st.success(f"✅ A4 Sheet tayar jhali aahe! (Apekshit Gun: {sheet_data.get('marks')})")
+                        
+                        share_text = f"🌿 *AyurVeda AI BAMS Notes*\n📚 *Subject:* {subject}\n🎯 *Topic:* {topic}\n✍️ *Punch Line:* {sheet_data.get('punch_line')}\n\nStudy Bot dwara Avishkar Alase banavleli A4 Note!"
+                        encoded_wa = urllib.parse.quote(share_text)
+                        wa_url = f"[https://api.whatsapp.com/send?text=](https://api.whatsapp.com/send?text=){encoded_wa}"
+                        
+                        st.markdown(f"""
+                        <div style="margin-bottom: 15px;">
+                            <a href="{wa_url}" target="_blank" class="wa-share-btn">
+                                📲 WhatsApp Study Group var Share Kara
+                            </a>
+                        </div>
+                        """, unsafe_allow_html=True)
+
                         st.components.v1.html(a4_html, height=1300, scrolling=True)
 
                     except Exception as e:
-                        st.error(f"त्रुटी: {e}")
+                        st.error(f"Truti: {e}")
+
+            elif "Past 5 Years Questions" in study_mode:
+                pyq_prompt = f"""
+                You are a senior MUHS / NCISM BAMS University Chief Examiner and Paper Setter.
+                Subject: {subject}
+                Topic: {topic}
+                Language Selected: {language_preference}
+
+                Create a definitive, high-yield 'University Past 5-Year Question Paper & Model Answer Analysis' for this topic:
+                1. 🎯 Top 3 Frequently Asked University Questions:
+                   - Long Answer Question (LAQ - 10 Marks)
+                   - Short Answer Question (SAQ - 5 Marks)
+                   - Very Short / Viva Question (2 Marks)
+                2. ✍️ Examiner's Step-by-Step Model Answer Blueprint (How to score 10/10 Marks):
+                   - Sequence of writing (Shloka -> Definition -> Nirukti -> Types/Features -> Flowchart -> Chikitsa).
+                   - Crucial Sanskrit keywords examiner searches for.
+                3. ⚠️ Common Mistakes to Avoid (Where students lose marks in this topic).
+                4. 💡 Pro Examiner Tip for Top University Ranks.
+
+                Format with bold headings, clean bullet points, and high readability.
+                """
+                with st.spinner("🎯 AI विद्यापीठ मागील ५ वर्षांचे प्रश्न व मॉडेल आन्सर तयार करत आहे..."):
+                    try:
+                        pyq_res = cached_ask_gemini(pyq_prompt, as_json=False)
+                        st.balloons()
+                        st.success("✅ University PYQ & Model Answer Key तयार झाली आहे!")
+                        st.markdown(pyq_res)
+                    except Exception as e:
+                        st.error(f"Truti: {e}")
 
             else:
                 system_instruction = f"""
@@ -739,13 +805,13 @@ with tab1:
                     try:
                         notes_text = cached_ask_gemini(system_instruction, as_json=False)
                         st.balloons()
-                        st.success("✅ नोट्स तयार झाल्या आहेत!")
+                        st.success("✅ Notes tayar jhalya aahet!")
                         st.markdown(notes_text)
                     except Exception as e:
-                        st.error(f"त्रुटी: {e}")
+                        st.error(f"Truti: {e}")
 
 # =========================================================================
-# TAB 2: MEDICINE FORMULATION & MANUFACTURING (औषध निर्माण विधी)
+# TAB 2: MEDICINE FORMULATION & MANUFACTURING
 # =========================================================================
 with tab2:
     st.markdown("""
@@ -769,16 +835,67 @@ with tab2:
 
     if st.button("🔬 औषध घटक व बनवण्याची कृती शिका", key="btn_med", use_container_width=True):
         if not medicine_name.strip():
-            st.warning("⚠️ कृपया औषधाचे नाव टाका.")
+            st.warning("⚠️ Krupaya aushadhache naav taka.")
         else:
             with st.spinner(f"🔬 AI तज्ज्ञ '{medicine_name}' ची निर्माण पद्धत तयार करत आहे..."):
                 try:
                     med_prompt = f"Explain manufacturing of {medicine_name} ({dosage_form}) in {m_lang} with ingredients table, purification, and steps."
                     res_text = cached_ask_gemini(med_prompt, as_json=False)
-                    st.success("✅ माहिती तयार झाली आहे!")
+                    st.success("✅ Mahiti tayar jhali aahe!")
                     st.markdown(res_text)
                 except Exception as e:
-                    st.error(f"त्रुटी: {e}")
+                    st.error(f"Truti: {e}")
+
+# =========================================================================
+# TAB 3: AI BAMS VIVA-VOCE SIMULATOR
+# =========================================================================
+with tab3:
+    st.markdown("""
+    <div class="ganesha-hero" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%) !important; border-color: #a5b4fc;">
+        <div class="festive-tag" style="background: rgba(255,255,255,0.18);">🎓 तोंडी परीक्षा सिम्युलेटर</div>
+        <h3 style="margin:0 0 6px 0; font-weight:900;">🎯 BAMS University Practical & Viva Simulator</h3>
+        <p style="margin:0; font-size:13.5px; opacity:0.95;">External Examiner chya drushtikonaatun vicharle janare 5 tricky prashna aani standard Sanskrit uttare.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    v_col1, v_col2 = st.columns([1.2, 1])
+    with v_col1:
+        viva_sub = st.selectbox(
+            "📚 Viva sathi Vishay:",
+            ["Kriya Sharir", "Rachana Sharir", "Dravyaguna", "Rasa Shastra", "Agada Tantra", "Kayachikitsa", "Shalya Tantra"],
+            key="viva_sub"
+        )
+    with v_col2:
+        viva_lang = st.radio("🌐 Viva bhasha:", ["मराठी + Sanskrit Terms", "Simple Indian English"], horizontal=True, key="viva_lang")
+
+    viva_topic = st.text_input("🎙️ Examiner kontya topic var prashna vicharel?", placeholder="उदा. Pitta Sthana, Ashwagandha Guna, Vatsanabha Shodhana", key="viva_top")
+
+    if st.button("🔥 AI Examiner कडुन तोंडी परीक्षा प्रश्न घ्या", key="btn_viva", use_container_width=True):
+        if not viva_topic.strip():
+            st.warning("⚠️ Krupaya topic che naav taka.")
+        else:
+            with st.spinner("🎙️ External Examiner tricky prashna tayar karat aahet..."):
+                try:
+                    viva_prompt = f"""
+                    You are a strict University External Examiner for BAMS Practical Exams.
+                    Subject: {viva_sub}
+                    Topic: {viva_topic}
+                    Language: {viva_lang}
+
+                    Generate 5 high-yield, tricky Viva-Voce questions with precise model answers that students must speak:
+                    1. Direct Definition / Shloka Reference Question
+                    2. Clinical / Dosha Action Question
+                    3. Tricky Difference / Exception Question
+                    4. Dravyaguna / Formulation Question
+                    5. Modern Diagnostic Correlation Question
+
+                    Format beautifully with Bold Keywords and Examiner Tips.
+                    """
+                    viva_res = cached_ask_gemini(viva_prompt, as_json=False)
+                    st.success("✅ Viva Prashnavali Tayar Jhali!")
+                    st.markdown(viva_res)
+                except Exception as e:
+                    st.error(f"Truti: {e}")
 
 # --- Footer ---
 st.markdown("""
