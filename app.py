@@ -6,11 +6,11 @@ import time
 import urllib.parse
 from datetime import datetime
 
-# --- Page Setup ---
+# --- Page Setup (CENTERED LAYOUT) ---
 st.set_page_config(
     page_title="AyurVeda AI | Avishkar Alase",
     page_icon="🌿",
-    layout="wide",
+    layout="centered",
     initial_sidebar_state="collapsed"
 )
 
@@ -88,7 +88,7 @@ def get_current_festival_theme():
 
 th = get_current_festival_theme()
 
-# --- CSS STYLES ---
+# --- CENTERED LUXURY FESTIVAL STYLES ---
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Mukta:wght@400;600;700;800;900&display=swap');
@@ -98,6 +98,13 @@ st.markdown(f"""
         background-attachment: fixed !important;
         font-family: 'Mukta', 'Plus Jakarta Sans', sans-serif !important;
         color: #0f172a !important;
+    }}
+
+    .main .block-container {{
+        max-width: 820px !important;
+        padding-top: 1.5rem !important;
+        padding-bottom: 2.5rem !important;
+        margin: auto !important;
     }}
 
     @keyframes themePulse {{
@@ -115,7 +122,7 @@ st.markdown(f"""
         backdrop-filter: blur(18px);
         border: 2px solid {th['border_color']} !important;
         border-radius: 24px;
-        margin-bottom: 8px;
+        margin-bottom: 12px;
         box-shadow: 0 12px 35px -8px rgba(0, 0, 0, 0.08);
     }}
     .brand-title {{
@@ -135,6 +142,18 @@ st.markdown(f"""
         font-weight: 800;
         color: {th['font_accent']} !important;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    }}
+
+    .music-header-box {{
+        background: rgba(255, 255, 255, 0.88);
+        border: 1.8px solid {th['border_color']};
+        border-radius: 18px;
+        padding: 8px 16px;
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
     }}
 
     .dynamic-hero {{
@@ -190,13 +209,13 @@ st.markdown(f"""
     }}
 
     .stTabs [data-baseweb="tab-list"] {{
-        gap: 12px;
-        margin-bottom: 22px;
+        gap: 10px;
+        margin-bottom: 20px;
     }}
     .stTabs [data-baseweb="tab"] {{
         background-color: rgba(255, 255, 255, 0.85) !important;
         border-radius: 16px !important;
-        padding: 12px 20px !important;
+        padding: 10px 18px !important;
         font-weight: 800 !important;
         border: 1.5px solid {th['border_color']} !important;
     }}
@@ -357,7 +376,7 @@ def render_photo_identical_sheet(data, subject_name, topic_name, is_marathi=True
                 border-radius: 12px; cursor: pointer; box-shadow: 0 4px 14px rgba(2,132,199,0.35);
             }}
             .a4-container {{
-                width: 820px; min-height: 1160px; background-color: #fcfbf7;
+                width: 780px; min-height: 1160px; background-color: #fcfbf7;
                 border: 2px solid #0f2b5c; box-shadow: 0 12px 35px rgba(0,0,0,0.18);
                 padding: 24px 28px; box-sizing: border-box; color: #0b2559; position: relative;
                 font-size: 15.5px; line-height: 1.45;
@@ -483,7 +502,7 @@ def render_photo_identical_sheet(data, subject_name, topic_name, is_marathi=True
 # --- Top Navigation Bar ---
 st.markdown(f"""
 <div class="dynamic-navbar">
-    <div class="brand-group">
+    <div style="display:flex; align-items:center; gap:10px;">
         <div style="font-size:26px;">{th['icon']}</div>
         <div>
             <div class="brand-title">🌿 AyurVeda AI</div>
@@ -497,93 +516,24 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # =========================================================================
-# 🌧️ 100% RELIABLE RAAG MALHAR MUSIC THERAPY (FLOATING SOUND PILL)
+# 🌧️ 100% RELIABLE STREAMLIT NATIVE RAAG MALHAR PLAYER
 # =========================================================================
 st.markdown("""
-<div style="
-    display: flex; 
-    justify-content: flex-end; 
-    margin-top: -6px; 
-    margin-bottom: 14px;
-">
-    <div id="musicPill" onclick="toggleRaagPlay()" style="
-        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-        border: 1.8px solid #f59e0b;
-        border-radius: 30px;
-        padding: 7px 18px;
-        font-size: 13px;
-        font-weight: 800;
-        color: #92400e;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
-        user-select: none;
-        transition: all 0.2s ease;
-    ">
-        <span id="pIcon" style="font-size: 16px;">🎵</span>
-        <span id="pText">Play "RAAG MALHAR" Music Therapy</span>
+<div class="music-header-box">
+    <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:19px;">🎵</span>
+        <span style="font-size:13.5px; font-weight:800; color:#92400e;">
+            Play "RAAG MALHAR" Music Therapy (Healing with Ragas)
+        </span>
     </div>
 </div>
-
-<audio id="ragAudio" loop preload="auto">
-    <!-- Wikimedia Global High-Speed CDN (Never Blocks) -->
-    <source src="https://upload.wikimedia.org/wikipedia/commons/4/4b/Bansuri_Flute_Meditation_Sound.ogg" type="audio/ogg">
-    <source src="https://ia801503.us.archive.org/15/items/meditation-flute-music-therapy/meditation-flute.mp3" type="audio/mpeg">
-</audio>
-
-<script>
-    var a = document.getElementById("ragAudio");
-    var pill = document.getElementById("musicPill");
-    var pIcon = document.getElementById("pIcon");
-    var pText = document.getElementById("pText");
-    var isPlaying = false;
-
-    function toggleRaagPlay() {
-        if (!a) return;
-        if (!isPlaying) {
-            a.volume = 0.40;
-            a.play().then(function() {
-                isPlaying = true;
-                pIcon.innerText = "🔊";
-                pText.innerText = "Playing 'RAAG MALHAR' Therapy (Tap to Pause)";
-                pill.style.background = "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)";
-                pill.style.borderColor = "#10b981";
-                pill.style.color = "#065f46";
-            }).catch(function(e) {
-                alert("कृपया पुन्हा स्पर्श करा: " + e.message);
-            });
-        } else {
-            a.pause();
-            isPlaying = false;
-            pIcon.innerText = "🎵";
-            pText.innerText = "Play 'RAAG MALHAR' Music Therapy";
-            pill.style.background = "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)";
-            pill.style.borderColor = "#f59e0b";
-            pill.style.color = "#92400e";
-        }
-    }
-
-    // ऑटो-ट्रिगरचा प्रयत्न (ब्राऊझरने अनुमती दिल्यास स्क्रीनवर कुठेही पहिला टच होताच सुरू होईल)
-    function autoStart() {
-        if (!isPlaying && a) {
-            a.volume = 0.40;
-            a.play().then(function() {
-                isPlaying = true;
-                pIcon.innerText = "🔊";
-                pText.innerText = "Playing 'RAAG MALHAR' Therapy (Tap to Pause)";
-                pill.style.background = "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)";
-                pill.style.borderColor = "#10b981";
-                pill.style.color = "#065f46";
-            }).catch(function() {});
-        }
-    }
-    document.addEventListener("click", autoStart, { once: true });
-    document.addEventListener("touchstart", autoStart, { once: true });
-</script>
 """, unsafe_allow_html=True)
 
+# Streamlit चे स्वतःचे डायरेक्ट ऑडिओ बटण (हे कधीही ब्लॉक होत नाही)
+st.audio(
+    "https://upload.wikimedia.org/wikipedia/commons/4/4b/Bansuri_Flute_Meditation_Sound.ogg",
+    format="audio/ogg"
+)
 
 # --- 5 Main Tabs ---
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
@@ -606,61 +556,55 @@ with tab1:
     </div>
     """, unsafe_allow_html=True)
 
-    r1_col1, r1_col2 = st.columns([1, 1.2])
-    with r1_col1:
-        bams_year = st.selectbox(
-            "🎓 BAMS वर्ष निवडा (Academic Year):",
-            [
-                "BAMS 1st Professional (प्रथम वर्ष)",
-                "BAMS 2nd Professional (द्वितीय वर्ष)",
-                "BAMS 3rd Professional (तृतीय वर्ष)",
-                "BAMS Final Professional (अंतिम वर्ष)"
-            ]
-        )
+    bams_year = st.selectbox(
+        "🎓 BAMS वर्ष निवडा (Academic Year):",
+        [
+            "BAMS 1st Professional (प्रथम वर्ष)",
+            "BAMS 2nd Professional (द्वितीय वर्ष)",
+            "BAMS 3rd Professional (तृतीय वर्ष)",
+            "BAMS Final Professional (अंतिम वर्ष)"
+        ]
+    )
 
-    with r1_col2:
-        subject = st.selectbox(
-            "📚 विषय निवडा (Select Subject):",
-            [
-                "Agada Tantra & Vyavahara Ayurveda (अगद तंत्र)",
-                "Kriya Sharir (क्रिया शारीर)",
-                "Rachana Sharir (रचना शारीर)",
-                "Dravyaguna Vijnana (द्रव्यगुण विज्ञान)",
-                "Rasashastra & Bhaishajya Kalpana (रसशास्त्र व भैषज्य कल्पना)",
-                "Roga Nidan & Vikriti Vigyan (रोगनिदान)",
-                "Samhita Siddhant & Charak Samhita (संहिता सिद्धांत)",
-                "Kayachikitsa (कायचिकित्सा)",
-                "Panchakarma (पंचकर्म)",
-                "Shalya Tantra (शल्य तंत्र)",
-                "Shalakya Tantra (शालाक्य तंत्र)",
-                "Prasuti Tantra & Stri Roga (प्रसूति तंत्र व स्त्रीरोग)",
-                "Kaumarbhritya (कौमारभृत्य)"
-            ]
-        )
+    subject = st.selectbox(
+        "📚 विषय निवडा (Select Subject):",
+        [
+            "Agada Tantra & Vyavahara Ayurveda (अगद तंत्र)",
+            "Kriya Sharir (क्रिया शारीर)",
+            "Rachana Sharir (रचना शारीर)",
+            "Dravyaguna Vijnana (द्रव्यगुण विज्ञान)",
+            "Rasashastra & Bhaishajya Kalpana (रसशास्त्र व भैषज्य कल्पना)",
+            "Roga Nidan & Vikriti Vigyan (रोगनिदान)",
+            "Samhita Siddhant & Charak Samhita (संहिता सिद्धांत)",
+            "Kayachikitsa (कायचिकित्सा)",
+            "Panchakarma (पंचकर्म)",
+            "Shalya Tantra (शल्य तंत्र)",
+            "Shalakya Tantra (शालाक्य तंत्र)",
+            "Prasuti Tantra & Stri Roga (प्रसूति तंत्र व स्त्रीरोग)",
+            "Kaumarbhritya (कौमारभृत्य)"
+        ]
+    )
 
-    r2_col1, r2_col2 = st.columns([1.2, 1])
-    with r2_col1:
-        study_mode = st.selectbox(
-            "🎯 अभ्यासाचा प्रकार निवडा (Study Mode):",
-            [
-                "📋 A4 Blue Ballpen Handwritten Sheet (अस्सल A4 पेन नोट्स)",
-                "🎯 MUHS / NCISM Past 5 Years Questions & Model Answer Key",
-                "📖 Comprehensive Notes (संपूर्ण सविस्तर अभ्यास नोट्स)",
-                "📜 Only Shlokas & Meanings (फक्त मूळ श्लोक, अन्वय व अर्थ)",
-                "📝 10-Mark LAQ Answer Format (दीर्घोत्तरी प्रश्न-उत्तर फॉरमॅट)",
-                "⚡ Quick Revision / Viva Voce Points (तोंडी परीक्षेसाठी महत्त्वाचे मुद्दे)"
-            ]
-        )
+    study_mode = st.selectbox(
+        "🎯 अभ्यासाचा प्रकार निवडा (Study Mode):",
+        [
+            "📋 A4 Blue Ballpen Handwritten Sheet (अस्सल A4 पेन नोट्स)",
+            "🎯 MUHS / NCISM Past 5 Years Questions & Model Answer Key",
+            "📖 Comprehensive Notes (संपूर्ण सविस्तर अभ्यास नोट्स)",
+            "📜 Only Shlokas & Meanings (फक्त मूळ श्लोक, अन्वय व अर्थ)",
+            "📝 10-Mark LAQ Answer Format (दीर्घोत्तरी प्रश्न-उत्तर फॉरमॅट)",
+            "⚡ Quick Revision / Viva Voce Points (तोंडी परीक्षेसाठी महत्त्वाचे मुद्दे)"
+        ]
+    )
 
-    with r2_col2:
-        language_preference = st.radio(
-            "🌐 माध्यम निवडा (Select Study Medium):",
-            [
-                "🚩 मराठी (संस्कृत + अर्थ)",
-                "🌿 Simple English + Sanskrit"
-            ],
-            horizontal=True
-        )
+    language_preference = st.radio(
+        "🌐 माध्यम निवडा (Select Study Medium):",
+        [
+            "🚩 मराठी (संस्कृत + अर्थ)",
+            "🌿 Simple English + Sanskrit"
+        ],
+        horizontal=True
+    )
 
     topic = st.text_input(
         "🔍 अभ्यासाचा विषय / प्रश्न टाका:",
@@ -830,14 +774,11 @@ with tab2:
     </div>
     """, unsafe_allow_html=True)
 
-    m_col1, m_col2 = st.columns([1.2, 1])
-    with m_col1:
-        dosage_form = st.selectbox(
-            "🏺 औषधाचा प्रकार (Dosage Form):",
-            ["Vati / Gutika (गोळी / वटी)", "Churna (चूर्ण)", "Asava & Arishta (आसव व अरिष्ट)", "Taila / Ghrita (सिद्ध तेल व घृत)", "Bhasma & Pishti (भस्म व पिष्टी)"]
-        )
-    with m_col2:
-        m_lang = st.radio("🌐 भाषा:", ["Simple Indian English", "मराठी"], horizontal=True, key="m_lang")
+    dosage_form = st.selectbox(
+        "🏺 औषधाचा प्रकार (Dosage Form):",
+        ["Vati / Gutika (गोळी / वटी)", "Churna (चूर्ण)", "Asava & Arishta (आसव व अरिष्ट)", "Taila / Ghrita (सिद्ध तेल व घृत)", "Bhasma & Pishti (भस्म व पिष्टी)"]
+    )
+    m_lang = st.radio("🌐 भाषा:", ["Simple Indian English", "मराठी"], horizontal=True, key="m_lang")
 
     medicine_name = st.text_input("💊 गोळी किंवा औषधाचे नाव टाका:", placeholder="उदा. आरोग्यवर्धिनी वटी किंवा चंद्रप्रभावटी")
 
@@ -866,15 +807,12 @@ with tab3:
     </div>
     """, unsafe_allow_html=True)
 
-    v_col1, v_col2 = st.columns([1.2, 1])
-    with v_col1:
-        viva_sub = st.selectbox(
-            "📚 Viva साठी विषय:",
-            ["Kriya Sharir", "Rachana Sharir", "Dravyaguna", "Rasa Shastra", "Agada Tantra", "Kayachikitsa", "Shalya Tantra"],
-            key="viva_sub"
-        )
-    with v_col2:
-        viva_lang = st.radio("🌐 Viva भाषा:", ["मराठी + Sanskrit Terms", "Simple Indian English"], horizontal=True, key="viva_lang")
+    viva_sub = st.selectbox(
+        "📚 Viva साठी विषय:",
+        ["Kriya Sharir", "Rachana Sharir", "Dravyaguna", "Rasa Shastra", "Agada Tantra", "Kayachikitsa", "Shalya Tantra"],
+        key="viva_sub"
+    )
+    viva_lang = st.radio("🌐 Viva भाषा:", ["मराठी + Sanskrit Terms", "Simple Indian English"], horizontal=True, key="viva_lang")
 
     viva_topic = st.text_input("🎙️ Examiner कोणत्या विषयावर प्रश्न विचारतील?", placeholder="उदा. Pitta Sthana, Ashwagandha Guna, Vatsanabha Shodhana", key="viva_top")
 
@@ -917,15 +855,12 @@ with tab4:
     </div>
     """, unsafe_allow_html=True)
 
-    cs_c1, cs_c2 = st.columns([1.2, 1])
-    with cs_c1:
-        case_subject = st.selectbox(
-            "🏥 क्लिनिकल विभाग (Department):",
-            ["Kayachikitsa (कायचिकित्सा)", "Panchakarma (पंचकर्म)", "Shalya Tantra (शल्य)", "Shalakya (नेत्र/कर्ण/नासा)", "Stri Roga & Prasuti (स्त्रीरोग)", "Kaumarbhritya (बालरोग)"],
-            key="case_sub"
-        )
-    with cs_c2:
-        case_lang = st.radio("🌐 भाषा:", ["मराठी + Clinical English", "Simple Indian English + Sanskrit"], horizontal=True, key="cs_lang")
+    case_subject = st.selectbox(
+        "🏥 क्लिनिकल विभाग (Department):",
+        ["Kayachikitsa (कायचिकित्सा)", "Panchakarma (पंचकर्म)", "Shalya Tantra (शल्य)", "Shalakya (नेत्र/कर्ण/नासा)", "Stri Roga & Prasuti (स्त्रीरोग)", "Kaumarbhritya (बालरोग)"],
+        key="case_sub"
+    )
+    case_lang = st.radio("🌐 भाषा:", ["मराठी + Clinical English", "Simple Indian English + Sanskrit"], horizontal=True, key="cs_lang")
 
     case_topic = st.text_input("🩺 आजाराचे नाव / मुख्य लक्षणे टाका:", placeholder="उदा. Amlapitta (GERD), Sandhivata (Osteoarthritis), Tamaka Shwasa (Asthma)", key="cs_top")
 
