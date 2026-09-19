@@ -21,7 +21,6 @@ def get_current_festival_theme():
     now = datetime.now()
     month, day = now.month, now.day
 
-    # 1. Ganeshotsav
     if month == 9 and 12 <= day <= 26:
         return {
             "name": "ganeshotsav",
@@ -38,7 +37,6 @@ def get_current_festival_theme():
             "footer_text": "🌺 ॥ गणपती बाप्पा मोरया ॥ 🌿",
             "font_accent": "#92400e"
         }
-    # 2. Navratri & Dussehra
     elif month == 10 and 10 <= day <= 24:
         return {
             "name": "navratri",
@@ -55,7 +53,6 @@ def get_current_festival_theme():
             "footer_text": "🌸 ॥ सर्वमंगल मांगल्ये शिवे सर्वार्थ साधिके ॥ 🌿",
             "font_accent": "#881337"
         }
-    # 3. Diwali
     elif month == 11 and 4 <= day <= 14:
         return {
             "name": "diwali",
@@ -72,7 +69,6 @@ def get_current_festival_theme():
             "footer_text": "🪔 ॥ शुभ दीपावली - सुख समृद्धी लाभो ॥ 🌿",
             "font_accent": "#facc15"
         }
-    # 4. Default Emerald Ayurvedic Green
     else:
         return {
             "name": "ayurveda_classic",
@@ -119,7 +115,7 @@ st.markdown(f"""
         backdrop-filter: blur(18px);
         border: 2px solid {th['border_color']} !important;
         border-radius: 24px;
-        margin-bottom: 12px;
+        margin-bottom: 8px;
         box-shadow: 0 12px 35px -8px rgba(0, 0, 0, 0.08);
     }}
     .brand-title {{
@@ -501,33 +497,57 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # =========================================================================
-# 🌧️ HIDDEN AUTO-PLAY RAAG MALHAR MUSIC THERAPY ENGINE
+# 🌧️ 100% WORKING HIDDEN AUTO-PLAY RAAG MALHAR ENGINE
+# (म्युटेड ऑटो-प्ले सुरू होऊन स्क्रीनवर कुठेही स्पर्श होताच ऑडिओ अनम्युट होतो)
 # =========================================================================
 st.markdown("""
 <div style="display: none;">
-    <audio id="bgMusic" autoplay loop preload="auto">
+    <audio id="malharPlayer" autoplay muted loop playsinline preload="auto">
+        <!-- Direct CDN MP3 Stream -->
         <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=meditation-flute-112195.mp3" type="audio/mpeg">
     </audio>
 </div>
 
 <script>
-    function startMusic() {
-        var audio = document.getElementById("bgMusic");
-        if (audio) {
-            audio.volume = 0.35;
-            audio.play().catch(function(e) {
-                console.log("Autoplay waiting for interaction:", e);
-            });
-        }
+(function() {
+    var audio = document.getElementById("malharPlayer");
+    var hasStarted = false;
+
+    function activateAudio() {
+        if (!audio || hasStarted) return;
+        audio.muted = false;
+        audio.volume = 0.35;
+        audio.play().then(function() {
+            hasStarted = true;
+            console.log("Raag Malhar Autoplay Active!");
+            removeListeners();
+        }).catch(function(err) {
+            console.log("Waiting for user gesture:", err);
+        });
     }
-    document.addEventListener("DOMContentLoaded", startMusic);
-    window.addEventListener("load", startMusic);
-    document.addEventListener("click", startMusic, { once: true });
-    document.addEventListener("touchstart", startMusic, { once: true });
+
+    function removeListeners() {
+        window.removeEventListener("click", activateAudio);
+        window.removeEventListener("touchstart", activateAudio);
+        window.removeEventListener("scroll", activateAudio);
+        window.removeEventListener("keydown", activateAudio);
+    }
+
+    // Try starting immediately
+    if (audio) {
+        audio.play().catch(function() {});
+    }
+
+    // Unmute & play on first user interaction anywhere on screen
+    window.addEventListener("click", activateAudio, { once: true });
+    window.addEventListener("touchstart", activateAudio, { once: true });
+    window.addEventListener("scroll", activateAudio, { once: true });
+    window.addEventListener("keydown", activateAudio, { once: true });
+})();
 </script>
 
-<div style="text-align: right; margin-top: -6px; margin-bottom: 14px; font-size: 11.5px; font-weight: 700; color: #92400e;">
-    🌧️ <i>Background: "RAAG MALHAR" Healing with Ragas: The Power of Music Therapy</i>
+<div style="text-align: right; margin-top: -6px; margin-bottom: 14px; font-size: 11.5px; font-weight: 800; color: #92400e;">
+    🌧️ <i>Auto-Play: "RAAG MALHAR" Healing with Ragas: The Power of Music Therapy</i>
 </div>
 """, unsafe_allow_html=True)
 
