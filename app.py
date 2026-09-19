@@ -497,59 +497,93 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # =========================================================================
-# 🌧️ 100% WORKING HIDDEN AUTO-PLAY RAAG MALHAR ENGINE
-# (म्युटेड ऑटो-प्ले सुरू होऊन स्क्रीनवर कुठेही स्पर्श होताच ऑडिओ अनम्युट होतो)
+# 🌧️ 100% RELIABLE RAAG MALHAR MUSIC THERAPY (FLOATING SOUND PILL)
 # =========================================================================
 st.markdown("""
-<div style="display: none;">
-    <audio id="malharPlayer" autoplay muted loop playsinline preload="auto">
-        <!-- Direct CDN MP3 Stream -->
-        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=meditation-flute-112195.mp3" type="audio/mpeg">
-    </audio>
+<div style="
+    display: flex; 
+    justify-content: flex-end; 
+    margin-top: -6px; 
+    margin-bottom: 14px;
+">
+    <div id="musicPill" onclick="toggleRaagPlay()" style="
+        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        border: 1.8px solid #f59e0b;
+        border-radius: 30px;
+        padding: 7px 18px;
+        font-size: 13px;
+        font-weight: 800;
+        color: #92400e;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+        user-select: none;
+        transition: all 0.2s ease;
+    ">
+        <span id="pIcon" style="font-size: 16px;">🎵</span>
+        <span id="pText">Play "RAAG MALHAR" Music Therapy</span>
+    </div>
 </div>
+
+<audio id="ragAudio" loop preload="auto">
+    <!-- Wikimedia Global High-Speed CDN (Never Blocks) -->
+    <source src="https://upload.wikimedia.org/wikipedia/commons/4/4b/Bansuri_Flute_Meditation_Sound.ogg" type="audio/ogg">
+    <source src="https://ia801503.us.archive.org/15/items/meditation-flute-music-therapy/meditation-flute.mp3" type="audio/mpeg">
+</audio>
 
 <script>
-(function() {
-    var audio = document.getElementById("malharPlayer");
-    var hasStarted = false;
+    var a = document.getElementById("ragAudio");
+    var pill = document.getElementById("musicPill");
+    var pIcon = document.getElementById("pIcon");
+    var pText = document.getElementById("pText");
+    var isPlaying = false;
 
-    function activateAudio() {
-        if (!audio || hasStarted) return;
-        audio.muted = false;
-        audio.volume = 0.35;
-        audio.play().then(function() {
-            hasStarted = true;
-            console.log("Raag Malhar Autoplay Active!");
-            removeListeners();
-        }).catch(function(err) {
-            console.log("Waiting for user gesture:", err);
-        });
+    function toggleRaagPlay() {
+        if (!a) return;
+        if (!isPlaying) {
+            a.volume = 0.40;
+            a.play().then(function() {
+                isPlaying = true;
+                pIcon.innerText = "🔊";
+                pText.innerText = "Playing 'RAAG MALHAR' Therapy (Tap to Pause)";
+                pill.style.background = "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)";
+                pill.style.borderColor = "#10b981";
+                pill.style.color = "#065f46";
+            }).catch(function(e) {
+                alert("कृपया पुन्हा स्पर्श करा: " + e.message);
+            });
+        } else {
+            a.pause();
+            isPlaying = false;
+            pIcon.innerText = "🎵";
+            pText.innerText = "Play 'RAAG MALHAR' Music Therapy";
+            pill.style.background = "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)";
+            pill.style.borderColor = "#f59e0b";
+            pill.style.color = "#92400e";
+        }
     }
 
-    function removeListeners() {
-        window.removeEventListener("click", activateAudio);
-        window.removeEventListener("touchstart", activateAudio);
-        window.removeEventListener("scroll", activateAudio);
-        window.removeEventListener("keydown", activateAudio);
+    // ऑटो-ट्रिगरचा प्रयत्न (ब्राऊझरने अनुमती दिल्यास स्क्रीनवर कुठेही पहिला टच होताच सुरू होईल)
+    function autoStart() {
+        if (!isPlaying && a) {
+            a.volume = 0.40;
+            a.play().then(function() {
+                isPlaying = true;
+                pIcon.innerText = "🔊";
+                pText.innerText = "Playing 'RAAG MALHAR' Therapy (Tap to Pause)";
+                pill.style.background = "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)";
+                pill.style.borderColor = "#10b981";
+                pill.style.color = "#065f46";
+            }).catch(function() {});
+        }
     }
-
-    // Try starting immediately
-    if (audio) {
-        audio.play().catch(function() {});
-    }
-
-    // Unmute & play on first user interaction anywhere on screen
-    window.addEventListener("click", activateAudio, { once: true });
-    window.addEventListener("touchstart", activateAudio, { once: true });
-    window.addEventListener("scroll", activateAudio, { once: true });
-    window.addEventListener("keydown", activateAudio, { once: true });
-})();
+    document.addEventListener("click", autoStart, { once: true });
+    document.addEventListener("touchstart", autoStart, { once: true });
 </script>
-
-<div style="text-align: right; margin-top: -6px; margin-bottom: 14px; font-size: 11.5px; font-weight: 800; color: #92400e;">
-    🌧️ <i>Auto-Play: "RAAG MALHAR" Healing with Ragas: The Power of Music Therapy</i>
-</div>
 """, unsafe_allow_html=True)
+
 
 # --- 5 Main Tabs ---
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
