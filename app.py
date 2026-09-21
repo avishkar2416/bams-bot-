@@ -286,7 +286,7 @@ if not api_key:
 client = genai.Client(api_key=api_key)
 
 # =========================================================================
-# 🎯 DYNAMIC MODEL DISCOVERY ENGINE
+# 🎯 DYNAMIC MODEL DISCOVERY ENGINE (Auto-Selects Active Models)
 # =========================================================================
 @st.cache_data(show_spinner=False, ttl=86400)
 def get_working_models():
@@ -596,9 +596,9 @@ with tab1:
     study_mode = st.selectbox(
         "🎯 अभ्यासाचा प्रकार निवडा (Study Mode):",
         [
+            "📖 Comprehensive Notes (संपूर्ण सविस्तर अभ्यास नोट्स)",
             "📋 A4 Blue Ballpen Handwritten Sheet (अस्सल A4 पेन नोट्स)",
             "🎯 MUHS / NCISM Past 5 Years Questions & Model Answer Key",
-            "📖 Comprehensive Notes (संपूर्ण सविस्तर अभ्यास नोट्स)",
             "📜 Only Shlokas & Meanings (फक्त मूळ श्लोक, अन्वय व अर्थ)",
             "📝 10-Mark LAQ Answer Format (दीर्घोत्तरी प्रश्न-उत्तर फॉरमॅट)",
             "⚡ Quick Revision / Viva Voce Points (तोंडी परीक्षेसाठी महत्त्वाचे मुद्दे)"
@@ -616,7 +616,7 @@ with tab1:
 
     topic = st.text_input(
         "🔍 अभ्यासाचा विषय / प्रश्न टाका:",
-        placeholder="उदा. Pitta Dosha, Garavisha vs Dooshivisha, किंवा Virya"
+        placeholder="उदा. Virya, Ojas, Pitta Dosha, Rakta Dhatu, Ashwagandha, Agada"
     )
 
     generate_notes_btn = st.button("🚀 सविस्तर अभ्यास नोट्स तयार करा", key="btn_notes", use_container_width=True)
@@ -747,40 +747,53 @@ with tab1:
                     except Exception as e:
                         st.error(f"त्रुटी: {e}")
 
-            # Case C: Comprehensive Notes (सविस्तर मुद्दे, १००% कार्यरत PDF व WhatsApp)
+            # Case C: Comprehensive Notes (14 Exhaustive Modules Framework)
             else:
                 system_instruction = f"""
-                You are a senior BAMS Professor & Textbook Author according to the official NCISM Curriculum.
+                Tu ek senior BAMS Gold Medalist Professor aani NCISM/MUHS Chief Paper Setter aahes.
                 Subject: {subject}
-                Academic Year: {bams_year}
+                Academic Level: {bams_year}
                 Topic: {topic}
                 Language Mode: {language_preference}
 
-                Generate extremely deep, comprehensive, and exhaustive study notes covering every sub-topic with detailed bullet points:
-                1. 📜 व्युत्पत्ती व निरुक्ती (Etymology, Derivation & Reference Shlokas with meanings).
-                2. 🔬 व्याख्या व लक्षणे (Complete Classical Definition, Characteristics & Modern Physiological/Pharmacological Correlation).
-                3. 📍 स्थान व स्वरूप (Location, Distribution, Composition & Panchamahabhuta relation).
-                4. 🧬 सविस्तर वर्गीकरण व प्रकार (Exhaustive Classification with individual explanations of every single subtype).
-                5. ⚙️ प्राकृत कर्मे व कार्यपद्धती (Physiological functions, action mechanisms, and systemic influence).
-                6. ⚠️ विकृती, क्षय व वृद्धी लक्षणे (Pathological changes, hypo/hyper states, related diseases).
-                7. 💊 चिकित्सा व औषधीय महत्त्व (Clinical management, prime Dravyas, formulations, and exam keys).
+                Kontaahi mudda skip na karta, khali dilelya 14 sections madhye exhaustively deep, point-to-point notes tayar kar:
 
-                Strict rules:
-                - Do NOT give brief summaries. Write in extensive detail with bullet points under every heading.
-                - If Marathi is selected, use authentic Devanagari with Sanskrit terms and Marathi meanings.
-                - Bold important terms.
+                1. 📜 व्युत्पत्ती, निरुक्ती व श्लोक अन्वय (Etymology, Classical Reference with Word-by-Word Sandhi-Vigraha):
+                   - Mukhya Sanskrit Shloka (> "Shloka" blockquote madhye, reference granthasaha - Charak/Sushrut/Vagbhat).
+                   - Shlokacha padchhed, anvay aani saral Marathi/English arth.
+                2. 🔬 व्याख्या व स्वरूप (Comprehensive Definition & Essential Characteristics):
+                   - Shastriya vyakhya aani visual swarup/composition.
+                3. 🌱 उत्पत्ती व निर्मिती प्रक्रिया (Origin & Formation Process):
+                   - Mahabhuta sanghatan, Dhatupak prakriya, kinva dravya utpatti steps.
+                4. 📍 स्थान व आश्रय (Physiological Seats & Micro-Distribution in Body).
+                5. ⚗️ गुणधर्म व भौतिक लक्षणे (Specific Attributes, Guna, Virya, Vipaka, Prabhava).
+                6. ⚙️ प्राकृत कर्मे व कार्यपद्धती (Normal Physiological Functions with Daily Life Clinical Examples).
+                7. 📏 प्रमाण व परीक्षण पद्धती (Anjali Pramana, Clinical Dosage, or Physical Examination Criteria).
+                8. ⚠️ विकृती, क्षय व वृद्धी लक्षणे (Pathological States - Hypo/Hyper Manifestations & Related Diseases).
+                9. 🔗 संबंधित संकल्पनांशी तुलना (Differential Diagnosis Table - gondhal honare concepts clear karnara tulana takta).
+                10. 🏥 आधुनिक विज्ञानाशी सांगड (Modern Physiology, Biochemistry & Pharmacology Correlation).
+                11. 💊 चिकित्सा व औषधीय महत्त्व (Clinical Application, Prime Yoga, Formulations & Anupana).
+                12. ⭐ High-Yield Points & Memory Mnemonics (Parikshela nehami yenare 3-4 mudde aani lakshat thevnyasathi short tricks).
+                13. 🎯 PG AIAPGET Special Focus (Charak-Sushrut matbhed, exceptions, aani tricky points).
+                14. 📝 संभाव्य परीक्षा प्रश्नसंच (NCISM Pattern):
+                    - 1 Long Answer Question (LAQ - 10 Marks) blueprint saha.
+                    - 2 Short Answer Questions (SAQ - 5 Marks).
+                    - 4 Multiple Choice Questions (MCQs) - barobar uttar bold kara aani reason dya.
+                15. 📊 Master Summary Table (Sampurna topic cha quick revision takta).
+
+                Guidelines:
+                - Do NOT summarize. Provide in-depth explanations with clean bullet points, tables, and bold headings.
+                - Natural spoken terms with accurate Sanskrit citations.
                 """
-                with st.spinner(f"⚡ AI आयुर्वेद तज्ज्ञ '{topic}' वर सविस्तर मुद्देसूद नोट्स तयार करत आहे..."):
+                with st.spinner(f"⚡ AI Professor '{topic}' var 14 sections madhye exhaustive notes generate karat aahet..."):
                     try:
                         notes_text = cached_ask_gemini(system_instruction, as_json=False)
                         st.balloons()
-                        st.success("✅ सविस्तर नोट्स तयार झाल्या आहेत!")
+                        st.success(f"✅ '{topic}' वर संपूर्ण सविस्तर अभ्यास नोट्स तयार झाल्या आहेत!")
 
-                        # 100% कार्यक्षम Download आणि WhatsApp बटणे
+                        # 100% Working Instant Download & WhatsApp Share Buttons
                         c_col1, c_col2 = st.columns([1, 1])
-                        
                         with c_col1:
-                            # Streamlit चे अधिकृत 100% कार्यरत डाउनलोड बटण
                             st.download_button(
                                 label="📥 संपूर्ण नोट्स डाउनलोड करा (.txt)",
                                 data=notes_text,
@@ -788,15 +801,13 @@ with tab1:
                                 mime="text/plain",
                                 use_container_width=True
                             )
-                        
                         with c_col2:
-                            # 100% उघडणारी WhatsApp लिंक
-                            wa_summary = f"🌿 *AyurVeda AI Study Notes*\n📚 *विषय:* {subject}\n🎯 *टॉपिक:* {topic}\n\nअभ्यास करण्यासाठी AyurVeda AI बघा!"
+                            wa_summary = f"🌿 *AyurVeda AI Comprehensive Notes*\n📚 *विषय:* {subject}\n🎯 *टॉपिक:* {topic}\n\nAyurVeda AI वर संपूर्ण नोट्स उपलब्ध आहेत!"
                             encoded_wa = urllib.parse.quote(wa_summary)
                             wa_link = f"[https://api.whatsapp.com/send?text=](https://api.whatsapp.com/send?text=){encoded_wa}"
                             st.link_button("📲 WhatsApp वर पाठवा", wa_link, use_container_width=True)
 
-                        # नोट्सचे सुंदर कार्ड
+                        # Container Card Display
                         st.markdown(f"""
                         <div class="notes-card-container">
                             {notes_text}
