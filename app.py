@@ -689,7 +689,7 @@ with tab1:
                         
                         share_text = f"🌿 *AyurVeda AI BAMS Notes*\n📚 *Subject:* {subject}\n🎯 *Topic:* {topic}\n✍️ *Punch Line:* {sheet_data.get('punch_line')}\n\nStudy Bot द्वारे तयार केलेली A4 Note!"
                         encoded_wa = urllib.parse.quote(share_text)
-                        wa_url = f"[https://api.whatsapp.com/send?text=](https://api.whatsapp.com/send?text=){encoded_wa}"
+                        wa_url = f"https://api.whatsapp.com/send?text={encoded_wa}"
                         
                         st.markdown(f"""
                         <div style="margin-bottom: 15px;">
@@ -746,7 +746,7 @@ with tab1:
                     except Exception as e:
                         st.error(f"त्रुटी: {e}")
 
-            # Case C: Comprehensive Notes (14 Exhaustive Modules + Black Solid Bold Headings)
+            # Case C: Comprehensive Notes (14 Exhaustive Modules Framework + Converted HTML/PDF)
             else:
                 system_instruction = f"""
                 Tu ek senior BAMS Gold Medalist Professor aani NCISM/MUHS Chief Paper Setter aahes.
@@ -790,57 +790,54 @@ with tab1:
                         st.balloons()
                         st.success(f"✅ '{topic}' वर संपूर्ण सविस्तर अभ्यास नोट्स तयार झाल्या आहेत!")
 
-                        # Markdown चे सुंदर HTML मध्ये रूपांतर
+                        # Markdown चे सुंदर HTML मध्ये रूपांतर (###, ** आणि तक्ते फुटणार नाहीत)
                         html_content = markdown.markdown(
                             notes_text,
                             extensions=['tables', 'fenced_code']
                         )
 
-                        # Clean Document / Printable HTML Format (Pure Solid Bold Black Headings)
+                        # Clean Document / Printable HTML Format
                         html_export = f"""<!DOCTYPE html>
 <html lang="mr">
 <head>
 <meta charset="UTF-8">
 <title>{topic} - BAMS Comprehensive Notes</title>
-<link href="[https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800;900&display=swap](https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800;900&display=swap)" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
     body {{
         font-family: 'Mukta', sans-serif;
         line-height: 1.8;
         padding: 40px;
-        color: #111827;
+        color: #0f172a;
         max-width: 850px;
         margin: auto;
         background: #ffffff;
     }}
     .header-box {{
-        border-bottom: 3px solid #000000;
+        border-bottom: 3px solid #047857;
         padding-bottom: 12px;
         margin-bottom: 25px;
         display: flex;
         justify-content: space-between;
         align-items: center;
     }}
-    /* मुख्य हेडिंग्स डार्क सॉलिड बोल्ड ब्लॅक */
     h1, h2, h3, h4 {{
-        color: #000000 !important;
-        margin-top: 26px;
-        margin-bottom: 12px;
-        font-weight: 900 !important;
+        color: #065f46;
+        margin-top: 24px;
+        margin-bottom: 10px;
+        font-weight: 800;
     }}
-    h2, h3 {{
-        border-bottom: 2px solid #000000;
+    h3 {{
+        border-bottom: 1.5px solid #e2e8f0;
         padding-bottom: 6px;
-        font-size: 20px;
     }}
     p, li {{
         font-size: 15.5px;
-        color: #1f2937;
+        color: #1e293b;
     }}
-    /* उपमुद्दे व बोल्ड शब्द पूर्ण काळे */
     b, strong {{
-        color: #000000 !important;
-        font-weight: 800 !important;
+        color: #047857;
+        font-weight: 800;
     }}
     table {{
         width: 100%;
@@ -849,26 +846,26 @@ with tab1:
         font-size: 14.5px;
     }}
     th, td {{
-        border: 1px solid #4b5563;
+        border: 1px solid #cbd5e1;
         padding: 10px 12px;
         text-align: left;
     }}
     th {{
-        background: #f3f4f6;
-        color: #000000;
-        font-weight: 900;
+        background: #ecfdf5;
+        color: #064e3b;
+        font-weight: 800;
     }}
     blockquote {{
-        border-left: 4px solid #000000;
+        border-left: 4px solid #059669;
         margin: 16px 0;
         padding: 12px 20px;
-        background: #f8fafc;
+        background: #f0fdf4;
         font-weight: 700;
-        color: #000000;
-        border-radius: 0 8px 8px 0;
+        color: #064e3b;
+        border-radius: 0 10px 10px 0;
     }}
     .print-btn {{
-        background: #000000;
+        background: #047857;
         color: white;
         border: none;
         padding: 10px 20px;
@@ -886,8 +883,8 @@ with tab1:
 <body>
     <div class="header-box">
         <div>
-            <h2 style="margin:0; color:#000000;">🌿 AyurVeda AI - BAMS Study Notes</h2>
-            <div style="font-size:14px; color:#374151; margin-top:4px;">
+            <h2 style="margin:0; color:#047857;">🌿 AyurVeda AI - BAMS Study Notes</h2>
+            <div style="font-size:14px; color:#475569; margin-top:4px;">
                 <b>विषय:</b> {subject} | <b>टॉपिक:</b> {topic}
             </div>
         </div>
@@ -913,7 +910,7 @@ with tab1:
                         with c_col2:
                             wa_summary = f"🌿 *AyurVeda AI Comprehensive Notes*\n📚 *विषय:* {subject}\n🎯 *टॉपिक:* {topic}\n\nAyurVeda AI वर संपूर्ण नोट्स उपलब्ध आहेत!"
                             encoded_wa = urllib.parse.quote(wa_summary)
-                            wa_link = f"[https://api.whatsapp.com/send?text=](https://api.whatsapp.com/send?text=){encoded_wa}"
+                            wa_link = f"https://api.whatsapp.com/send?text={encoded_wa}"
                             st.link_button("📲 WhatsApp वर पाठवा", wa_link, use_container_width=True)
 
                         # Container Card Display
