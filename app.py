@@ -8,7 +8,7 @@ from datetime import datetime
 import markdown
 from supabase import create_client, Client
 
-# --- Page Configuration ---
+# --- Page Setup ---
 st.set_page_config(
     page_title="AyurVeda AI | VIP Academic Studio",
     page_icon="🌿",
@@ -37,8 +37,7 @@ def get_current_festival_theme():
             "focus_color": "#f59e0b",
             "active_tab": "linear-gradient(135deg, #b45309 0%, #ea580c 100%)",
             "footer_text": "🌺 ॥ गणपती बाप्पा मोरया ॥ 🌿",
-            "font_accent": "#92400e",
-            "card_bg": "rgba(255, 255, 255, 0.95)"
+            "font_accent": "#92400e"
         }
     elif month == 10 and 10 <= day <= 24:
         return {
@@ -54,8 +53,7 @@ def get_current_festival_theme():
             "focus_color": "#e11d48",
             "active_tab": "linear-gradient(135deg, #9f1239 0%, #e11d48 100%)",
             "footer_text": "🌸 ॥ सर्वमंगल मांगल्ये शिवे सर्वार्थ साधिके ॥ 🌿",
-            "font_accent": "#881337",
-            "card_bg": "rgba(255, 255, 255, 0.95)"
+            "font_accent": "#881337"
         }
     elif month == 11 and 4 <= day <= 14:
         return {
@@ -71,8 +69,7 @@ def get_current_festival_theme():
             "focus_color": "#facc15",
             "active_tab": "linear-gradient(135deg, #ca8a04 0%, #eab308 100%)",
             "footer_text": "🪔 ॥ शुभ दीपावली - सुख समृद्धी लाभो ॥ 🌿",
-            "font_accent": "#facc15",
-            "card_bg": "rgba(255, 255, 255, 0.95)"
+            "font_accent": "#facc15"
         }
     else:
         return {
@@ -81,20 +78,19 @@ def get_current_festival_theme():
             "icon": "🌱",
             "title_sub": "NCISM BAMS A4 HANDWRITTEN STUDIO",
             "bg": "radial-gradient(circle at 50% 0%, #ecfdf5 0%, #f0fdf4 35%, #f8fafc 70%, #e6fcf5 100%)",
-            "hero_grad": "linear-gradient(135deg, #064e3b 0%, #047857 50%, #065f46 100%)",
+            "hero_grad": "linear-gradient(135deg, #064e3b 0%, #047857 50%, #064e3b 100%)",
             "hero_border": "#a7f3d0",
             "btn_grad": "linear-gradient(135deg, #059669 0%, #047857 50%, #064e3b 100%)",
             "border_color": "#cbd5e1",
             "focus_color": "#059669",
             "active_tab": "linear-gradient(135deg, #064e3b 0%, #059669 100%)",
             "footer_text": "🌿 ॥ आरोग्यं परमं भाग्यम् ॥ 🌿",
-            "font_accent": "#064e3b",
-            "card_bg": "rgba(255, 255, 255, 0.95)"
+            "font_accent": "#064e3b"
         }
 
 th = get_current_festival_theme()
 
-# --- VIP LUXURY CSS STYLES ---
+# --- VIP COMPACT CSS STYLES ---
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Mukta:wght@400;600;700;800;900&display=swap');
@@ -105,29 +101,28 @@ st.markdown(f"""
         font-family: 'Mukta', 'Plus Jakarta Sans', sans-serif !important;
         color: #0f172a !important;
     }}
-
+    
     .main .block-container {{
-        max-width: 840px !important;
-        padding-top: 1.2rem !important;
-        padding-bottom: 2.5rem !important;
+        max-width: 820px !important;
+        padding-top: 0.8rem !important;
+        padding-bottom: 2.2rem !important;
         margin: auto !important;
     }}
 
-    /* VIP NAVBAR */
     .vip-navbar {{
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 16px 24px;
-        background: rgba(255, 255, 255, 0.94) !important;
-        backdrop-filter: blur(20px);
-        border: 2px solid {th['border_color']} !important;
-        border-radius: 24px;
-        margin-bottom: 20px;
-        box-shadow: 0 14px 40px -10px rgba(0, 0, 0, 0.08);
+        padding: 10px 18px;
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(16px);
+        border: 1.8px solid {th['border_color']} !important;
+        border-radius: 18px;
+        margin-bottom: 12px;
+        box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.06);
     }}
     .brand-title {{
-        font-size: 22px;
+        font-size: 20px;
         font-weight: 900;
         background: {th['btn_grad']};
         -webkit-background-clip: text;
@@ -136,283 +131,249 @@ st.markdown(f"""
         line-height: 1.2;
     }}
     .author-badge {{
-        background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%) !important;
-        border: 1.8px solid {th['focus_color']};
-        padding: 8px 18px;
-        border-radius: 14px;
-        font-size: 13.5px;
+        background: #ffffff !important;
+        border: 1.5px solid {th['focus_color']};
+        padding: 6px 14px;
+        border-radius: 12px;
+        font-size: 12.5px;
         font-weight: 800;
         color: {th['font_accent']} !important;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
     }}
 
-    /* VIP HERO BANNER */
     .vip-hero {{
         background: {th['hero_grad']} !important;
-        padding: 26px 24px;
-        border-radius: 24px;
-        margin-bottom: 24px;
+        padding: 16px 20px;
+        border-radius: 20px;
+        margin-bottom: 14px;
         color: #ffffff !important;
-        box-shadow: 0 18px 40px -10px rgba(0, 0, 0, 0.28);
-        border: 2px solid {th['hero_border']};
-        position: relative;
-        overflow: hidden;
+        box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.22);
+        border: 1.8px solid {th['hero_border']};
     }}
     .vip-hero * {{ color: #ffffff !important; }}
     .festive-tag {{
         display: inline-flex;
-        align-items: center;
-        gap: 6px;
         background: rgba(255, 255, 255, 0.22);
-        padding: 6px 16px;
-        border-radius: 30px;
-        font-size: 13px;
+        padding: 3px 12px;
+        border-radius: 20px;
+        font-size: 11.5px;
         font-weight: 800;
-        margin-bottom: 10px;
+        margin-bottom: 6px;
         border: 1px solid rgba(255, 255, 255, 0.35);
     }}
 
-    /* VIP LOGIN & CARD BOX */
     .vip-card-box {{
-        background: {th['card_bg']} !important;
-        backdrop-filter: blur(25px);
-        border: 2px solid {th['border_color']} !important;
-        border-radius: 26px;
-        padding: 32px 28px;
-        box-shadow: 0 20px 45px -12px rgba(0, 0, 0, 0.12);
-        margin: 15px auto;
-        max-width: 580px;
+        background: rgba(255, 255, 255, 0.97) !important;
+        border: 1.8px solid {th['border_color']} !important;
+        border-radius: 22px;
+        padding: 20px 22px;
+        box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.1);
+        margin: 0 auto;
     }}
 
-    /* INPUTS & SELECTS */
     div[data-baseweb="select"] > div,
     div[data-baseweb="input"] > div {{
         background-color: #ffffff !important;
-        border: 2px solid {th['border_color']} !important;
-        border-radius: 16px !important;
-        transition: all 0.25s ease !important;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        border: 1.8px solid {th['border_color']} !important;
+        border-radius: 14px !important;
     }}
     div[data-baseweb="select"] > div:hover,
     div[data-baseweb="input"] > div:hover {{
         border-color: {th['focus_color']} !important;
-        box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.1) !important;
     }}
 
-    /* BUTTONS */
     div.stButton > button {{
         background: {th['btn_grad']} !important;
         color: #ffffff !important;
-        border: 2px solid {th['hero_border']} !important;
-        border-radius: 18px !important;
-        padding: 15px 32px !important;
-        font-size: 16.5px !important;
-        font-weight: 900 !important;
-        cursor: pointer !important;
-        transition: all 0.25s ease !important;
-        box-shadow: 0 10px 25px -6px rgba(0, 0, 0, 0.25) !important;
-    }}
-    div.stButton > button:hover {{
-        transform: translateY(-2px) scale(1.015) !important;
-        box-shadow: 0 14px 30px -6px rgba(0, 0, 0, 0.35) !important;
+        border: 1.8px solid {th['hero_border']} !important;
+        border-radius: 16px !important;
+        padding: 12px 24px !important;
+        font-size: 15.5px !important;
+        font-weight: 800 !important;
+        box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.2) !important;
     }}
 
-    /* TABS */
     .stTabs [data-baseweb="tab-list"] {{
-        gap: 10px;
-        margin-bottom: 22px;
+        gap: 8px;
+        margin-bottom: 14px;
     }}
     .stTabs [data-baseweb="tab"] {{
         background-color: rgba(255, 255, 255, 0.88) !important;
-        border-radius: 16px !important;
-        padding: 11px 20px !important;
+        border-radius: 14px !important;
+        padding: 8px 16px !important;
         font-weight: 800 !important;
-        border: 1.6px solid {th['border_color']} !important;
-        transition: all 0.2s ease !important;
+        font-size: 13.5px !important;
+        border: 1.5px solid {th['border_color']} !important;
     }}
     .stTabs [aria-selected="true"] {{
         background: {th['active_tab']} !important;
         border-color: {th['focus_color']} !important;
         color: #ffffff !important;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.12);
     }}
     .stTabs [aria-selected="true"] * {{ color: #ffffff !important; }}
 
-    /* STUDENT IDENTITY CARD IN SIDEBAR */
     .student-id-card {{
         background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
-        border: 2px solid #86efac;
-        padding: 16px;
-        border-radius: 20px;
-        margin-bottom: 18px;
-        box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08);
-    }}
-
-    .notes-card-container {{
-        background: #ffffff;
-        border: 2px solid {th['border_color']};
-        border-radius: 22px;
-        padding: 26px;
-        box-shadow: 0 12px 35px rgba(0,0,0,0.06);
-        margin-top: 15px;
-        line-height: 1.85;
-    }}
-
-    .app-footer {{
-        text-align: center;
-        padding: 40px 10px 15px 10px;
-        font-size: 13.5px;
-        color: {th['font_accent']} !important;
-        font-weight: 800;
+        border: 1.8px solid #86efac;
+        padding: 15px;
+        border-radius: 18px;
+        margin-bottom: 14px;
+        box-shadow: 0 6px 18px -4px rgba(0, 0, 0, 0.06);
     }}
 </style>
 """, unsafe_allow_html=True)
 
 # --- Clients Setup ---
-api_key = st.secrets.get("GEMINI_API_KEY", "")
-supabase_url = st.secrets.get("SUPABASE_URL", "")
-supabase_key = st.secrets.get("SUPABASE_KEY", "")
-
-if not api_key:
-    st.error("⚠️ कृपया Settings > Secrets मध्ये GEMINI_API_KEY कॉन्फिगर करा.")
-    st.stop()
-
-if not supabase_url or not supabase_key:
-    st.error("⚠️ कृपया Settings > Secrets मध्ये SUPABASE_URL आणि SUPABASE_KEY कॉन्फिगर करा.")
-    st.stop()
+api_key = st.secrets["GEMINI_API_KEY"]
+supabase_url = st.secrets["SUPABASE_URL"]
+supabase_key = st.secrets["SUPABASE_KEY"]
 
 client = genai.Client(api_key=api_key)
 supabase: Client = create_client(supabase_url, supabase_key)
 
-# Session State for User / Profile
-if "user" not in st.session_state:
-    st.session_state.user = None
-if "profile" not in st.session_state:
-    st.session_state.profile = None
+# =========================================================================
+# 🔄 30-MINUTE SESSION PERSISTENCE ENGINE
+# =========================================================================
+SESSION_TIMEOUT = 1800
+now_ts = int(time.time())
+
+persisted_uid = st.query_params.get("uid")
+
+if "user_id" not in st.session_state:
+    if persisted_uid:
+        st.session_state.user_id = persisted_uid
+        st.session_state.last_active = now_ts
+    else:
+        st.session_state.user_id = None
+        st.session_state.last_active = None
+
+if st.session_state.user_id:
+    last_act = st.session_state.get("last_active", now_ts)
+    if (now_ts - last_act) > SESSION_TIMEOUT:
+        st.session_state.user_id = None
+        st.session_state.profile = None
+        st.query_params.clear()
+        st.warning("⏱️ ३० मिनिटे कोणतीही हालचाल नसल्यामुळे खाते सुरक्षिततेसाठी आपोआप लॉगआउट झाले आहे.")
+        st.stop()
+    else:
+        st.session_state.last_active = now_ts
+
+def fetch_profile(uid):
+    try:
+        r = supabase.table("user_profiles").select("*").eq("user_id", uid).execute()
+        if r.data and len(r.data) > 0:
+            return r.data[0]
+    except Exception:
+        pass
+    return None
+
+if "profile" not in st.session_state or not st.session_state.profile:
+    if st.session_state.user_id:
+        st.session_state.profile = fetch_profile(st.session_state.user_id)
 
 # =========================================================================
-# 👑 VIP STUDENT PORTAL (LOGIN & REGISTRATION GATEWAY)
+# 🔐 VIP LOGIN & REGISTRATION INTERFACE
 # =========================================================================
-if not st.session_state.user:
+if not st.session_state.user_id:
     st.markdown(f"""
     <div class="vip-navbar">
-        <div style="display:flex; align-items:center; gap:12px;">
-            <div style="font-size:32px;">{th['icon']}</div>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <div style="font-size:26px;">{th['icon']}</div>
             <div>
                 <div class="brand-title">🌿 AyurVeda AI Studio</div>
-                <small style="color:{th['font_accent']}; font-weight:800; letter-spacing:0.5px;">{th['title_sub']}</small>
+                <small style="color:{th['font_accent']}; font-weight:800; font-size:11.5px;">{th['title_sub']}</small>
             </div>
         </div>
-        <div class="author-badge">
-            <span>Avishkar Alase</span> ✓
-        </div>
+        <div class="author-badge">Avishkar Alase ✓</div>
     </div>
     """, unsafe_allow_html=True)
 
     st.markdown(f"""
     <div class="vip-hero">
         <div class="festive-tag">{th['tag']}</div>
-        <h2 style="margin:0 0 6px 0; font-weight:900; font-size:26px;">🎓 BAMS VIP अकॅडेमिक पोर्टल</h2>
-        <p style="margin:0; font-size:14.5px; opacity:0.95;">NCISM अभ्यासक्रम, A4 हस्तलिखित नोट्स, विद्यापीठ प्रश्नसंच आणि संपूर्ण क्लिनिकल सूट.</p>
+        <h3 style="margin:0 0 4px 0; font-weight:900; font-size:20px;">🎓 BAMS VIP अकॅडेमिक पोर्टल</h3>
+        <p style="margin:0; font-size:13px; opacity:0.95;">NCISM अभ्यासक्रम, A4 हस्तलिखित नोट्स, प्रश्नसंच व संपूर्ण क्लिनिकल सूट.</p>
     </div>
     """, unsafe_allow_html=True)
 
     st.markdown('<div class="vip-card-box">', unsafe_allow_html=True)
-    vip_tab_login, vip_tab_reg = st.tabs(["🔑 विद्यार्थी लॉगिन (Sign In)", "✨ नवीन नोंदणी (Student Register)"])
+    t_login, t_reg = st.tabs(["🔑 विद्यार्थी लॉगिन (Sign In)", "✨ नवीन नोंदणी (Student Register)"])
 
-    # १. थेट लॉगिन
-    with vip_tab_login:
-        st.markdown(f"<h3 style='color:{th['font_accent']}; font-weight:900; margin-top:0;'>🔐 खात्यात प्रवेश करा</h3>", unsafe_allow_html=True)
-        in_email = st.text_input("📧 ईमेल पत्ता:", placeholder="student@gmail.com", key="auth_in_email")
-        in_pass = st.text_input("🔒 पासवर्ड:", type="password", placeholder="तुमचा पासवर्ड", key="auth_in_pass")
+    with t_login:
+        st.markdown(f"<h4 style='color:{th['font_accent']}; margin:0 0 10px 0; font-weight:900;'>लॉगिन करा:</h4>", unsafe_allow_html=True)
+        l_email = st.text_input("📧 ईमेल पत्ता:", placeholder="student@gmail.com", key="auth_login_email")
+        l_pass = st.text_input("🔒 पासवर्ड:", type="password", placeholder="तुमचा पासवर्ड", key="auth_login_pass")
 
-        if st.button("🚀 थेट लॉगिन करा (Enter Studio)", key="btn_do_vip_login", use_container_width=True):
-            if not in_email.strip() or not in_pass.strip():
-                st.warning("⚠️ कृपया ईमेल आणि पासवर्ड दोन्ही प्रविष्ट करा.")
+        if st.button("🚀 थेट लॉगिन करा (Enter Studio)", use_container_width=True, key="btn_l_submit"):
+            if not l_email.strip() or not l_pass.strip():
+                st.warning("कृपया ईमेल आणि पासवर्ड दोन्ही टाका.")
             else:
                 try:
-                    res = supabase.auth.sign_in_with_password({
-                        "email": in_email.strip(),
-                        "password": in_pass.strip()
-                    })
+                    res = supabase.auth.sign_in_with_password({"email": l_email.strip(), "password": l_pass.strip()})
                     if res.user:
-                        st.session_state.user = res.user
-                        # Load Profile Details
-                        p_res = supabase.table("user_profiles").select("*").eq("user_id", res.user.id).execute()
-                        if p_res.data:
-                            st.session_state.profile = p_res.data[0]
-                        st.success("🎉 लॉगिन यशस्वी! स्टुडिओ उघडत आहे...")
+                        uid = str(res.user.id)
+                        st.session_state.user_id = uid
+                        st.session_state.user_email = res.user.email
+                        st.session_state.last_active = int(time.time())
+                        st.query_params["uid"] = uid
+                        st.session_state.profile = fetch_profile(uid)
+                        st.success("🎉 लॉगिन यशस्वी झाले!")
                         time.sleep(1)
                         st.rerun()
-                except Exception as err:
-                    st.error(f"❌ लॉगिन अयशस्वी: कृपया योग्य पासवर्ड टाका किंवा नवीन नोंदणी करा. ({err})")
+                except Exception as e:
+                    st.error(f"लॉगिन अयशस्वी: {e}")
 
-    # २. संपूर्ण विद्यार्थी नोंदणी
-    with vip_tab_reg:
-        st.markdown(f"<h3 style='color:{th['font_accent']}; font-weight:900; margin-top:0;'>📝 नवीन विद्यार्थी प्रोफाईल नोंदणी</h3>", unsafe_allow_html=True)
-        reg_name = st.text_input("👤 विद्यार्थ्याचे पूर्ण नाव:", placeholder="उदा. राहुल प्रकाश जोशी")
+    with t_reg:
+        st.markdown(f"<h4 style='color:{th['font_accent']}; margin:0 0 10px 0; font-weight:900;'>विद्यार्थी नोंदणी फॉर्म:</h4>", unsafe_allow_html=True)
+        r_name = st.text_input("👤 विद्यार्थ्याचे पूर्ण नाव:", placeholder="उदा. राहुल प्रकाश जोशी")
+        
+        c_mob, c_age = st.columns([2, 1])
+        with c_mob:
+            r_mob = st.text_input("📱 मोबाईल नंबर:", placeholder="9423759186", max_chars=10)
+        with c_age:
+            r_age = st.number_input("वय (Age):", min_value=17, max_value=60, value=22)
 
-        c1, c2 = st.columns([2, 1])
-        with c1:
-            reg_mobile = st.text_input("📱 मोबाईल नंबर:", placeholder="9876543210", max_chars=10)
-        with c2:
-            reg_age = st.number_input("वय (Age):", min_value=17, max_value=60, value=22)
-
-        reg_college = st.text_input("🏛️ BAMS कॉलेजचे नाव:", placeholder="उदा. Government Ayurved College, Nanded")
-
-        reg_bams_year = st.selectbox(
-            "🎓 BAMS वर्ष (Academic Year):",
-            [
-                "BAMS 1st Professional (प्रथम वर्ष)",
-                "BAMS 2nd Professional (द्वितीय वर्ष)",
-                "BAMS 3rd Professional (तृतीय वर्ष)",
-                "BAMS Final Professional (अंतिम वर्ष)",
-                "BAMS Intern (इंटर्नशिप)",
-                "BAMS MD/MS Scholar (पीजी अभ्यासक)"
-            ]
+        r_col = st.text_input("🏛️ BAMS कॉलेजचे नाव:", placeholder="उदा. Government Ayurved College, Nanded")
+        r_yr = st.selectbox(
+            "🎓 BAMS वर्ष:",
+            ["BAMS 1st Professional (प्रथम वर्ष)", "BAMS 2nd Professional (द्वितीय वर्ष)", "BAMS 3rd Professional (तृतीय वर्ष)", "BAMS Final Professional (अंतिम वर्ष)", "BAMS Intern (इंटर्नशिप)"]
         )
+        r_em = st.text_input("📧 ईमेल पत्ता:", placeholder="student@gmail.com", key="auth_reg_em")
+        r_pw = st.text_input("🔒 पासवर्ड (किमान ६ अक्षरे/अंक):", type="password", key="auth_reg_pw")
 
-        reg_email = st.text_input("📧 ईमेल पत्ता:", placeholder="student@gmail.com", key="auth_reg_email")
-        reg_password = st.text_input("🔒 नवीन पासवर्ड (किमान ६ अक्षरे/अंक):", type="password", key="auth_reg_pass")
-
-        if st.button("✨ खाते तयार करा व VIP स्टुडिओ सुरू करा", key="btn_do_vip_register", use_container_width=True):
-            if not reg_name.strip() or not reg_college.strip() or not reg_email.strip() or len(reg_password.strip()) < 6:
-                st.warning("⚠️ कृपया नाव, कॉलेज, ईमेल आणि किमान ६ अक्षरांचा पासवर्ड योग्य भरा.")
+        if st.button("✨ खाते तयार करा व VIP स्टुडिओ सुरू करा", use_container_width=True, key="btn_r_submit"):
+            if not r_name.strip() or not r_col.strip() or not r_em.strip() or len(r_pw.strip()) < 6:
+                st.warning("कृपया सर्व आवश्यक माहिती आणि किमान ६ अक्षरांचा पासवर्ड भरा.")
             else:
                 try:
-                    auth_res = supabase.auth.sign_up({
-                        "email": reg_email.strip(),
-                        "password": reg_password.strip()
-                    })
+                    auth_res = supabase.auth.sign_up({"email": r_em.strip(), "password": r_pw.strip()})
                     if auth_res.user:
-                        st.session_state.user = auth_res.user
-                        prof_data = {
-                            "user_id": auth_res.user.id,
-                            "full_name": reg_name.strip(),
-                            "mobile_no": reg_mobile.strip(),
-                            "college_name": reg_college.strip(),
-                            "bams_year": reg_bams_year,
-                            "age": int(reg_age)
+                        uid = str(auth_res.user.id)
+                        p_data = {
+                            "user_id": uid,
+                            "full_name": r_name.strip(),
+                            "mobile_no": r_mob.strip(),
+                            "college_name": r_col.strip(),
+                            "bams_year": r_yr,
+                            "age": int(r_age)
                         }
-                        supabase.table("user_profiles").insert(prof_data).execute()
-                        st.session_state.profile = prof_data
-                        st.success("🎉 खाते यशस्वीरीत्या तयार झाले! VIP स्टुडिओ सुरू होत आहे...")
+                        supabase.table("user_profiles").upsert(p_data).execute()
+                        st.session_state.user_id = uid
+                        st.session_state.user_email = r_em.strip()
+                        st.session_state.last_active = int(time.time())
+                        st.session_state.profile = p_data
+                        st.query_params["uid"] = uid
+                        st.success("🎉 नोंदणी यशस्वी! स्टुडिओ सुरू होत आहे...")
                         time.sleep(1)
                         st.rerun()
-                except Exception as reg_err:
-                    st.error(f"❌ नोंदणी करताना त्रुटी: {reg_err}")
+                except Exception as e:
+                    st.error(f"नोंदणी त्रुटी: {e}")
 
     st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown(f"""
-    <div class="app-footer">
-        {th['footer_text']} <strong>AyurVeda AI Studio</strong> | Developed by <strong>Avishkar Alase</strong>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align:center; padding-top:20px; font-size:12.5px; font-weight:700; color:{th['font_accent']};'>{th['footer_text']} AyurVeda AI | Avishkar Alase</div>", unsafe_allow_html=True)
     st.stop()
 
 # =========================================================================
-# 🎯 DYNAMIC MODEL DISCOVERY ENGINE
+# 🎯 DYNAMIC MODEL DISCOVERY & GEMINI CACHE
 # =========================================================================
 @st.cache_data(show_spinner=False, ttl=86400)
 def get_working_models():
@@ -652,80 +613,71 @@ def render_photo_identical_sheet(data, subject_name, topic_name, is_marathi=True
 # =========================================================================
 # 👤 VIP SIDEBAR - विद्यार्थी आयडेंटिटी कार्ड आणि सेव्ह केलेल्या नोट्स
 # =========================================================================
+prof = st.session_state.profile or {}
+s_name = prof.get("full_name") or "विद्यार्थी"
+s_college = prof.get("college_name") or "Ayurvedic Medical College"
+s_year = prof.get("bams_year") or "BAMS Scholar"
+s_mob = prof.get("mobile_no") or "-"
+s_age = prof.get("age") or "-"
+s_email = st.session_state.get("user_email") or "Logged In"
+
 with st.sidebar:
     st.markdown("### 🎓 विद्यार्थी आयडेंटिटी कार्ड")
-
-    # Load profile details if not loaded
-    if not st.session_state.profile and st.session_state.user:
-        try:
-            p_data = supabase.table("user_profiles").select("*").eq("user_id", st.session_state.user.id).execute()
-            if p_data.data:
-                st.session_state.profile = p_data.data[0]
-        except Exception:
-            pass
-
-    prof = st.session_state.profile or {}
-    student_name = prof.get("full_name", "BAMS Student")
-    college = prof.get("college_name", "Ayurvedic Medical College")
-    b_year = prof.get("bams_year", "BAMS Scholar")
-    mobile = prof.get("mobile_no", "-")
-    age = prof.get("age", "-")
-
     st.markdown(f"""
     <div class="student-id-card">
-        <h3 style="margin:0 0 6px 0; color:#064e3b; font-weight:900; font-size:18px;">👨‍⚕️ {student_name}</h3>
-        <div style="font-size:13.5px; color:#1e293b; margin-bottom:3px;"><b>🏛️ कॉलेज:</b> {college}</div>
-        <div style="font-size:13.5px; color:#1e293b; margin-bottom:3px;"><b>🎓 वर्ष:</b> {b_year}</div>
-        <div style="font-size:13px; color:#475569;"><b>📱 मो.:</b> {mobile} | <b>वय:</b> {age}</div>
-        <div style="font-size:12px; color:#059669; margin-top:6px; word-break:break-all;"><b>📧:</b> {st.session_state.user.email}</div>
+        <h4 style="margin:0 0 5px 0; color:#064e3b; font-weight:900; font-size:17px;">👨‍⚕️ {s_name}</h4>
+        <div style="font-size:13px; margin-bottom:3px;"><b>🏛️ कॉलेज:</b> {s_college}</div>
+        <div style="font-size:13px; margin-bottom:3px;"><b>🎓 वर्ष:</b> {s_year}</div>
+        <div style="font-size:12.5px; color:#475569;"><b>📱 मो.:</b> {s_mob} | <b>वय:</b> {s_age}</div>
+        <div style="font-size:11.5px; color:#059669; margin-top:5px; word-break:break-all;"><b>📧:</b> {s_email}</div>
     </div>
     """, unsafe_allow_html=True)
 
     if st.button("🚪 बाहेर पडा (Logout)", use_container_width=True):
-        supabase.auth.sign_out()
-        st.session_state.user = None
+        try:
+            supabase.auth.sign_out()
+        except Exception:
+            pass
+        st.session_state.user_id = None
         st.session_state.profile = None
+        st.session_state.last_active = None
+        st.query_params.clear()
         st.rerun()
 
     st.write("---")
     st.markdown("### 📚 माझ्या सेव्ह केलेल्या नोट्स")
-
     try:
-        notes_res = supabase.table("user_notes").select("*").order("created_at", desc=True).execute()
-        saved_notes = notes_res.data
-
-        if not saved_notes:
+        notes_res = supabase.table("user_notes").select("*").eq("user_id", st.session_state.user_id).order("created_at", desc=True).execute()
+        if not notes_res.data:
             st.info("अद्याप कोणतीही नोट सेव्ह केलेली नाही.")
         else:
-            for item in saved_notes:
+            for item in notes_res.data:
                 with st.expander(f"📌 {item.get('subject', '')} - {item.get('topic', '')[:16]}"):
-                    st.caption(f"तारीख: {item.get('created_at', '')[:10]} | मोड: {item.get('study_mode', '')}")
+                    st.caption(f"{item.get('created_at', '')[:10]} | {item.get('study_mode', '')}")
                     st.write(item.get("content", "")[:180] + "...")
-
                     if st.button("🗑️ हटवा", key=f"del_{item['id']}"):
                         supabase.table("user_notes").delete().eq("id", item["id"]).execute()
                         st.success("हटवले!")
                         st.rerun()
-    except Exception as err:
-        st.error(f"नोट्स लोड करताना त्रुटी: {err}")
+    except Exception as e:
+        st.error(f"नोट्स लोड करताना त्रुटी: {e}")
 
-# --- मुख्य डॅशबोर्ड नेव्हिगेशन ---
+# =========================================================================
+# 🌿 मुख्य VIP स्टुडिओ (५ टॅब्स)
+# =========================================================================
 st.markdown(f"""
 <div class="vip-navbar">
-    <div style="display:flex; align-items:center; gap:12px;">
-        <div style="font-size:32px;">{th['icon']}</div>
+    <div style="display:flex; align-items:center; gap:10px;">
+        <div style="font-size:26px;">{th['icon']}</div>
         <div>
             <div class="brand-title">🌿 AyurVeda AI Studio</div>
-            <small style="color:{th['font_accent']}; font-weight:800; letter-spacing:0.5px;">{th['title_sub']}</small>
+            <small style="color:{th['font_accent']}; font-weight:800; font-size:11.5px;">{th['title_sub']}</small>
         </div>
     </div>
-    <div class="author-badge">
-        <span>Avishkar Alase</span> ✓
-    </div>
+    <div class="author-badge">Avishkar Alase ✓</div>
 </div>
 """, unsafe_allow_html=True)
 
-# --- 5 Main Tabs ---
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📖 BAMS स्टडी नोट्स व प्रश्नसंच (Syllabus & PYQ)",
     "🧪 औषध घटक व निर्माण विधी (Medicine & Manufacturing)",
@@ -741,8 +693,8 @@ with tab1:
     st.markdown(f"""
     <div class="vip-hero">
         <div class="festive-tag">{th['tag']}</div>
-        <h3 style="margin:0 0 6px 0; font-weight:900;">🎯 BAMS A4 बॉलपेन Handwritten नोट्स व PYQ Solver</h3>
-        <p style="margin:0; font-size:13.5px; opacity:0.95;">ठळक मुख्य हेडिंग, सुवाच्य अक्षरे, महत्वाच्या शब्दांना <b>Red Highlight</b>, फ्लोचार्ट आणि मागील ५ वर्षांचे विद्यापीठ प्रश्नोत्तर.</p>
+        <h3 style="margin:0 0 4px 0; font-weight:900; font-size:20px;">🎯 BAMS A4 बॉलपेन Handwritten नोट्स व PYQ Solver</h3>
+        <p style="margin:0; font-size:13px; opacity:0.95;">ठळक मुख्य हेडिंग, सुवाच्य अक्षरे, महत्वाच्या शब्दांना <b>Red Highlight</b>, फ्लोचार्ट आणि मागील ५ वर्षांचे विद्यापीठ प्रश्नोत्तर.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -911,7 +863,7 @@ with tab1:
                             if st.button("💾 ही A4 Note खात्यात सेव्ह करा", key="save_a4_btn", use_container_width=True):
                                 try:
                                     supabase.table("user_notes").insert({
-                                        "user_id": st.session_state.user.id,
+                                        "user_id": st.session_state.user_id,
                                         "subject": subject,
                                         "topic": topic,
                                         "study_mode": study_mode,
@@ -953,7 +905,7 @@ with tab1:
                             if st.button("💾 हे प्रश्नोत्तर खात्यात सेव्ह करा", key="save_pyq_btn", use_container_width=True):
                                 try:
                                     supabase.table("user_notes").insert({
-                                        "user_id": st.session_state.user.id,
+                                        "user_id": st.session_state.user_id,
                                         "subject": subject,
                                         "topic": topic,
                                         "study_mode": study_mode,
@@ -1077,7 +1029,7 @@ with tab1:
         <div>
             <h2 style="margin:0; color:#000000;">🌿 AyurVeda AI - BAMS Study Notes</h2>
             <div style="font-size:14px; color:#374151; margin-top:4px;">
-                <b>विद्यार्थी:</b> {student_name} | <b>कॉलेज:</b> {college}<br>
+                <b>विद्यार्थी:</b> {s_name} | <b>कॉलेज:</b> {s_college}<br>
                 <b>विषय:</b> {subject} | <b>टॉपिक:</b> {topic}
             </div>
         </div>
@@ -1100,7 +1052,7 @@ with tab1:
                             if st.button("💾 खात्यात सेव्ह करा", key="save_comp_note", use_container_width=True):
                                 try:
                                     supabase.table("user_notes").insert({
-                                        "user_id": st.session_state.user.id,
+                                        "user_id": st.session_state.user_id,
                                         "subject": subject,
                                         "topic": topic,
                                         "study_mode": study_mode,
@@ -1115,7 +1067,7 @@ with tab1:
                             wa_link = f"[https://api.whatsapp.com/send?text=](https://api.whatsapp.com/send?text=){encoded_wa}"
                             st.link_button("📲 WhatsApp वर पाठवा", wa_link, use_container_width=True)
 
-                        st.markdown(f'<div class="notes-card-container">{notes_text}</div>', unsafe_allow_html=True)
+                        st.markdown(f'<div style="background:#fff; border-radius:18px; padding:22px; margin-top:15px; border:1.8px solid {th["border_color"]}; line-height:1.8;">{notes_text}</div>', unsafe_allow_html=True)
 
                     except Exception as e:
                         st.error(f"त्रुटी: {e}")
@@ -1127,8 +1079,8 @@ with tab2:
     st.markdown("""
     <div class="vip-hero" style="background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%) !important; border-color: #5eead4;">
         <div class="festive-tag" style="background: rgba(255,255,255,0.18);">🌿 रसौषधी विधी</div>
-        <h3 style="margin:0 0 6px 0; font-weight:900;">🧪 रसशास्त्र व भैषज्य कल्पना स्पेशल</h3>
-        <p style="margin:0; font-size:13.5px; opacity:0.95;">आयुर्वेदिक औषध घटक व सविस्तर निर्माण विधी सोप्या स्टेप्समध्ये शिका.</p>
+        <h3 style="margin:0 0 4px 0; font-weight:900; font-size:20px;">🧪 रसशास्त्र व भैषज्य कल्पना स्पेशल</h3>
+        <p style="margin:0; font-size:13px; opacity:0.95;">आयुर्वेदिक औषध घटक व सविस्तर निर्माण विधी सोप्या स्टेप्समध्ये शिका.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -1151,7 +1103,7 @@ with tab2:
 
                     if st.button("💾 ही औषध कृती खात्यात सेव्ह करा", key="save_med_btn"):
                         supabase.table("user_notes").insert({
-                            "user_id": st.session_state.user.id,
+                            "user_id": st.session_state.user_id,
                             "subject": "Rasashastra & Bhaishajya Kalpana",
                             "topic": medicine_name,
                             "study_mode": dosage_form,
@@ -1170,8 +1122,8 @@ with tab3:
     st.markdown("""
     <div class="vip-hero" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%) !important; border-color: #a5b4fc;">
         <div class="festive-tag" style="background: rgba(255,255,255,0.18);">🎓 तोंडी परीक्षा सिम्युलेटर</div>
-        <h3 style="margin:0 0 6px 0; font-weight:900;">🎯 BAMS University Practical & Viva Simulator</h3>
-        <p style="margin:0; font-size:13.5px; opacity:0.95;">External Examiner च्या दृष्टिकोनातून विचारले जाणारे ५ महत्त्वाचे प्रश्न व आदर्श उत्तरे.</p>
+        <h3 style="margin:0 0 4px 0; font-weight:900; font-size:20px;">🎯 BAMS University Practical & Viva Simulator</h3>
+        <p style="margin:0; font-size:13px; opacity:0.95;">External Examiner च्या दृष्टिकोनातून विचारले जाणारे ५ महत्त्वाचे प्रश्न व आदर्श उत्तरे.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -1207,7 +1159,7 @@ with tab3:
 
                     if st.button("💾 ही Viva प्रश्नावली सेव्ह करा", key="save_viva_btn"):
                         supabase.table("user_notes").insert({
-                            "user_id": st.session_state.user.id,
+                            "user_id": st.session_state.user_id,
                             "subject": viva_sub,
                             "topic": viva_topic,
                             "study_mode": "Viva-Voce Questions",
@@ -1226,8 +1178,8 @@ with tab4:
     st.markdown("""
     <div class="vip-hero" style="background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%) !important; border-color: #7dd3fc;">
         <div class="festive-tag" style="background: rgba(255,255,255,0.18);">🩺 क्लिनिकल ओपीडी व IPD केसशीट</div>
-        <h3 style="margin:0 0 6px 0; font-weight:900;">📋 Complete Ayurvedic Clinical Case Presentation</h3>
-        <p style="margin:0; font-size:13.5px; opacity:0.95;">Kayachikitsa, Panchakarma व Shalya साठी अष्टविध परीक्षा, संप्राप्ती विघटन, दीपन-पाचन व प्रत्यक्ष उपचार योजना.</p>
+        <h3 style="margin:0 0 4px 0; font-weight:900; font-size:20px;">📋 Complete Ayurvedic Clinical Case Presentation</h3>
+        <p style="margin:0; font-size:13px; opacity:0.95;">Kayachikitsa, Panchakarma व Shalya साठी अष्टविध परीक्षा, संप्राप्ती विघटन, दीपन-पाचन व प्रत्यक्ष उपचार योजना.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -1258,7 +1210,7 @@ with tab4:
 
                     if st.button("💾 ही केसशीट खात्यात सेव्ह करा", key="save_case_btn"):
                         supabase.table("user_notes").insert({
-                            "user_id": st.session_state.user.id,
+                            "user_id": st.session_state.user_id,
                             "subject": case_subject,
                             "topic": case_topic,
                             "study_mode": "Clinical Case Study",
@@ -1277,8 +1229,8 @@ with tab5:
     st.markdown("""
     <div class="vip-hero" style="background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%) !important; border-color: #c7d2fe;">
         <div class="festive-tag" style="background: rgba(255,255,255,0.18);">🔬 सायंटिफिक ॲव्हिडन्स व क्लिनिकल ट्रायल्स</div>
-        <h3 style="margin:0 0 6px 0; font-weight:900;">🧬 Evidence-Based Modern Ayurvedic Research</h3>
-        <p style="margin:0; font-size:13.5px; opacity:0.95;">Active Phytochemicals, PubMed/Clinical Trial पुरावे, Pharmacology आणि Safety & Toxicity प्रोफाईल.</p>
+        <h3 style="margin:0 0 4px 0; font-weight:900; font-size:20px;">🧬 Evidence-Based Modern Ayurvedic Research</h3>
+        <p style="margin:0; font-size:13px; opacity:0.95;">Active Phytochemicals, PubMed/Clinical Trial पुरावे, Pharmacology आणि Safety & Toxicity प्रोफाईल.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -1300,7 +1252,7 @@ with tab5:
 
                     if st.button("💾 हा संशोधन अहवाल सेव्ह करा", key="save_res_btn"):
                         supabase.table("user_notes").insert({
-                            "user_id": st.session_state.user.id,
+                            "user_id": st.session_state.user_id,
                             "subject": "Research & Evidence",
                             "topic": res_topic,
                             "study_mode": "Modern Pharmacology",
@@ -1314,7 +1266,7 @@ with tab5:
 
 # --- Footer ---
 st.markdown(f"""
-<div class="app-footer">
+<div style="text-align:center; padding:30px 10px 15px 10px; font-size:13px; color:{th['font_accent']}; font-weight:800;">
     {th['footer_text']} <strong>AyurVeda AI Studio</strong> | Developed by <strong>Avishkar Alase</strong>
 </div>
 """, unsafe_allow_html=True)
