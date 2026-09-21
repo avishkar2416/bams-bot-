@@ -253,20 +253,6 @@ st.markdown(f"""
         line-height: 1.8;
     }}
 
-    .wa-share-btn {{
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: #25d366;
-        color: white !important;
-        text-decoration: none;
-        padding: 11px 20px;
-        border-radius: 12px;
-        font-weight: 800;
-        font-size: 14px;
-        box-shadow: 0 4px 12px rgba(37,211,102,0.3);
-    }}
-
     .app-footer {{
         text-align: center;
         padding: 40px 10px 15px 10px;
@@ -286,7 +272,7 @@ if not api_key:
 client = genai.Client(api_key=api_key)
 
 # =========================================================================
-# 🎯 DYNAMIC MODEL DISCOVERY ENGINE (Auto-Selects Active Models)
+# 🎯 DYNAMIC MODEL DISCOVERY ENGINE (Auto-Detects Working Models)
 # =========================================================================
 @st.cache_data(show_spinner=False, ttl=86400)
 def get_working_models():
@@ -747,7 +733,7 @@ with tab1:
                     except Exception as e:
                         st.error(f"त्रुटी: {e}")
 
-            # Case C: Comprehensive Notes (14 Exhaustive Modules Framework)
+            # Case C: Comprehensive Notes (14 Exhaustive Modules Framework + HTML/PDF Direct Save)
             else:
                 system_instruction = f"""
                 Tu ek senior BAMS Gold Medalist Professor aani NCISM/MUHS Chief Paper Setter aahes.
@@ -791,14 +777,88 @@ with tab1:
                         st.balloons()
                         st.success(f"✅ '{topic}' वर संपूर्ण सविस्तर अभ्यास नोट्स तयार झाल्या आहेत!")
 
-                        # 100% Working Instant Download & WhatsApp Share Buttons
+                        # HTML / PDF रेडी फॉरमॅट (UTF-8 Enriched - अक्षरे अजिबात फुटणार नाहीत)
+                        html_export = f"""<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<title>{topic} - Comprehensive Notes</title>
+<link href="[https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&display=swap](https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&display=swap)" rel="stylesheet">
+<style>
+    body {{
+        font-family: 'Mukta', sans-serif;
+        line-height: 1.8;
+        padding: 30px;
+        color: #1e293b;
+        max-width: 850px;
+        margin: auto;
+        background: #ffffff;
+    }}
+    .header-box {{
+        border-bottom: 3px solid #047857;
+        padding-bottom: 12px;
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }}
+    h1, h2, h3 {{ color: #065f46; }}
+    table {{
+        width: 100%;
+        border-collapse: collapse;
+        margin: 18px 0;
+    }}
+    th, td {{
+        border: 1px solid #cbd5e1;
+        padding: 10px;
+        text-align: left;
+    }}
+    th {{ background: #f1f5f9; color: #0f172a; }}
+    blockquote {{
+        border-left: 4px solid #047857;
+        margin: 15px 0;
+        padding: 10px 18px;
+        background: #f0fdf4;
+        font-weight: 700;
+        color: #064e3b;
+    }}
+    .print-btn {{
+        background: #047857;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+    }}
+    @media print {{
+        .print-btn {{ display: none; }}
+        body {{ padding: 0; }}
+    }}
+</style>
+</head>
+<body>
+    <div class="header-box">
+        <div>
+            <h2>🌿 AyurVeda AI - Comprehensive Study Notes</h2>
+            <b>विषय:</b> {subject} | <b>टॉपिक:</b> {topic}
+        </div>
+        <button class="print-btn" onclick="window.print()">🖨️ PDF सेव्ह करा</button>
+    </div>
+    <div style="white-space: pre-wrap;">
+{notes_text}
+    </div>
+</body>
+</html>"""
+
+                        # 100% कार्यक्षम Download आणि WhatsApp बटणे
                         c_col1, c_col2 = st.columns([1, 1])
                         with c_col1:
                             st.download_button(
-                                label="📥 संपूर्ण नोट्स डाउनलोड करा (.txt)",
-                                data=notes_text,
-                                file_name=f"{topic.replace(' ', '_')}_Comprehensive_Notes.txt",
-                                mime="text/plain",
+                                label="📥 संपूर्ण नोट्स सेव्ह करा (.html / PDF)",
+                                data=html_export.encode('utf-8'),
+                                file_name=f"{topic.replace(' ', '_')}_Notes.html",
+                                mime="text/html",
                                 use_container_width=True
                             )
                         with c_col2:
