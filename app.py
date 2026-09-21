@@ -13,7 +13,7 @@ st.set_page_config(
     page_title="AyurVeda AI | Avishkar Alase",
     page_icon="🌿",
     layout="centered",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 # =========================================================================
@@ -176,23 +176,17 @@ st.markdown(f"""
         border-radius: 16px !important;
         transition: all 0.3s ease !important;
     }}
-    div[data-baseweb="select"] > div:hover,
-    div[data-baseweb="input"] > div:hover {{
-        border-color: {th['focus_color']} !important;
-        transform: translateY(-2px);
-    }}
 
     div.stButton > button {{
         background: {th['btn_grad']} !important;
         color: #ffffff !important;
         border: 2px solid {th['hero_border']} !important;
         border-radius: 18px !important;
-        padding: 16px 34px !important;
-        font-size: 17px !important;
+        padding: 14px 28px !important;
+        font-size: 16px !important;
         font-weight: 900 !important;
         cursor: pointer !important;
         transition: all 0.25s ease !important;
-        animation: themePulse 2.5s infinite;
     }}
     div.stButton > button:hover {{
         transform: translateY(-2px) scale(1.015) !important;
@@ -216,55 +210,22 @@ st.markdown(f"""
     }}
     .stTabs [aria-selected="true"] * {{ color: #ffffff !important; }}
 
-    div[data-testid="stRadio"] > div[role="radiogroup"] {{
-        display: flex !important;
-        gap: 12px !important;
-        background: rgba(255, 255, 255, 0.75) !important;
-        padding: 6px !important;
-        border-radius: 18px !important;
-        border: 1.5px solid {th['border_color']} !important;
-    }}
-    div[data-testid="stRadio"] label {{
-        background: #ffffff !important;
-        border: 2px solid {th['border_color']} !important;
-        border-radius: 14px !important;
-        padding: 10px 16px !important;
-        cursor: pointer !important;
-        display: flex !important;
-        align-items: center !important;
-        flex: 1 !important;
-    }}
-    div[data-testid="stRadio"] label:has(input:checked) {{
-        background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%) !important;
-        border-color: {th['focus_color']} !important;
-        transform: scale(1.02) !important;
-    }}
-    div[data-testid="stRadio"] label div[data-testid="stMarkdownContainer"] p {{
-        font-weight: 800 !important;
-        color: {th['font_accent']} !important;
-        font-size: 14.5px !important;
-    }}
-
-    .notes-card-container {{
-        background: #ffffff;
-        border: 2px solid {th['border_color']};
-        border-radius: 20px;
-        padding: 24px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.06);
-        margin-top: 15px;
-        line-height: 1.8;
-    }}
-
     .auth-card-box {{
         background: #ffffff;
         border: 2px solid {th['border_color']};
         border-radius: 22px;
-        padding: 30px;
+        padding: 26px;
         box-shadow: 0 15px 35px rgba(0,0,0,0.08);
-        margin: 20px auto;
-        max-width: 520px;
+        margin: 15px auto;
+        max-width: 540px;
     }}
-
+    .student-badge-card {{
+        background: #f0fdf4;
+        border: 2px solid #86efac;
+        padding: 14px;
+        border-radius: 14px;
+        margin-bottom: 15px;
+    }}
     .app-footer {{
         text-align: center;
         padding: 40px 10px 15px 10px;
@@ -291,14 +252,13 @@ if not supabase_url or not supabase_key:
 client = genai.Client(api_key=api_key)
 supabase: Client = create_client(supabase_url, supabase_key)
 
-# Session State for User Login
 if "user" not in st.session_state:
     st.session_state.user = None
-if "auth_token" not in st.session_state:
-    st.session_state.auth_token = None
+if "profile" not in st.session_state:
+    st.session_state.profile = None
 
 # =========================================================================
-# 🔐 100% FREE SUPABASE EMAIL OTP LOGIN GATEWAY
+# 🔐 विद्यार्थी थेट लॉगिन आणि संपूर्ण प्रोफाईल रजिस्ट्रेशन
 # =========================================================================
 if not st.session_state.user:
     st.markdown(f"""
@@ -319,54 +279,97 @@ if not st.session_state.user:
     st.markdown(f"""
     <div class="dynamic-hero">
         <div class="festive-tag">{th['tag']}</div>
-        <h3 style="margin:0 0 6px 0; font-weight:900;">🔐 विद्यार्थी लॉगिन / मोफत खात्यात प्रवेश करा</h3>
-        <p style="margin:0; font-size:13.5px; opacity:0.95;">तुमच्या नोट्स सुरक्षित ठेवण्यासाठी आणि कधीही पाहण्यासाठी ईमेल OTP द्वारे मोफत लॉगिन करा.</p>
+        <h3 style="margin:0 0 6px 0; font-weight:900;">🔐 BAMS विद्यार्थी पोर्टल - लॉगिन व नोंदणी</h3>
+        <p style="margin:0; font-size:13.5px; opacity:0.95;">तुमच्या सेव्ह केलेल्या सर्व नोट्स व अभ्यासाचा डेटा सुरक्षित ठेवण्यासाठी खात्यात प्रवेश करा.</p>
     </div>
     """, unsafe_allow_html=True)
 
     st.markdown('<div class="auth-card-box">', unsafe_allow_html=True)
-    st.markdown(f"<h3 style='color:{th['font_accent']}; font-weight:900; margin-top:0;'>📧 ईमेल लॉगिन (Password Free)</h3>", unsafe_allow_html=True)
-    st.caption("कोणताही पासवर्ड लक्षात ठेवण्याची गरज नाही. तुमच्या ईमेलवर थेट ६ अंकी कोड येईल.")
+    auth_tab1, auth_tab2 = st.tabs(["🔑 विद्यार्थी लॉगिन (Sign In)", "📝 नवीन नोंदणी (Student Registration)"])
 
-    user_email_input = st.text_input("तुमचा ईमेल पत्ता टाका:", placeholder="student@example.com")
+    # १. लॉगिन टॅब
+    with auth_tab1:
+        st.markdown(f"<h4 style='color:{th['font_accent']}; margin-top:0;'>लॉगिन करा:</h4>", unsafe_allow_html=True)
+        login_email = st.text_input("📧 ईमेल पत्ता:", placeholder="student@example.com", key="in_email")
+        login_pass = st.text_input("🔒 पासवर्ड:", type="password", placeholder="तुमचा पासवर्ड", key="in_pass")
 
-    if st.button("📩 ईमेलवर OTP पाठवा", key="btn_send_email_otp", use_container_width=True):
-        if not user_email_input.strip():
-            st.warning("⚠️ कृपया आधी वैध ईमेल पत्ता टाका.")
-        else:
-            try:
-                supabase.auth.sign_in_with_otp({"email": user_email_input.strip()})
-                st.session_state.email_sent = user_email_input.strip()
-                st.success("✅ तुमच्या ईमेलवर ६ अंकी कोड पाठवला आहे! इनबॉक्स किंवा स्पॅम फोल्डर तपासा.")
-            except Exception as err:
-                st.error(f"OTP पाठवताना त्रुटी: {err}")
-
-    if "email_sent" in st.session_state:
-        st.write("---")
-        st.info(f"📨 **{st.session_state.email_sent}** वर आलेला कोड खाली प्रविष्ट करा:")
-        otp_code_input = st.text_input("🔑 ६ अंकी OTP टाका:", placeholder="123456", max_chars=6)
-
-        if st.button("🚀 खात्यात प्रवेश करा (Verify & Enter)", key="btn_verify_email_otp", use_container_width=True):
-            if not otp_code_input.strip():
-                st.warning("कृपया आलेला OTP कोड टाका.")
+        if st.button("🚀 खात्यात प्रवेश करा", key="btn_do_login", use_container_width=True):
+            if not login_email.strip() or not login_pass.strip():
+                st.warning("⚠️ कृपया ईमेल आणि पासवर्ड दोन्ही भरा.")
             else:
                 try:
-                    res = supabase.auth.verify_otp({
-                        "email": st.session_state.email_sent,
-                        "token": otp_code_input.strip(),
-                        "type": "email"
+                    res = supabase.auth.sign_in_with_password({
+                        "email": login_email.strip(),
+                        "password": login_pass.strip()
                     })
                     if res.user:
                         st.session_state.user = res.user
-                        st.session_state.auth_token = res.session.access_token
-                        st.success("🎉 यशस्वीरीत्या लॉगिन झाले!")
+                        # Fetch Profile
+                        p_res = supabase.table("user_profiles").select("*").eq("user_id", res.user.id).execute()
+                        if p_res.data:
+                            st.session_state.profile = p_res.data[0]
+                        st.success("🎉 लॉगिन यशस्वी झाले!")
                         time.sleep(1)
                         st.rerun()
                 except Exception as err:
-                    st.error(f"❌ चुकीचा किंवा एक्सपायर झालेला OTP: {err}")
+                    st.error(f"❌ लॉगिन अयशस्वी: {err}")
+
+    # २. नवीन विद्यार्थी नोंदणी (संपूर्ण डेटा)
+    with auth_tab2:
+        st.markdown(f"<h4 style='color:{th['font_accent']}; margin-top:0;'>विद्यार्थी नोंदणी फॉर्म:</h4>", unsafe_allow_html=True)
+        reg_name = st.text_input("👤 विद्यार्थ्याचे पूर्ण नाव:", placeholder="उदा. राहुल प्रकाश जोशी")
+        
+        c_mob, c_age = st.columns([2, 1])
+        with c_mob:
+            reg_mobile = st.text_input("📱 मोबाईल नंबर:", placeholder="9876543210", max_chars=10)
+        with c_age:
+            reg_age = st.number_input("वय (Age):", min_value=17, max_value=60, value=22)
+
+        reg_college = st.text_input("🏛️ BAMS कॉलेजचे नाव:", placeholder="उदा. Government Ayurved College, Nanded")
+        reg_bams_year = st.selectbox(
+            "🎓 BAMS वर्ष (Academic Year):",
+            [
+                "BAMS 1st Professional (प्रथम वर्ष)",
+                "BAMS 2nd Professional (द्वितीय वर्ष)",
+                "BAMS 3rd Professional (तृतीय वर्ष)",
+                "BAMS Final Professional (अंतिम वर्ष)",
+                "BAMS Intern (इंटर्नशिप)",
+                "BAMS MD/MS Scholar (पीजी अभ्यासक)"
+            ]
+        )
+        
+        reg_email = st.text_input("📧 ईमेल पत्ता:", placeholder="student@example.com", key="reg_email_field")
+        reg_password = st.text_input("🔒 पासवर्ड तयार करा (किमान ६ अक्षरे/अंक):", type="password", key="reg_pass_field")
+
+        if st.button("✨ खाते तयार करा व प्रोफाइल सेव्ह करा", key="btn_do_register", use_container_width=True):
+            if not reg_name.strip() or not reg_college.strip() or not reg_email.strip() or len(reg_password.strip()) < 6:
+                st.warning("⚠️ कृपया नाव, कॉलेज, ईमेल आणि किमान ६ अक्षरांचा पासवर्ड योग्य भरा.")
+            else:
+                try:
+                    auth_res = supabase.auth.sign_up({
+                        "email": reg_email.strip(),
+                        "password": reg_password.strip()
+                    })
+                    if auth_res.user:
+                        st.session_state.user = auth_res.user
+                        # Profile Database मध्ये इन्सर्ट करा
+                        prof_data = {
+                            "user_id": auth_res.user.id,
+                            "full_name": reg_name.strip(),
+                            "mobile_no": reg_mobile.strip(),
+                            "college_name": reg_college.strip(),
+                            "bams_year": reg_bams_year,
+                            "age": int(reg_age)
+                        }
+                        supabase.table("user_profiles").insert(prof_data).execute()
+                        st.session_state.profile = prof_data
+                        st.success("🎉 खाते यशस्वीरीत्या तयार झाले! डॅशबोर्ड उघडत आहे...")
+                        time.sleep(1)
+                        st.rerun()
+                except Exception as reg_err:
+                    st.error(f"❌ नोंदणी करताना त्रुटी: {reg_err}")
 
     st.markdown('</div>', unsafe_allow_html=True)
-
     st.markdown(f"""
     <div class="app-footer">
         {th['footer_text']} <strong>AyurVeda AI</strong> | Developed by <strong>Avishkar Alase</strong>
@@ -375,7 +378,7 @@ if not st.session_state.user:
     st.stop()
 
 # =========================================================================
-# 🎯 DYNAMIC MODEL DISCOVERY ENGINE
+# 🎯 DYNAMIC MODEL DISCOVERY ENGINE & GEMINI CACHE
 # =========================================================================
 @st.cache_data(show_spinner=False, ttl=86400)
 def get_working_models():
@@ -392,11 +395,7 @@ def get_working_models():
     except Exception:
         pass
 
-    fallbacks = [
-        "gemini-2.5-flash",
-        "gemini-2.0-flash",
-        "gemini-1.5-flash"
-    ]
+    fallbacks = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]
     for fb in fallbacks:
         if fb not in found:
             found.append(fb)
@@ -616,15 +615,42 @@ def render_photo_identical_sheet(data, subject_name, topic_name, is_marathi=True
     """
     return html_code
 
-# --- Top Navigation Bar & Sidebar (Profile & Saved Notes) ---
+# =========================================================================
+# 👤 साइडबार प्रोफाईल कार्ड व सेव्ह केलेल्या नोट्स
+# =========================================================================
 with st.sidebar:
-    st.markdown("### 👤 विद्यार्थी प्रोफाईल")
-    st.write(f"लॉगिन: `{st.session_state.user.email}`")
+    st.markdown("### 🎓 विद्यार्थी प्रोफाईल")
+    
+    # Load profile details if not loaded
+    if not st.session_state.profile and st.session_state.user:
+        try:
+            p_data = supabase.table("user_profiles").select("*").eq("user_id", st.session_state.user.id).execute()
+            if p_data.data:
+                st.session_state.profile = p_data.data[0]
+        except Exception:
+            pass
+
+    prof = st.session_state.profile or {}
+    student_name = prof.get("full_name", "BAMS Student")
+    college = prof.get("college_name", "Ayurvedic Medical College")
+    b_year = prof.get("bams_year", "BAMS Student")
+    mobile = prof.get("mobile_no", "-")
+    age = prof.get("age", "-")
+
+    st.markdown(f"""
+    <div class="student-badge-card">
+        <h4 style="margin:0 0 4px 0; color:#064e3b; font-weight:800;">👨‍⚕️ {student_name}</h4>
+        <div style="font-size:13px; color:#1e293b;"><b>🏛️ कॉलेज:</b> {college}</div>
+        <div style="font-size:13px; color:#1e293b;"><b>🎓 वर्ष:</b> {b_year}</div>
+        <div style="font-size:12.5px; color:#475569;"><b>📱 मो.:</b> {mobile} | <b>वय:</b> {age}</div>
+        <div style="font-size:12px; color:#059669; margin-top:4px;"><b>📧:</b> {st.session_state.user.email}</div>
+    </div>
+    """, unsafe_allow_html=True)
     
     if st.button("🚪 बाहेर पडा (Logout)", use_container_width=True):
         supabase.auth.sign_out()
         st.session_state.user = None
-        st.session_state.auth_token = None
+        st.session_state.profile = None
         st.rerun()
 
     st.write("---")
@@ -638,7 +664,7 @@ with st.sidebar:
             st.info("अद्याप कोणतीही नोट सेव्ह केलेली नाही.")
         else:
             for item in saved_notes:
-                with st.expander(f"📌 {item.get('subject', '')} - {item.get('topic', '')[:18]}"):
+                with st.expander(f"📌 {item.get('subject', '')} - {item.get('topic', '')[:16]}"):
                     st.caption(f"तारीख: {item.get('created_at', '')[:10]} | मोड: {item.get('study_mode', '')}")
                     st.write(item.get("content", "")[:180] + "...")
                     
@@ -649,6 +675,7 @@ with st.sidebar:
     except Exception as err:
         st.error(f"नोट्स लोड करताना त्रुटी: {err}")
 
+# --- मुख्य डॅशबोर्ड नेव्हिगेशन ---
 st.markdown(f"""
 <div class="dynamic-navbar">
     <div style="display:flex; align-items:center; gap:10px;">
@@ -914,7 +941,7 @@ with tab1:
                     except Exception as e:
                         st.error(f"त्रुटी: {e}")
 
-            # Case C: Comprehensive Notes (14 Exhaustive Modules + Black Solid Bold Headings)
+            # Case C: Comprehensive Notes (14 Exhaustive Modules)
             else:
                 system_instruction = f"""
                 Tu ek senior BAMS Gold Medalist Professor aani NCISM/MUHS Chief Paper Setter aahes.
@@ -928,43 +955,32 @@ with tab1:
                 1. 📜 व्युत्पत्ती, निरुक्ती व श्लोक अन्वय (Etymology, Classical Reference with Word-by-Word Sandhi-Vigraha):
                    - Mukhya Sanskrit Shloka (> "Shloka" blockquote madhye, reference granthasaha - Charak/Sushrut/Vagbhat).
                    - Shlokacha padchhed, anvay aani saral Marathi/English arth.
-                2. 🔬 व्याख्या व स्वरूप (Comprehensive Definition & Essential Characteristics):
-                   - Shastriya vyakhya aani visual swarup/composition.
-                3. 🌱 उत्पत्ती व निर्मिती प्रक्रिया (Origin & Formation Process):
-                   - Mahabhuta sanghatan, Dhatupak prakriya, kinva dravya utpatti steps.
+                2. 🔬 व्याख्या व स्वरूप (Comprehensive Definition & Essential Characteristics).
+                3. 🌱 उत्पत्ती व निर्मिती प्रक्रिया (Origin & Formation Process).
                 4. 📍 स्थान व आश्रय (Physiological Seats & Micro-Distribution in Body).
                 5. ⚗️ गुणधर्म व भौतिक लक्षणे (Specific Attributes, Guna, Virya, Vipaka, Prabhava).
-                6. ⚙️ प्राकृत कर्मे व कार्यपद्धती (Normal Physiological Functions with Daily Life Clinical Examples).
+                6. ⚙️ प्राकृत कर्मे व कार्यपद्धती (Normal Physiological Functions with Clinical Examples).
                 7. 📏 प्रमाण व परीक्षण पद्धती (Anjali Pramana, Clinical Dosage, or Physical Examination Criteria).
                 8. ⚠️ विकृती, क्षय व वृद्धी लक्षणे (Pathological States - Hypo/Hyper Manifestations & Related Diseases).
-                9. 🔗 संबंधित संकल्पनांशी तुलना (Differential Diagnosis Table - gondhal honare concepts clear karnara tulana takta).
+                9. 🔗 संबंधित संकल्पनांशी तुलना (Differential Diagnosis Table).
                 10. 🏥 आधुनिक विज्ञानाशी सांगड (Modern Physiology, Biochemistry & Pharmacology Correlation).
                 11. 💊 चिकित्सा व औषधीय महत्त्व (Clinical Application, Prime Yoga, Formulations & Anupana).
-                12. ⭐ High-Yield Points & Memory Mnemonics (Parikshela nehami yenare 3-4 mudde aani lakshat thevnyasathi short tricks).
-                13. 🎯 PG AIAPGET Special Focus (Charak-Sushrut matbhed, exceptions, aani tricky points).
-                14. 📝 संभाव्य परीक्षा प्रश्नसंच (NCISM Pattern):
-                    - 1 Long Answer Question (LAQ - 10 Marks) blueprint saha.
-                    - 2 Short Answer Questions (SAQ - 5 Marks).
-                    - 4 Multiple Choice Questions (MCQs) - barobar uttar bold kara aani reason dya.
-                15. 📊 Master Summary Table (Sampurna topic cha quick revision takta).
+                12. ⭐ High-Yield Points & Memory Mnemonics.
+                13. 🎯 PG AIAPGET Special Focus.
+                14. 📝 संभाव्य परीक्षा प्रश्नसंच (NCISM Pattern: 1 LAQ, 2 SAQ, 4 MCQs).
+                15. 📊 Master Summary Table.
 
                 Guidelines:
                 - Do NOT summarize. Provide in-depth explanations with clean bullet points, tables, and bold headings.
-                - Natural spoken terms with accurate Sanskrit citations.
                 """
-                with st.spinner(f"⚡ AI Professor '{topic}' var 14 sections madhye exhaustive notes generate karat aahet..."):
+                with st.spinner(f"⚡ AI Professor '{topic}' वर सविस्तर नोट्स तयार करत आहेत..."):
                     try:
                         notes_text = cached_ask_gemini(system_instruction, as_json=False)
                         st.balloons()
                         st.success(f"✅ '{topic}' वर संपूर्ण सविस्तर अभ्यास नोट्स तयार झाल्या आहेत!")
 
-                        # Markdown चे सुंदर HTML मध्ये रूपांतर
-                        html_content = markdown.markdown(
-                            notes_text,
-                            extensions=['tables', 'fenced_code']
-                        )
+                        html_content = markdown.markdown(notes_text, extensions=['tables', 'fenced_code'])
 
-                        # Clean Document / Printable HTML Format (Pure Solid Bold Black Headings)
                         html_export = f"""<!DOCTYPE html>
 <html lang="mr">
 <head>
@@ -989,23 +1005,12 @@ with tab1:
         justify-content: space-between;
         align-items: center;
     }}
-    /* मुख्य हेडिंग्स डार्क सॉलिड बोल्ड ब्लॅक */
     h1, h2, h3, h4 {{
         color: #000000 !important;
         margin-top: 26px;
         margin-bottom: 12px;
         font-weight: 900 !important;
     }}
-    h2, h3 {{
-        border-bottom: 2px solid #000000;
-        padding-bottom: 6px;
-        font-size: 20px;
-    }}
-    p, li {{
-        font-size: 15.5px;
-        color: #1f2937;
-    }}
-    /* उपमुद्दे व बोल्ड शब्द पूर्ण काळे */
     b, strong {{
         color: #000000 !important;
         font-weight: 800 !important;
@@ -1021,11 +1026,6 @@ with tab1:
         padding: 10px 12px;
         text-align: left;
     }}
-    th {{
-        background: #f3f4f6;
-        color: #000000;
-        font-weight: 900;
-    }}
     blockquote {{
         border-left: 4px solid #000000;
         margin: 16px 0;
@@ -1033,7 +1033,6 @@ with tab1:
         background: #f8fafc;
         font-weight: 700;
         color: #000000;
-        border-radius: 0 8px 8px 0;
     }}
     .print-btn {{
         background: #000000;
@@ -1042,12 +1041,7 @@ with tab1:
         padding: 10px 20px;
         border-radius: 8px;
         font-weight: 800;
-        font-size: 14px;
         cursor: pointer;
-    }}
-    @media print {{
-        .print-btn {{ display: none !important; }}
-        body {{ padding: 0 !important; }}
     }}
 </style>
 </head>
@@ -1056,19 +1050,16 @@ with tab1:
         <div>
             <h2 style="margin:0; color:#000000;">🌿 AyurVeda AI - BAMS Study Notes</h2>
             <div style="font-size:14px; color:#374151; margin-top:4px;">
+                <b>विद्यार्थी:</b> {student_name} | <b>कॉलेज:</b> {college}<br>
                 <b>विषय:</b> {subject} | <b>टॉपिक:</b> {topic}
             </div>
         </div>
         <button class="print-btn" onclick="window.print()">🖨️ PDF सेव्ह करा</button>
     </div>
-    
-    <div class="content-body">
-        {html_content}
-    </div>
+    <div class="content-body">{html_content}</div>
 </body>
 </html>"""
 
-                        # 100% कार्यक्षम Download, Save आणि WhatsApp बटणे
                         c_col1, c_col2, c_col3 = st.columns([1, 1, 1])
                         with c_col1:
                             st.download_button(
@@ -1092,17 +1083,12 @@ with tab1:
                                 except Exception as err:
                                     st.error(f"त्रुटी: {err}")
                         with c_col3:
-                            wa_summary = f"🌿 *AyurVeda AI Comprehensive Notes*\n📚 *विषय:* {subject}\n🎯 *टॉपिक:* {topic}\n\nAyurVeda AI वर संपूर्ण नोट्स उपलब्ध आहेत!"
+                            wa_summary = f"🌿 *AyurVeda AI Comprehensive Notes*\n📚 *विषय:* {subject}\n🎯 *टॉपिक:* {topic}\n\nAyurVeda AI वर उपलब्ध आहेत!"
                             encoded_wa = urllib.parse.quote(wa_summary)
                             wa_link = f"[https://api.whatsapp.com/send?text=](https://api.whatsapp.com/send?text=){encoded_wa}"
                             st.link_button("📲 WhatsApp वर पाठवा", wa_link, use_container_width=True)
 
-                        # Container Card Display
-                        st.markdown(f"""
-                        <div class="notes-card-container">
-                            {notes_text}
-                        </div>
-                        """, unsafe_allow_html=True)
+                        st.markdown(f'<div class="notes-card-container">{notes_text}</div>', unsafe_allow_html=True)
 
                     except Exception as e:
                         st.error(f"त्रुटी: {e}")
@@ -1124,7 +1110,6 @@ with tab2:
         ["Vati / Gutika (गोळी / वटी)", "Churna (चूर्ण)", "Asava & Arishta (आसव व अरिष्ट)", "Taila / Ghrita (सिद्ध तेल व घृत)", "Bhasma & Pishti (भस्म व पिष्टी)"]
     )
     m_lang = st.radio("🌐 भाषा:", ["Simple Indian English", "मराठी"], horizontal=True, key="m_lang")
-
     medicine_name = st.text_input("💊 गोळी किंवा औषधाचे नाव टाका:", placeholder="उदा. आरोग्यवर्धिनी वटी किंवा चंद्रप्रभावटी")
 
     if st.button("🔬 औषध घटक व बनवण्याची कृती शिका", key="btn_med", use_container_width=True):
@@ -1169,7 +1154,6 @@ with tab3:
         key="viva_sub"
     )
     viva_lang = st.radio("🌐 Viva भाषा:", ["मराठी + Sanskrit Terms", "Simple Indian English"], horizontal=True, key="viva_lang")
-
     viva_topic = st.text_input("🎙️ Examiner कोणत्या विषयावर प्रश्न विचारतील?", placeholder="उदा. Pitta Sthana, Ashwagandha Guna, Vatsanabha Shodhana", key="viva_top")
 
     if st.button("🔥 AI Examiner कडून तोंडी परीक्षा प्रश्न घ्या", key="btn_viva", use_container_width=True):
@@ -1190,8 +1174,6 @@ with tab3:
                     3. Tricky Difference / Exception Question
                     4. Dravyaguna / Formulation Question
                     5. Modern Diagnostic Correlation Question
-
-                    Format beautifully with Bold Keywords and Examiner Tips.
                     """
                     viva_res = cached_ask_gemini(viva_prompt, as_json=False)
                     st.success("✅ Viva प्रश्नावली तयार झाली!")
@@ -1228,7 +1210,6 @@ with tab4:
         key="case_sub"
     )
     case_lang = st.radio("🌐 भाषा:", ["मराठी + Clinical English", "Simple Indian English + Sanskrit"], horizontal=True, key="cs_lang")
-
     case_topic = st.text_input("🩺 आजाराचे नाव / मुख्य लक्षणे टाका:", placeholder="उदा. Amlapitta (GERD), Sandhivata (Osteoarthritis), Tamaka Shwasa (Asthma)", key="cs_top")
 
     if st.button("📋 संपूर्ण क्लिनिकल केसशीट तयार करा", key="btn_case", use_container_width=True):
@@ -1243,19 +1224,7 @@ with tab4:
                     Disease/Condition: {case_topic}
                     Language: {case_lang}
 
-                    Generate a complete, professional Ayurvedic Clinical Case Presentation Paper containing:
-                    1. 👤 Patient Profile: Age, Gender, Prakriti (Vata/Pitta/Kapha), Agni Status, Kostha.
-                    2. ⚠️ Chief Complaints (Pradhana Vedana) & Hetu Sevana (Aharaja, Viharaja, Manasika).
-                    3. 🔍 Ashtavidha & Dashavidha Pariksha (Nadi, Jihwa, Mala, Mutra, etc.).
-                    4. 🧬 Samprapti Vighatana: Dosha, Dushya, Srotas Dushti Prakara (Sanga, Vimargagamana), Udbhavasthana.
-                    5. 💊 Step-by-Step Treatment Protocol:
-                       - Phase 1: Deepana & Pachana (Amapachana drugs & dosage).
-                       - Phase 2: Shamana Chikitsa (Classical Rasaushadhi, Churna, Kashaya with Anupana).
-                       - Phase 3: Shodhana / Panchakarma (Specific Karma like Vamana, Virechana, or Basti if indicated).
-                    6. 🥗 Pathya & Apathya (Diet & Lifestyle Chart).
-                    7. 🔬 Modern Diagnostic Link & 15-day Clinical Follow-up Prognosis.
-
-                    Format cleanly with bold subheadings and clinical bullet points.
+                    Generate a complete, professional Ayurvedic Clinical Case Presentation Paper.
                     """
                     case_res = cached_ask_gemini(case_prompt, as_json=False)
                     st.success("✅ क्लिनिकल केस प्रेझेंटेशन तयार झाले!")
@@ -1286,26 +1255,18 @@ with tab5:
     </div>
     """, unsafe_allow_html=True)
 
-    res_topic = st.text_input("🔬 औषधी वनस्पती / घटकाचे नाव टाका:", placeholder="उदा. Withania somnifera (Ashwagandha), Tinospora cordifolia (Guduchi), Suvarna Bhasma", key="res_top")
+    res_topic = st.text_input("🔬 औषधी वनस्पती / घटकाचे नाव टाका:", placeholder="उदा. Withania somnifera (Ashwagandha), Tinospora cordifolia (Guduchi)", key="res_top")
 
     if st.button("🧬 वैज्ञानिक संशोधन व क्लिनिकल पुरावे शोधा", key="btn_research", use_container_width=True):
         if not res_topic.strip():
             st.warning("⚠️ कृपया संशोधन द्रव्याचे नाव टाका.")
         else:
-            with st.spinner(f"🧬 AI संशोधक '{res_topic}' चे वैज्ञानिक पुरावे व क्लिनिकल ट्रायल्स संकलित करत आहे..."):
+            with st.spinner(f"🧬 AI संशोधक '{res_topic}' चे पुरावे संकलित करत आहे..."):
                 try:
                     res_prompt = f"""
-                    You are a Lead Scientist in Ayurvedic Reverse Pharmacology and Clinical Research (AYUSH & Pharmacopoeia).
+                    You are a Lead Scientist in Ayurvedic Reverse Pharmacology.
                     Drug/Herb: {res_topic}
-
-                    Generate a comprehensive Modern Evidence-Based Research Summary:
-                    1. 🧪 Active Phytochemical Constituents (Key chemical compounds responsible for therapeutic actions).
-                    2. 🔬 Pharmacological Mechanism of Action (How it acts on cellular/biochemical level in modern terms).
-                    3. 📊 Clinical Trial Evidence (Key findings from human/animal trials, PubMed/AYUSH research highlights).
-                    4. 🛡️ Safety, Toxicity & Heavy Metal Compliance (Safety window, LD50 insights, standard limits).
-                    5. 💡 Contemporary Therapeutic Scope (Immunity, oncology, diabetes, adaptogen, or neuroprotection).
-
-                    Format professionally with clear scientific headings and clean points.
+                    Generate an authentic research summary with Phytochemicals, Mechanism, and Clinical trials.
                     """
                     res_out = cached_ask_gemini(res_prompt, as_json=False)
                     st.success("✅ वैज्ञानिक संशोधन अहवाल तयार झाला!")
