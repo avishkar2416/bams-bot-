@@ -5,6 +5,7 @@ import json
 import time
 import urllib.parse
 from datetime import datetime
+import markdown
 
 # --- Page Setup (CENTERED ADVANCED LAYOUT) ---
 st.set_page_config(
@@ -272,7 +273,7 @@ if not api_key:
 client = genai.Client(api_key=api_key)
 
 # =========================================================================
-# 🎯 DYNAMIC MODEL DISCOVERY ENGINE (Auto-Detects Working Models)
+# 🎯 DYNAMIC MODEL DISCOVERY ENGINE
 # =========================================================================
 @st.cache_data(show_spinner=False, ttl=86400)
 def get_working_models():
@@ -692,7 +693,19 @@ with tab1:
                         
                         st.markdown(f"""
                         <div style="margin-bottom: 15px;">
-                            <a href="{wa_url}" target="_blank" class="wa-share-btn">
+                            <a href="{wa_url}" target="_blank" class="wa-share-btn" style="
+                                display: inline-flex;
+                                align-items: center;
+                                gap: 8px;
+                                background: #25d366;
+                                color: white !important;
+                                text-decoration: none;
+                                padding: 11px 20px;
+                                border-radius: 12px;
+                                font-weight: 800;
+                                font-size: 14px;
+                                box-shadow: 0 4px 12px rgba(37,211,102,0.3);
+                            ">
                                 📲 WhatsApp Study Group वर Share करा
                             </a>
                         </div>
@@ -733,7 +746,7 @@ with tab1:
                     except Exception as e:
                         st.error(f"त्रुटी: {e}")
 
-            # Case C: Comprehensive Notes (14 Exhaustive Modules Framework + HTML/PDF Direct Save)
+            # Case C: Comprehensive Notes (14 Exhaustive Modules Framework + Converted HTML/PDF)
             else:
                 system_instruction = f"""
                 Tu ek senior BAMS Gold Medalist Professor aani NCISM/MUHS Chief Paper Setter aahes.
@@ -777,19 +790,25 @@ with tab1:
                         st.balloons()
                         st.success(f"✅ '{topic}' वर संपूर्ण सविस्तर अभ्यास नोट्स तयार झाल्या आहेत!")
 
-                        # HTML / PDF रेडी फॉरमॅट (UTF-8 Enriched - अक्षरे अजिबात फुटणार नाहीत)
+                        # Markdown चे सुंदर HTML मध्ये रूपांतर (###, ** आणि तक्ते फुटणार नाहीत)
+                        html_content = markdown.markdown(
+                            notes_text,
+                            extensions=['tables', 'fenced_code']
+                        )
+
+                        # Clean Document / Printable HTML Format
                         html_export = f"""<!DOCTYPE html>
 <html lang="mr">
 <head>
 <meta charset="UTF-8">
-<title>{topic} - Comprehensive Notes</title>
+<title>{topic} - BAMS Comprehensive Notes</title>
 <link href="[https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&display=swap](https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&display=swap)" rel="stylesheet">
 <style>
     body {{
         font-family: 'Mukta', sans-serif;
         line-height: 1.8;
-        padding: 30px;
-        color: #1e293b;
+        padding: 40px;
+        color: #0f172a;
         max-width: 850px;
         margin: auto;
         background: #ffffff;
@@ -802,51 +821,78 @@ with tab1:
         justify-content: space-between;
         align-items: center;
     }}
-    h1, h2, h3 {{ color: #065f46; }}
+    h1, h2, h3, h4 {{
+        color: #065f46;
+        margin-top: 24px;
+        margin-bottom: 10px;
+        font-weight: 800;
+    }}
+    h3 {{
+        border-bottom: 1.5px solid #e2e8f0;
+        padding-bottom: 6px;
+    }}
+    p, li {{
+        font-size: 15.5px;
+        color: #1e293b;
+    }}
+    b, strong {{
+        color: #047857;
+        font-weight: 800;
+    }}
     table {{
         width: 100%;
         border-collapse: collapse;
-        margin: 18px 0;
+        margin: 20px 0;
+        font-size: 14.5px;
     }}
     th, td {{
         border: 1px solid #cbd5e1;
-        padding: 10px;
+        padding: 10px 12px;
         text-align: left;
     }}
-    th {{ background: #f1f5f9; color: #0f172a; }}
+    th {{
+        background: #ecfdf5;
+        color: #064e3b;
+        font-weight: 800;
+    }}
     blockquote {{
-        border-left: 4px solid #047857;
-        margin: 15px 0;
-        padding: 10px 18px;
+        border-left: 4px solid #059669;
+        margin: 16px 0;
+        padding: 12px 20px;
         background: #f0fdf4;
         font-weight: 700;
         color: #064e3b;
+        border-radius: 0 10px 10px 0;
     }}
     .print-btn {{
         background: #047857;
         color: white;
         border: none;
-        padding: 8px 16px;
+        padding: 10px 20px;
         border-radius: 8px;
-        font-weight: 700;
+        font-weight: 800;
+        font-size: 14px;
         cursor: pointer;
     }}
     @media print {{
-        .print-btn {{ display: none; }}
-        body {{ padding: 0; }}
+        .print-btn {{ display: none !important; }}
+        body {{ padding: 0 !important; }}
     }}
 </style>
 </head>
 <body>
     <div class="header-box">
         <div>
-            <h2>🌿 AyurVeda AI - Comprehensive Study Notes</h2>
-            <b>विषय:</b> {subject} | <b>टॉपिक:</b> {topic}
+            <h2 style="margin:0; color:#047857;">🌿 AyurVeda AI - BAMS Study Notes</h2>
+            <div style="font-size:14px; color:#475569; margin-top:4px;">
+                <b>विषय:</b> {subject} | <b>टॉपिक:</b> {topic}
+            </div>
         </div>
         <button class="print-btn" onclick="window.print()">🖨️ PDF सेव्ह करा</button>
     </div>
-    <div style="white-space: pre-wrap;">
-{notes_text}
+    
+    <div class="content-body">
+        {html_content}
     </div>
 </body>
 </html>"""
@@ -855,7 +901,7 @@ with tab1:
                         c_col1, c_col2 = st.columns([1, 1])
                         with c_col1:
                             st.download_button(
-                                label="📥 संपूर्ण नोट्स सेव्ह करा (.html / PDF)",
+                                label="📥 संपूर्ण नोट्स सेव्ह करा (PDF / Print)",
                                 data=html_export.encode('utf-8'),
                                 file_name=f"{topic.replace(' ', '_')}_Notes.html",
                                 mime="text/html",
