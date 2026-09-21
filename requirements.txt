@@ -3,3 +3,5 @@ google-genai
 markdown
 pillow
 requests
+supabase
+gotrue
