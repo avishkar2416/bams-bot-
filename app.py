@@ -6,7 +6,7 @@ import time
 import urllib.parse
 from datetime import datetime
 
-# --- Page Setup (CENTERED LAYOUT) ---
+# --- Page Setup (CENTERED ADVANCED LAYOUT) ---
 st.set_page_config(
     page_title="AyurVeda AI | Avishkar Alase",
     page_icon="🌿",
@@ -88,7 +88,7 @@ def get_current_festival_theme():
 
 th = get_current_festival_theme()
 
-# --- CSS STYLES ---
+# --- CSS STYLES WITH PRINT OPTIMIZATION ---
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Mukta:wght@400;600;700;800;900&display=swap');
@@ -193,7 +193,7 @@ st.markdown(f"""
         animation: themePulse 2.5s infinite;
     }}
     div.stButton > button:hover {{
-        transform: translateY(-2px scale(1.015) !important;
+        transform: translateY(-2px) scale(1.015) !important;
     }}
 
     .stTabs [data-baseweb="tab-list"] {{
@@ -243,6 +243,15 @@ st.markdown(f"""
         font-size: 14.5px !important;
     }}
 
+    .notes-card-container {{
+        background: #ffffff;
+        border: 2px solid {th['border_color']};
+        border-radius: 20px;
+        padding: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        margin-top: 15px;
+    }}
+
     .wa-share-btn {{
         display: inline-flex;
         align-items: center;
@@ -250,11 +259,11 @@ st.markdown(f"""
         background: #25d366;
         color: white !important;
         text-decoration: none;
-        padding: 12px 22px;
-        border-radius: 14px;
+        padding: 11px 20px;
+        border-radius: 12px;
         font-weight: 800;
-        font-size: 15px;
-        margin-top: 10px;
+        font-size: 14px;
+        box-shadow: 0 4px 12px rgba(37,211,102,0.3);
     }}
 
     .app-footer {{
@@ -263,6 +272,27 @@ st.markdown(f"""
         font-size: 13.5px;
         color: {th['font_accent']} !important;
         font-weight: 700;
+    }}
+
+    /* Clean Native Print Optimization for PDF Saving */
+    @media print {{
+        header, footer, .stButton, div[data-baseweb="select"], div[data-baseweb="input"], .stTabs [data-baseweb="tab-list"], .dynamic-navbar, .dynamic-hero, .no-print {{
+            display: none !important;
+        }}
+        .main .block-container {{
+            max-width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }}
+        .notes-card-container {{
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+        }}
+        body {{
+            background: #ffffff !important;
+            color: #000000 !important;
+        }}
     }}
 </style>
 """, unsafe_allow_html=True)
@@ -273,34 +303,31 @@ if not api_key:
     st.error("⚠️ कृपया Settings > Secrets मध्ये GEMINI_API_KEY कॉन्फिगर करा.")
     st.stop()
 
+# Use Google GenAI official client with direct fallback routing
 client = genai.Client(api_key=api_key)
 
 # =========================================================================
-# 🎯 DYNAMIC MODEL DISCOVERY ENGINE (आपोआप उपलब्ध मॉडेल शोधणारा कोड)
+# 🎯 DYNAMIC MODEL DISCOVERY ENGINE (Auto-Selects Active Model)
 # =========================================================================
 @st.cache_data(show_spinner=False, ttl=86400)
 def get_working_models():
     found = []
     try:
         for m in client.models.list():
-            # Check if model supports text generation
             name = m.name.replace("models/", "")
             actions = getattr(m, 'supported_generation_methods', []) or getattr(m, 'supported_actions', [])
             if any("generateContent" in a for a in actions):
-                # Flash मॉडेल अधिक पसंतीचे
                 if "flash" in name:
                     found.insert(0, name)
                 else:
                     found.append(name)
     except Exception:
         pass
-    
-    # फॉलबॅक लिस्ट जर लिस्टिंग फंक्शन अडकले तर
+
+    # Reliable active fallbacks
     fallbacks = [
-        "gemini-3-flash", 
-        "gemini-3.1-flash-lite", 
-        "gemini-2.5-flash", 
-        "gemini-2.0-flash", 
+        "gemini-2.5-flash",
+        "gemini-2.0-flash",
         "gemini-1.5-flash"
     ]
     for fb in fallbacks:
@@ -622,18 +649,12 @@ with tab1:
         else:
             is_marathi = "मराठी" in language_preference
 
+            # Case A: A4 Blue Ballpen Handwritten Sheet
             if "A4 Blue Ballpen" in study_mode:
                 if is_marathi:
-                    lang_rule = """
-                    Write in natural, simple spoken Marathi with Sanskrit terms and simple English in parentheses.
-                    Marks weightage in Marathi (e.g. 10 Marks - LAQ).
-                    """
+                    lang_rule = "Write in natural, simple spoken Marathi with Sanskrit terms and simple English in parentheses."
                 else:
-                    lang_rule = """
-                    STRICT INSTRUCTION: The user selected 'Simple English + Sanskrit'.
-                    Write 100% in pure English Roman script. Absolutely no Devanagari script anywhere.
-                    All titles, flowchart steps ('Step 1:'), terms ('Ushna', 'Tikshna', 'Pitta Prakopa') and points must be in English.
-                    """
+                    lang_rule = "STRICT INSTRUCTION: The user selected 'Simple English + Sanskrit'. Write 100% in pure English Roman script. All titles and terms in English."
 
                 json_prompt = f"""
                 You are a senior Ayurveda Professor and BAMS University Paper Setter.
@@ -646,29 +667,29 @@ with tab1:
                 Generate crisp exam notes strictly matching this JSON schema:
                 {{
                     "title": "{topic}",
-                    "marks": "{'10 Marks (LAQ)' if is_marathi else '10 Marks (LAQ)'}",
-                    "definition": "{'पाचन, दहन व उष्णता निर्माण करणारे द्रव्य.' if is_marathi else 'The bio-principle responsible for digestion, heat and metabolic transformations.'}",
-                    "definition_sub": "{'शरीरातील परिवर्तनाचे मुख्य तत्त्व' if is_marathi else 'Bio-transformative principle in the body'}",
+                    "marks": "10 Marks (LAQ)",
+                    "definition": "{'पाचन, दहन व उष्णता निर्माण करणारे द्रव्य.' if is_marathi else 'The bio-principle responsible for transformation and potency.'}",
+                    "definition_sub": "{'शरीरातील परिवर्तनाचे मुख्य तत्त्व' if is_marathi else 'Core principle in the body'}",
                     "sthana_main": "{'आमाशय, ग्रहणी, लहान आंत्र' if is_marathi else 'Grahani, Amashaya, Small intestine'}",
-                    "sthana_sub": "{'रक्त, यकृत, प्लीहा, स्वेद, नेत्र' if is_marathi else 'Rakta, Yakrit, Pleeha, Sweda, Netra'}",
-                    "gunadharma": "<span class='hl-red'>{'उष्ण, तीक्ष्ण, लघु, द्रव' if is_marathi else 'Ushna, Tikshna, Laghu, Drava'}</span>",
-                    "gunadharma_en": "Hot, Sharp, Light, Liquid",
+                    "sthana_sub": "{'रक्त, यकृत, प्लीहा, स्वेद, नेत्र' if is_marathi else 'Rakta, Yakrit, Pleeha, Sweda'}",
+                    "gunadharma": "<span class='hl-red'>{'उष्ण, तीक्ष्ण, लघु' if is_marathi else 'Ushna, Tikshna, Laghu'}</span>",
+                    "gunadharma_en": "Hot, Sharp, Light",
                     "karya": [
                         "{'अन्न पचन व रूपांतरण' if is_marathi else 'Digestion & tissue metabolism'}",
-                        "{'देहाला उष्णता प्रदान करणे' if is_marathi else 'Body temperature regulation'}"
+                        "{'देहाला उष्णता प्रदान करणे' if is_marathi else 'Action potential'}"
                     ],
                     "types": [
-                        {{"name": "{'पाचक पित्त' if is_marathi else 'Pachaka Pitta'}", "desc": "{'आमाशय व ग्रहणी' if is_marathi else 'Located in Stomach / Grahani'}"}},
-                        {{"name": "{'रंजक पित्त' if is_marathi else 'Ranjaka Pitta'}", "desc": "{'यकृत व प्लीहा' if is_marathi else 'Located in Liver & Spleen'}"}}
+                        {{"name": "{'शीत वीर्य' if is_marathi else 'Sheeta Virya'}", "desc": "{'सोम प्रधान' if is_marathi else 'Soma / Cooling dominant'}"}},
+                        {{"name": "{'उष्ण वीर्य' if is_marathi else 'Ushna Virya'}", "desc": "{'अग्नी प्रधान' if is_marathi else 'Agni / Heating dominant'}"}}
                     ],
                     "nidana": [
-                        "{'अतिउष्ण, अम्ल, लवण आहार' if is_marathi else 'Intake of Ushna, Amla, Lavana diet'}"
+                        "{'अतिउष्ण, अम्ल, लवण आहार' if is_marathi else 'Excessive intake of antagonistic diet'}"
                     ],
                     "lakshana": [
-                        "{'दाह, तृष्णा, पीत नेत्र' if is_marathi else 'Burning sensation, excessive thirst'}"
+                        "{'दाह, तृष्णा' if is_marathi else 'Excessive heat, burning sensation'}"
                     ],
                     "sidebar_box_title": "{'Core Correlation' if is_marathi else 'Core Concept'}",
-                    "sidebar_box_points": ["Transformation", "Metabolism", "Action Power"],
+                    "sidebar_box_points": ["Potency", "Action Capability", "Metabolism"],
                     "samprapti_steps": [
                         "{'निदान सेवन' if is_marathi else 'Step 1: Intake of Nidana'}",
                         "{'दोष प्रकोप' if is_marathi else 'Step 2: Dosha Prakopa'}",
@@ -718,6 +739,7 @@ with tab1:
                     except Exception as e:
                         st.error(f"त्रुटी: {e}")
 
+            # Case B: MUHS / NCISM Past 5 Years Questions & Model Answer Key
             elif "Past 5 Years Questions" in study_mode:
                 pyq_prompt = f"""
                 You are a senior MUHS / NCISM BAMS University Chief Examiner and Paper Setter.
@@ -747,6 +769,7 @@ with tab1:
                     except Exception as e:
                         st.error(f"त्रुटी: {e}")
 
+            # Case C: Comprehensive Notes & Other Modes (WITH INSTANT PDF EXPORT)
             else:
                 system_instruction = f"""
                 You are a senior Ayurveda Acharya according to NCISM standards.
@@ -754,14 +777,50 @@ with tab1:
                 Generate tailored, high-yield study material strictly aligned with '{study_mode}'.
                 - If English is chosen, write purely in English with transliterated Sanskrit terms.
                 - Format Sanskrit Shlokas inside blockquotes (> "Shloka").
-                - Bold all key terms.
+                - Bold all key terms and format with clear, beautiful headings.
                 """
-                with st.spinner(f"⚡ AI आयुर्वेद तज्ज्ञ '{study_mode}' नुसार नोट्स तयार करत आहे..."):
+                with st.spinner(f"⚡ AI आयुर्वेद तज्ज्ञ '{study_mode}' नुसार सविस्तर नोट्स तयार करत आहे..."):
                     try:
                         notes_text = cached_ask_gemini(system_instruction, as_json=False)
                         st.balloons()
                         st.success("✅ नोट्स तयार झाल्या आहेत!")
-                        st.markdown(notes_text)
+
+                        share_text = f"🌿 *AyurVeda AI Comprehensive Notes*\n📚 *Subject:* {subject}\n🎯 *Topic:* {topic}\n\nStudy Bot द्वारे तयार केलेली सविस्तर नोट!"
+                        encoded_wa = urllib.parse.quote(share_text)
+                        wa_url = f"[https://api.whatsapp.com/send?text=](https://api.whatsapp.com/send?text=){encoded_wa}"
+
+                        # PDF प्रिंटर व WhatsApp शेअर बटणे
+                        st.markdown(f"""
+                        <div class="no-print" style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+                            <button onclick="window.print()" style="
+                                background: linear-gradient(135deg, #059669 0%, #047857 100%);
+                                color: white;
+                                border: none;
+                                padding: 10px 22px;
+                                font-size: 14.5px;
+                                font-weight: 800;
+                                border-radius: 12px;
+                                cursor: pointer;
+                                box-shadow: 0 4px 14px rgba(5,150,105,0.3);
+                                display: inline-flex;
+                                align-items: center;
+                                gap: 6px;
+                            ">
+                                📄 PDF डाऊनलोड / सेव्ह करा
+                            </button>
+                            <a href="{wa_url}" target="_blank" class="wa-share-btn">
+                                📲 WhatsApp वर Share करा
+                            </a>
+                        </div>
+                        """, unsafe_allow_html=True)
+
+                        # सुंदर कार्ड कंटेनरमध्ये नोट्स दाखवणे
+                        st.markdown(f"""
+                        <div class="notes-card-container">
+                            {notes_text}
+                        </div>
+                        """, unsafe_allow_html=True)
+
                     except Exception as e:
                         st.error(f"त्रुटी: {e}")
 
