@@ -193,7 +193,7 @@ st.markdown(f"""
         animation: themePulse 2.5s infinite;
     }}
     div.stButton > button:hover {{
-        transform: translateY(-2px) scale(1.015) !important;
+        transform: translateY(-2px scale(1.015) !important;
     }}
 
     .stTabs [data-baseweb="tab-list"] {{
@@ -267,26 +267,50 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
-# --- API Setup (STABLE V1 API WITH BROWSER ENGINE) ---
+# --- API Setup ---
 api_key = st.secrets.get("GEMINI_API_KEY", "")
 if not api_key:
     st.error("⚠️ कृपया Settings > Secrets मध्ये GEMINI_API_KEY कॉन्फिगर करा.")
     st.stop()
 
-# v1 stable endpoint वापरणे (v1beta 404 bypass)
-client = genai.Client(
-    api_key=api_key,
-    http_options={'api_version': 'v1'}
-)
+client = genai.Client(api_key=api_key)
+
+# =========================================================================
+# 🎯 DYNAMIC MODEL DISCOVERY ENGINE (आपोआप उपलब्ध मॉडेल शोधणारा कोड)
+# =========================================================================
+@st.cache_data(show_spinner=False, ttl=86400)
+def get_working_models():
+    found = []
+    try:
+        for m in client.models.list():
+            # Check if model supports text generation
+            name = m.name.replace("models/", "")
+            actions = getattr(m, 'supported_generation_methods', []) or getattr(m, 'supported_actions', [])
+            if any("generateContent" in a for a in actions):
+                # Flash मॉडेल अधिक पसंतीचे
+                if "flash" in name:
+                    found.insert(0, name)
+                else:
+                    found.append(name)
+    except Exception:
+        pass
+    
+    # फॉलबॅक लिस्ट जर लिस्टिंग फंक्शन अडकले तर
+    fallbacks = [
+        "gemini-3-flash", 
+        "gemini-3.1-flash-lite", 
+        "gemini-2.5-flash", 
+        "gemini-2.0-flash", 
+        "gemini-1.5-flash"
+    ]
+    for fb in fallbacks:
+        if fb not in found:
+            found.append(fb)
+    return found
 
 @st.cache_data(show_spinner=False, ttl=86400)
 def cached_ask_gemini(prompt: str, as_json: bool = False):
-    # अधिकृत चालू मॉडेल्स (पहिले 2.5 -> नंतर 2.0)
-    models_to_try = [
-        'gemini-2.5-flash',
-        'gemini-2.0-flash',
-        'gemini-2.5-pro'
-    ]
+    models_to_try = get_working_models()
     last_error = ""
 
     for model_name in models_to_try:
@@ -302,7 +326,7 @@ def cached_ask_gemini(prompt: str, as_json: bool = False):
         except Exception as e:
             last_error = str(e)
             if "429" in last_error or "RESOURCE_EXHAUSTED" in last_error:
-                time.sleep(4)
+                time.sleep(3)
             continue
 
     raise RuntimeError(f"API त्रुटी: {last_error[:120]}")
