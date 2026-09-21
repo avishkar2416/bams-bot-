@@ -267,40 +267,43 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
-# --- API Setup ---
+# --- API Setup (STABLE V1 API WITH BROWSER ENGINE) ---
 api_key = st.secrets.get("GEMINI_API_KEY", "")
 if not api_key:
     st.error("⚠️ कृपया Settings > Secrets मध्ये GEMINI_API_KEY कॉन्फिगर करा.")
     st.stop()
 
-client = genai.Client(api_key=api_key)
+# v1 stable endpoint वापरणे (v1beta 404 bypass)
+client = genai.Client(
+    api_key=api_key,
+    http_options={'api_version': 'v1'}
+)
 
-# =========================================================================
-# 🛠️ 100% RELIABLE GEMINI API CALLER (WITH FALLBACK MODELS)
-# =========================================================================
 @st.cache_data(show_spinner=False, ttl=86400)
 def cached_ask_gemini(prompt: str, as_json: bool = False):
-    # अधिकृत चालू मॉडेल्स
-    models_to_try = ['gemini-2.5-flash', 'gemini-1.5-flash']
+    # अधिकृत चालू मॉडेल्स (पहिले 2.5 -> नंतर 2.0)
+    models_to_try = [
+        'gemini-2.5-flash',
+        'gemini-2.0-flash',
+        'gemini-2.5-pro'
+    ]
     last_error = ""
 
     for model_name in models_to_try:
-        for attempt in range(2):
-            try:
-                config = types.GenerateContentConfig(response_mime_type="application/json") if as_json else None
-                res = client.models.generate_content(
-                    model=model_name,
-                    contents=prompt,
-                    config=config
-                )
-                if res and res.text:
-                    return res.text
-            except Exception as e:
-                last_error = str(e)
-                if "429" in last_error or "RESOURCE_EXHAUSTED" in last_error:
-                    time.sleep(4)
-                else:
-                    break
+        try:
+            config = types.GenerateContentConfig(response_mime_type="application/json") if as_json else None
+            res = client.models.generate_content(
+                model=model_name,
+                contents=prompt,
+                config=config
+            )
+            if res and res.text:
+                return res.text
+        except Exception as e:
+            last_error = str(e)
+            if "429" in last_error or "RESOURCE_EXHAUSTED" in last_error:
+                time.sleep(4)
+            continue
 
     raise RuntimeError(f"API त्रुटी: {last_error[:120]}")
 
