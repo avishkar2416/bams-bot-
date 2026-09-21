@@ -88,7 +88,7 @@ def get_current_festival_theme():
 
 th = get_current_festival_theme()
 
-# --- CSS STYLES WITH PRINT OPTIMIZATION ---
+# --- CSS STYLES ---
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Mukta:wght@400;600;700;800;900&display=swap');
@@ -250,6 +250,7 @@ st.markdown(f"""
         padding: 24px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.06);
         margin-top: 15px;
+        line-height: 1.8;
     }}
 
     .wa-share-btn {{
@@ -273,27 +274,6 @@ st.markdown(f"""
         color: {th['font_accent']} !important;
         font-weight: 700;
     }}
-
-    /* Clean Native Print Optimization for PDF Saving */
-    @media print {{
-        header, footer, .stButton, div[data-baseweb="select"], div[data-baseweb="input"], .stTabs [data-baseweb="tab-list"], .dynamic-navbar, .dynamic-hero, .no-print {{
-            display: none !important;
-        }}
-        .main .block-container {{
-            max-width: 100% !important;
-            padding: 0 !important;
-            margin: 0 !important;
-        }}
-        .notes-card-container {{
-            border: none !important;
-            box-shadow: none !important;
-            padding: 0 !important;
-        }}
-        body {{
-            background: #ffffff !important;
-            color: #000000 !important;
-        }}
-    }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -303,11 +283,10 @@ if not api_key:
     st.error("⚠️ कृपया Settings > Secrets मध्ये GEMINI_API_KEY कॉन्फिगर करा.")
     st.stop()
 
-# Use Google GenAI official client with direct fallback routing
 client = genai.Client(api_key=api_key)
 
 # =========================================================================
-# 🎯 DYNAMIC MODEL DISCOVERY ENGINE (Auto-Selects Active Model)
+# 🎯 DYNAMIC MODEL DISCOVERY ENGINE
 # =========================================================================
 @st.cache_data(show_spinner=False, ttl=86400)
 def get_working_models():
@@ -324,7 +303,6 @@ def get_working_models():
     except Exception:
         pass
 
-    # Reliable active fallbacks
     fallbacks = [
         "gemini-2.5-flash",
         "gemini-2.0-flash",
@@ -769,52 +747,56 @@ with tab1:
                     except Exception as e:
                         st.error(f"त्रुटी: {e}")
 
-            # Case C: Comprehensive Notes & Other Modes (WITH INSTANT PDF EXPORT)
+            # Case C: Comprehensive Notes (सविस्तर मुद्दे, १००% कार्यरत PDF व WhatsApp)
             else:
                 system_instruction = f"""
-                You are a senior Ayurveda Acharya according to NCISM standards.
-                Academic Level: {bams_year}, Subject: {subject}, Study Mode: {study_mode}, Topic: {topic}, Language: {language_preference}.
-                Generate tailored, high-yield study material strictly aligned with '{study_mode}'.
-                - If English is chosen, write purely in English with transliterated Sanskrit terms.
-                - Format Sanskrit Shlokas inside blockquotes (> "Shloka").
-                - Bold all key terms and format with clear, beautiful headings.
+                You are a senior BAMS Professor & Textbook Author according to the official NCISM Curriculum.
+                Subject: {subject}
+                Academic Year: {bams_year}
+                Topic: {topic}
+                Language Mode: {language_preference}
+
+                Generate extremely deep, comprehensive, and exhaustive study notes covering every sub-topic with detailed bullet points:
+                1. 📜 व्युत्पत्ती व निरुक्ती (Etymology, Derivation & Reference Shlokas with meanings).
+                2. 🔬 व्याख्या व लक्षणे (Complete Classical Definition, Characteristics & Modern Physiological/Pharmacological Correlation).
+                3. 📍 स्थान व स्वरूप (Location, Distribution, Composition & Panchamahabhuta relation).
+                4. 🧬 सविस्तर वर्गीकरण व प्रकार (Exhaustive Classification with individual explanations of every single subtype).
+                5. ⚙️ प्राकृत कर्मे व कार्यपद्धती (Physiological functions, action mechanisms, and systemic influence).
+                6. ⚠️ विकृती, क्षय व वृद्धी लक्षणे (Pathological changes, hypo/hyper states, related diseases).
+                7. 💊 चिकित्सा व औषधीय महत्त्व (Clinical management, prime Dravyas, formulations, and exam keys).
+
+                Strict rules:
+                - Do NOT give brief summaries. Write in extensive detail with bullet points under every heading.
+                - If Marathi is selected, use authentic Devanagari with Sanskrit terms and Marathi meanings.
+                - Bold important terms.
                 """
-                with st.spinner(f"⚡ AI आयुर्वेद तज्ज्ञ '{study_mode}' नुसार सविस्तर नोट्स तयार करत आहे..."):
+                with st.spinner(f"⚡ AI आयुर्वेद तज्ज्ञ '{topic}' वर सविस्तर मुद्देसूद नोट्स तयार करत आहे..."):
                     try:
                         notes_text = cached_ask_gemini(system_instruction, as_json=False)
                         st.balloons()
-                        st.success("✅ नोट्स तयार झाल्या आहेत!")
+                        st.success("✅ सविस्तर नोट्स तयार झाल्या आहेत!")
 
-                        share_text = f"🌿 *AyurVeda AI Comprehensive Notes*\n📚 *Subject:* {subject}\n🎯 *Topic:* {topic}\n\nStudy Bot द्वारे तयार केलेली सविस्तर नोट!"
-                        encoded_wa = urllib.parse.quote(share_text)
-                        wa_url = f"[https://api.whatsapp.com/send?text=](https://api.whatsapp.com/send?text=){encoded_wa}"
+                        # 100% कार्यक्षम Download आणि WhatsApp बटणे
+                        c_col1, c_col2 = st.columns([1, 1])
+                        
+                        with c_col1:
+                            # Streamlit चे अधिकृत 100% कार्यरत डाउनलोड बटण
+                            st.download_button(
+                                label="📥 संपूर्ण नोट्स डाउनलोड करा (.txt)",
+                                data=notes_text,
+                                file_name=f"{topic.replace(' ', '_')}_Comprehensive_Notes.txt",
+                                mime="text/plain",
+                                use_container_width=True
+                            )
+                        
+                        with c_col2:
+                            # 100% उघडणारी WhatsApp लिंक
+                            wa_summary = f"🌿 *AyurVeda AI Study Notes*\n📚 *विषय:* {subject}\n🎯 *टॉपिक:* {topic}\n\nअभ्यास करण्यासाठी AyurVeda AI बघा!"
+                            encoded_wa = urllib.parse.quote(wa_summary)
+                            wa_link = f"[https://api.whatsapp.com/send?text=](https://api.whatsapp.com/send?text=){encoded_wa}"
+                            st.link_button("📲 WhatsApp वर पाठवा", wa_link, use_container_width=True)
 
-                        # PDF प्रिंटर व WhatsApp शेअर बटणे
-                        st.markdown(f"""
-                        <div class="no-print" style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
-                            <button onclick="window.print()" style="
-                                background: linear-gradient(135deg, #059669 0%, #047857 100%);
-                                color: white;
-                                border: none;
-                                padding: 10px 22px;
-                                font-size: 14.5px;
-                                font-weight: 800;
-                                border-radius: 12px;
-                                cursor: pointer;
-                                box-shadow: 0 4px 14px rgba(5,150,105,0.3);
-                                display: inline-flex;
-                                align-items: center;
-                                gap: 6px;
-                            ">
-                                📄 PDF डाऊनलोड / सेव्ह करा
-                            </button>
-                            <a href="{wa_url}" target="_blank" class="wa-share-btn">
-                                📲 WhatsApp वर Share करा
-                            </a>
-                        </div>
-                        """, unsafe_allow_html=True)
-
-                        # सुंदर कार्ड कंटेनरमध्ये नोट्स दाखवणे
+                        # नोट्सचे सुंदर कार्ड
                         st.markdown(f"""
                         <div class="notes-card-container">
                             {notes_text}
@@ -850,7 +832,7 @@ with tab2:
         else:
             with st.spinner(f"🔬 AI तज्ज्ञ '{medicine_name}' ची निर्माण पद्धत तयार करत आहे..."):
                 try:
-                    med_prompt = f"Explain manufacturing of {medicine_name} ({dosage_form}) in {m_lang} with ingredients table, purification, and steps."
+                    med_prompt = f"Explain manufacturing of {medicine_name} ({dosage_form}) in {m_lang} with ingredients table, purification, and steps in deep detail."
                     res_text = cached_ask_gemini(med_prompt, as_json=False)
                     st.success("✅ माहिती तयार झाली आहे!")
                     st.markdown(res_text)
