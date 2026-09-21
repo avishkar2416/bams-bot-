@@ -88,7 +88,7 @@ def get_current_festival_theme():
 
 th = get_current_festival_theme()
 
-# --- CENTERED LUXURY FESTIVAL STYLES ---
+# --- CSS STYLES ---
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Mukta:wght@400;600;700;800;900&display=swap');
@@ -122,7 +122,7 @@ st.markdown(f"""
         backdrop-filter: blur(18px);
         border: 2px solid {th['border_color']} !important;
         border-radius: 24px;
-        margin-bottom: 12px;
+        margin-bottom: 14px;
         box-shadow: 0 12px 35px -8px rgba(0, 0, 0, 0.08);
     }}
     .brand-title {{
@@ -142,18 +142,6 @@ st.markdown(f"""
         font-weight: 800;
         color: {th['font_accent']} !important;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
-    }}
-
-    .music-header-box {{
-        background: rgba(255, 255, 255, 0.88);
-        border: 1.8px solid {th['border_color']};
-        border-radius: 18px;
-        padding: 8px 16px;
-        margin-bottom: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
     }}
 
     .dynamic-hero {{
@@ -287,26 +275,34 @@ if not api_key:
 
 client = genai.Client(api_key=api_key)
 
+# =========================================================================
+# 🛠️ 100% RELIABLE GEMINI API CALLER (WITH FALLBACK MODELS)
+# =========================================================================
 @st.cache_data(show_spinner=False, ttl=86400)
 def cached_ask_gemini(prompt: str, as_json: bool = False):
-    model_name = 'gemini-3.6-flash'
-    for attempt in range(3):
-        try:
-            config = types.GenerateContentConfig(response_mime_type="application/json") if as_json else None
-            res = client.models.generate_content(
-                model=model_name,
-                contents=prompt,
-                config=config
-            )
-            if res and res.text:
-                return res.text
-        except Exception as e:
-            if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
-                time.sleep(16)
-            else:
-                time.sleep(2)
-            continue
-    raise RuntimeError("गुगल सर्व्हर व्यस्त आहे. कृपया पुन्हा प्रयत्न करा.")
+    # अधिकृत चालू मॉडेल्स
+    models_to_try = ['gemini-2.5-flash', 'gemini-1.5-flash']
+    last_error = ""
+
+    for model_name in models_to_try:
+        for attempt in range(2):
+            try:
+                config = types.GenerateContentConfig(response_mime_type="application/json") if as_json else None
+                res = client.models.generate_content(
+                    model=model_name,
+                    contents=prompt,
+                    config=config
+                )
+                if res and res.text:
+                    return res.text
+            except Exception as e:
+                last_error = str(e)
+                if "429" in last_error or "RESOURCE_EXHAUSTED" in last_error:
+                    time.sleep(4)
+                else:
+                    break
+
+    raise RuntimeError(f"API त्रुटी: {last_error[:120]}")
 
 # =========================================================================
 # अस्सल फोटोसारखी A4 HANDWRITTEN NOTE RENDERER
@@ -515,33 +511,6 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# =========================================================================
-# 🌧️ 100% GUARANTEED DIRECT MP3 STREAM (RAAG MALHAR THERAPY)
-# =========================================================================
-st.markdown("""
-<div class="music-header-box">
-    <div style="display:flex; align-items:center; gap:8px;">
-        <span style="font-size:19px;">🎵</span>
-        <span style="font-size:13.5px; font-weight:800; color:#92400e;">
-            Play "RAAG MALHAR" Music Therapy (Healing with Ragas)
-        </span>
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
-# Direct universal MP3 stream - Android aani Chrome sathi 100% working
-st.audio(
-    "https://cdn.freesound.org/previews/568/568910_11861866-lq.mp3",
-    format="audio/mp3"
-)
-
-
-# Streamlit चे स्वतःचे डायरेक्ट ऑडिओ बटण (हे कधीही ब्लॉक होत नाही)
-st.audio(
-    "https://upload.wikimedia.org/wikipedia/commons/4/4b/Bansuri_Flute_Meditation_Sound.ogg",
-    format="audio/ogg"
-)
-
 # --- 5 Main Tabs ---
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📖 BAMS स्टडी नोट्स व प्रश्नसंच (Syllabus & PYQ)",
@@ -615,7 +584,7 @@ with tab1:
 
     topic = st.text_input(
         "🔍 अभ्यासाचा विषय / प्रश्न टाका:",
-        placeholder="उदा. Pitta Dosha, Garavisha vs Dooshivisha, किंवा Ashwagandha"
+        placeholder="उदा. Pitta Dosha, Garavisha vs Dooshivisha, किंवा Virya"
     )
 
     generate_notes_btn = st.button("🚀 सविस्तर अभ्यास नोट्स तयार करा", key="btn_notes", use_container_width=True)
@@ -671,23 +640,23 @@ with tab1:
                     "lakshana": [
                         "{'दाह, तृष्णा, पीत नेत्र' if is_marathi else 'Burning sensation, excessive thirst'}"
                     ],
-                    "sidebar_box_title": "{'Pitta = Agni' if is_marathi else 'Core Concept'}",
-                    "sidebar_box_points": ["Transformation", "Metabolism", "Heat Regulation"],
+                    "sidebar_box_title": "{'Core Correlation' if is_marathi else 'Core Concept'}",
+                    "sidebar_box_points": ["Transformation", "Metabolism", "Action Power"],
                     "samprapti_steps": [
                         "{'निदान सेवन' if is_marathi else 'Step 1: Intake of Nidana'}",
-                        "{'दोष प्रकोप' if is_marathi else 'Step 2: Pitta Prakopa'}",
-                        "{'रक्त दुष्टी' if is_marathi else 'Step 3: Rakta Dhatu Vitiation'}",
-                        "{'व्याधी निर्मिती' if is_marathi else 'Final: Manifestation of Pittaja Disease'}"
+                        "{'दोष प्रकोप' if is_marathi else 'Step 2: Dosha Prakopa'}",
+                        "{'धातु शैथिल्य' if is_marathi else 'Step 3: Dhatu Vitiation'}",
+                        "{'व्याधी निर्मिती' if is_marathi else 'Final: Manifestation of Disease'}"
                     ],
                     "chikitsa": [
-                        "{'शीत, मधुर, तिक्त आहार' if is_marathi else 'Sheetal, Madhura and Tikta Ahara'}",
-                        "<span class='hl-red'>{'विरेचन' if is_marathi else 'Virechana'}</span> {'हे श्रेष्ठ शोधन' if is_marathi else 'is the prime purificatory treatment'}"
+                        "{'दोषानुकूल चिकित्सा व शमन' if is_marathi else 'Dosha specific Pacification'}",
+                        "<span class='hl-red'>{'शोधन' if is_marathi else 'Purification'}</span> {'हे श्रेष्ठ' if is_marathi else 'is the prime therapy'}"
                     ],
                     "aushadha": [
-                        "{'आवळा (Amalaki)' if is_marathi else 'Amalaki'}",
+                        "{'गुग्गुळू / आवळा' if is_marathi else 'Amalaki / Guggulu'}",
                         "{'गुडुची (Guduchi)' if is_marathi else 'Guduchi'}"
                     ],
-                    "punch_line": "{'पित्त हे दहन व पाचन करणारे उष्ण द्रव्य आहे.' if is_marathi else 'Pitta represents metabolic fire; Virechana is supreme treatment.'}"
+                    "punch_line": "{'द्रव्याचे कर्म सामर्थ्य म्हणजेच वीर्य होय.' if is_marathi else 'Virya is the quintessential potency through which action is achieved.'}"
                 }}
                 """
 
