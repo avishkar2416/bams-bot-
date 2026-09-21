@@ -6,6 +6,7 @@ import time
 import urllib.parse
 from datetime import datetime
 import markdown
+from supabase import create_client, Client
 
 # --- Page Setup (CENTERED ADVANCED LAYOUT) ---
 st.set_page_config(
@@ -254,6 +255,16 @@ st.markdown(f"""
         line-height: 1.8;
     }}
 
+    .auth-card-box {{
+        background: #ffffff;
+        border: 2px solid {th['border_color']};
+        border-radius: 22px;
+        padding: 30px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+        margin: 20px auto;
+        max-width: 520px;
+    }}
+
     .app-footer {{
         text-align: center;
         padding: 40px 10px 15px 10px;
@@ -264,13 +275,104 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
-# --- API Setup ---
+# --- Clients & Secrets Setup ---
 api_key = st.secrets.get("GEMINI_API_KEY", "")
+supabase_url = st.secrets.get("SUPABASE_URL", "")
+supabase_key = st.secrets.get("SUPABASE_KEY", "")
+
 if not api_key:
     st.error("⚠️ कृपया Settings > Secrets मध्ये GEMINI_API_KEY कॉन्फिगर करा.")
     st.stop()
 
+if not supabase_url or not supabase_key:
+    st.error("⚠️ कृपया Settings > Secrets मध्ये SUPABASE_URL आणि SUPABASE_KEY कॉन्फिगर करा.")
+    st.stop()
+
 client = genai.Client(api_key=api_key)
+supabase: Client = create_client(supabase_url, supabase_key)
+
+# Session State for User Login
+if "user" not in st.session_state:
+    st.session_state.user = None
+if "auth_token" not in st.session_state:
+    st.session_state.auth_token = None
+
+# =========================================================================
+# 🔐 100% FREE SUPABASE EMAIL OTP LOGIN GATEWAY
+# =========================================================================
+if not st.session_state.user:
+    st.markdown(f"""
+    <div class="dynamic-navbar">
+        <div style="display:flex; align-items:center; gap:10px;">
+            <div style="font-size:26px;">{th['icon']}</div>
+            <div>
+                <div class="brand-title">🌿 AyurVeda AI</div>
+                <small style="color:{th['font_accent']}; font-weight:800; letter-spacing:0.5px;">{th['title_sub']}</small>
+            </div>
+        </div>
+        <div class="vip-badge">
+            <span>Avishkar Alase</span> ✓
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown(f"""
+    <div class="dynamic-hero">
+        <div class="festive-tag">{th['tag']}</div>
+        <h3 style="margin:0 0 6px 0; font-weight:900;">🔐 विद्यार्थी लॉगिन / मोफत खात्यात प्रवेश करा</h3>
+        <p style="margin:0; font-size:13.5px; opacity:0.95;">तुमच्या नोट्स सुरक्षित ठेवण्यासाठी आणि कधीही पाहण्यासाठी ईमेल OTP द्वारे मोफत लॉगिन करा.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="auth-card-box">', unsafe_allow_html=True)
+    st.markdown(f"<h3 style='color:{th['font_accent']}; font-weight:900; margin-top:0;'>📧 ईमेल लॉगिन (Password Free)</h3>", unsafe_allow_html=True)
+    st.caption("कोणताही पासवर्ड लक्षात ठेवण्याची गरज नाही. तुमच्या ईमेलवर थेट ६ अंकी कोड येईल.")
+
+    user_email_input = st.text_input("तुमचा ईमेल पत्ता टाका:", placeholder="student@example.com")
+
+    if st.button("📩 ईमेलवर OTP पाठवा", key="btn_send_email_otp", use_container_width=True):
+        if not user_email_input.strip():
+            st.warning("⚠️ कृपया आधी वैध ईमेल पत्ता टाका.")
+        else:
+            try:
+                supabase.auth.sign_in_with_otp({"email": user_email_input.strip()})
+                st.session_state.email_sent = user_email_input.strip()
+                st.success("✅ तुमच्या ईमेलवर ६ अंकी कोड पाठवला आहे! इनबॉक्स किंवा स्पॅम फोल्डर तपासा.")
+            except Exception as err:
+                st.error(f"OTP पाठवताना त्रुटी: {err}")
+
+    if "email_sent" in st.session_state:
+        st.write("---")
+        st.info(f"📨 **{st.session_state.email_sent}** वर आलेला कोड खाली प्रविष्ट करा:")
+        otp_code_input = st.text_input("🔑 ६ अंकी OTP टाका:", placeholder="123456", max_chars=6)
+
+        if st.button("🚀 खात्यात प्रवेश करा (Verify & Enter)", key="btn_verify_email_otp", use_container_width=True):
+            if not otp_code_input.strip():
+                st.warning("कृपया आलेला OTP कोड टाका.")
+            else:
+                try:
+                    res = supabase.auth.verify_otp({
+                        "email": st.session_state.email_sent,
+                        "token": otp_code_input.strip(),
+                        "type": "email"
+                    })
+                    if res.user:
+                        st.session_state.user = res.user
+                        st.session_state.auth_token = res.session.access_token
+                        st.success("🎉 यशस्वीरीत्या लॉगिन झाले!")
+                        time.sleep(1)
+                        st.rerun()
+                except Exception as err:
+                    st.error(f"❌ चुकीचा किंवा एक्सपायर झालेला OTP: {err}")
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown(f"""
+    <div class="app-footer">
+        {th['footer_text']} <strong>AyurVeda AI</strong> | Developed by <strong>Avishkar Alase</strong>
+    </div>
+    """, unsafe_allow_html=True)
+    st.stop()
 
 # =========================================================================
 # 🎯 DYNAMIC MODEL DISCOVERY ENGINE
@@ -514,7 +616,39 @@ def render_photo_identical_sheet(data, subject_name, topic_name, is_marathi=True
     """
     return html_code
 
-# --- Top Navigation Bar ---
+# --- Top Navigation Bar & Sidebar (Profile & Saved Notes) ---
+with st.sidebar:
+    st.markdown("### 👤 विद्यार्थी प्रोफाईल")
+    st.write(f"लॉगिन: `{st.session_state.user.email}`")
+    
+    if st.button("🚪 बाहेर पडा (Logout)", use_container_width=True):
+        supabase.auth.sign_out()
+        st.session_state.user = None
+        st.session_state.auth_token = None
+        st.rerun()
+
+    st.write("---")
+    st.markdown("### 📚 माझ्या सेव्ह केलेल्या नोट्स")
+    
+    try:
+        notes_res = supabase.table("user_notes").select("*").order("created_at", desc=True).execute()
+        saved_notes = notes_res.data
+
+        if not saved_notes:
+            st.info("अद्याप कोणतीही नोट सेव्ह केलेली नाही.")
+        else:
+            for item in saved_notes:
+                with st.expander(f"📌 {item.get('subject', '')} - {item.get('topic', '')[:18]}"):
+                    st.caption(f"तारीख: {item.get('created_at', '')[:10]} | मोड: {item.get('study_mode', '')}")
+                    st.write(item.get("content", "")[:180] + "...")
+                    
+                    if st.button("🗑️ हटवा", key=f"del_{item['id']}"):
+                        supabase.table("user_notes").delete().eq("id", item["id"]).execute()
+                        st.success("हटवले!")
+                        st.rerun()
+    except Exception as err:
+        st.error(f"नोट्स लोड करताना त्रुटी: {err}")
+
 st.markdown(f"""
 <div class="dynamic-navbar">
     <div style="display:flex; align-items:center; gap:10px;">
@@ -691,11 +825,13 @@ with tab1:
                         encoded_wa = urllib.parse.quote(share_text)
                         wa_url = f"[https://api.whatsapp.com/send?text=](https://api.whatsapp.com/send?text=){encoded_wa}"
                         
-                        st.markdown(f"""
-                        <div style="margin-bottom: 15px;">
-                            <a href="{wa_url}" target="_blank" class="wa-share-btn" style="
+                        col_wa, col_db = st.columns([1, 1])
+                        with col_wa:
+                            st.markdown(f"""
+                            <a href="{wa_url}" target="_blank" style="
                                 display: inline-flex;
                                 align-items: center;
+                                justify-content: center;
                                 gap: 8px;
                                 background: #25d366;
                                 color: white !important;
@@ -704,12 +840,25 @@ with tab1:
                                 border-radius: 12px;
                                 font-weight: 800;
                                 font-size: 14px;
+                                width: 100%;
                                 box-shadow: 0 4px 12px rgba(37,211,102,0.3);
                             ">
                                 📲 WhatsApp Study Group वर Share करा
                             </a>
-                        </div>
-                        """, unsafe_allow_html=True)
+                            """, unsafe_allow_html=True)
+                        with col_db:
+                            if st.button("💾 ही A4 Note खात्यात सेव्ह करा", key="save_a4_btn", use_container_width=True):
+                                try:
+                                    supabase.table("user_notes").insert({
+                                        "user_id": st.session_state.user.id,
+                                        "subject": subject,
+                                        "topic": topic,
+                                        "study_mode": study_mode,
+                                        "content": json.dumps(sheet_data)
+                                    }).execute()
+                                    st.success("✅ नोट तुमच्या खात्यात सुरक्षित सेव्ह झाली!")
+                                except Exception as s_err:
+                                    st.error(f"सेव्ह करताना त्रुटी: {s_err}")
 
                         st.components.v1.html(a4_html, height=1300, scrolling=True)
 
@@ -742,6 +891,25 @@ with tab1:
                         pyq_res = cached_ask_gemini(pyq_prompt, as_json=False)
                         st.balloons()
                         st.success("✅ University PYQ & Model Answer Key तयार झाली आहे!")
+                        
+                        col_s1, col_s2 = st.columns([1, 1])
+                        with col_s1:
+                            if st.button("💾 हे प्रश्नोत्तर खात्यात सेव्ह करा", key="save_pyq_btn", use_container_width=True):
+                                try:
+                                    supabase.table("user_notes").insert({
+                                        "user_id": st.session_state.user.id,
+                                        "subject": subject,
+                                        "topic": topic,
+                                        "study_mode": study_mode,
+                                        "content": pyq_res
+                                    }).execute()
+                                    st.success("✅ खात्यात सेव्ह झाले!")
+                                except Exception as err:
+                                    st.error(f"त्रुटी: {err}")
+                        with col_s2:
+                            encoded_pyq = urllib.parse.quote(f"🎯 *BAMS PYQ - {topic}*\n\n" + pyq_res[:500] + "...")
+                            st.link_button("📲 WhatsApp वर पाठवा", f"[https://api.whatsapp.com/send?text=](https://api.whatsapp.com/send?text=){encoded_pyq}", use_container_width=True)
+
                         st.markdown(pyq_res)
                     except Exception as e:
                         st.error(f"त्रुटी: {e}")
@@ -900,17 +1068,30 @@ with tab1:
 </body>
 </html>"""
 
-                        # 100% कार्यक्षम Download आणि WhatsApp बटणे
-                        c_col1, c_col2 = st.columns([1, 1])
+                        # 100% कार्यक्षम Download, Save आणि WhatsApp बटणे
+                        c_col1, c_col2, c_col3 = st.columns([1, 1, 1])
                         with c_col1:
                             st.download_button(
-                                label="📥 संपूर्ण नोट्स सेव्ह करा (PDF / Print)",
+                                label="📥 नोट्स सेव्ह करा (PDF)",
                                 data=html_export.encode('utf-8'),
                                 file_name=f"{topic.replace(' ', '_')}_Notes.html",
                                 mime="text/html",
                                 use_container_width=True
                             )
                         with c_col2:
+                            if st.button("💾 खात्यात सेव्ह करा", key="save_comp_note", use_container_width=True):
+                                try:
+                                    supabase.table("user_notes").insert({
+                                        "user_id": st.session_state.user.id,
+                                        "subject": subject,
+                                        "topic": topic,
+                                        "study_mode": study_mode,
+                                        "content": notes_text
+                                    }).execute()
+                                    st.success("✅ नोट सुरक्षित सेव्ह झाली!")
+                                except Exception as err:
+                                    st.error(f"त्रुटी: {err}")
+                        with c_col3:
                             wa_summary = f"🌿 *AyurVeda AI Comprehensive Notes*\n📚 *विषय:* {subject}\n🎯 *टॉपिक:* {topic}\n\nAyurVeda AI वर संपूर्ण नोट्स उपलब्ध आहेत!"
                             encoded_wa = urllib.parse.quote(wa_summary)
                             wa_link = f"[https://api.whatsapp.com/send?text=](https://api.whatsapp.com/send?text=){encoded_wa}"
@@ -955,6 +1136,17 @@ with tab2:
                     med_prompt = f"Explain manufacturing of {medicine_name} ({dosage_form}) in {m_lang} with ingredients table, purification, and steps in deep detail."
                     res_text = cached_ask_gemini(med_prompt, as_json=False)
                     st.success("✅ माहिती तयार झाली आहे!")
+                    
+                    if st.button("💾 ही औषध कृती खात्यात सेव्ह करा", key="save_med_btn"):
+                        supabase.table("user_notes").insert({
+                            "user_id": st.session_state.user.id,
+                            "subject": "Rasashastra & Bhaishajya Kalpana",
+                            "topic": medicine_name,
+                            "study_mode": dosage_form,
+                            "content": res_text
+                        }).execute()
+                        st.success("✅ सेव्ह झाले!")
+
                     st.markdown(res_text)
                 except Exception as e:
                     st.error(f"त्रुटी: {e}")
@@ -1003,6 +1195,17 @@ with tab3:
                     """
                     viva_res = cached_ask_gemini(viva_prompt, as_json=False)
                     st.success("✅ Viva प्रश्नावली तयार झाली!")
+                    
+                    if st.button("💾 ही Viva प्रश्नावली सेव्ह करा", key="save_viva_btn"):
+                        supabase.table("user_notes").insert({
+                            "user_id": st.session_state.user.id,
+                            "subject": viva_sub,
+                            "topic": viva_topic,
+                            "study_mode": "Viva-Voce Questions",
+                            "content": viva_res
+                        }).execute()
+                        st.success("✅ सेव्ह झाले!")
+
                     st.markdown(viva_res)
                 except Exception as e:
                     st.error(f"त्रुटी: {e}")
@@ -1056,6 +1259,17 @@ with tab4:
                     """
                     case_res = cached_ask_gemini(case_prompt, as_json=False)
                     st.success("✅ क्लिनिकल केस प्रेझेंटेशन तयार झाले!")
+                    
+                    if st.button("💾 ही केसशीट खात्यात सेव्ह करा", key="save_case_btn"):
+                        supabase.table("user_notes").insert({
+                            "user_id": st.session_state.user.id,
+                            "subject": case_subject,
+                            "topic": case_topic,
+                            "study_mode": "Clinical Case Study",
+                            "content": case_res
+                        }).execute()
+                        st.success("✅ सेव्ह झाले!")
+
                     st.markdown(case_res)
                 except Exception as e:
                     st.error(f"त्रुटी: {e}")
@@ -1095,6 +1309,17 @@ with tab5:
                     """
                     res_out = cached_ask_gemini(res_prompt, as_json=False)
                     st.success("✅ वैज्ञानिक संशोधन अहवाल तयार झाला!")
+                    
+                    if st.button("💾 हा संशोधन अहवाल सेव्ह करा", key="save_res_btn"):
+                        supabase.table("user_notes").insert({
+                            "user_id": st.session_state.user.id,
+                            "subject": "Research & Evidence",
+                            "topic": res_topic,
+                            "study_mode": "Modern Pharmacology",
+                            "content": res_out
+                        }).execute()
+                        st.success("✅ सेव्ह झाले!")
+
                     st.markdown(res_out)
                 except Exception as e:
                     st.error(f"त्रुटी: {e}")
