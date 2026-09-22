@@ -373,7 +373,7 @@ if not st.session_state.user_id:
     st.stop()
 
 # =========================================================================
-# 🎯 DYNAMIC MODEL DISCOVERY & GEMINI CACHE
+# 🎯 DYNAMIC MODEL DISCOVERY & GEMINI CALLS
 # =========================================================================
 @st.cache_data(show_spinner=False, ttl=86400)
 def get_working_models():
@@ -396,7 +396,6 @@ def get_working_models():
             found.append(fb)
     return found
 
-@st.cache_data(show_spinner=False, ttl=86400)
 def cached_ask_gemini(prompt: str, as_json: bool = False):
     models_to_try = get_working_models()
     last_error = ""
@@ -753,6 +752,18 @@ with tab1:
         placeholder="उदा. Virya, Ojas, Pitta Dosha, Rakta Dhatu, Ashwagandha, Agada"
     )
 
+    # Session state variables to ensure notes persist across reruns
+    if "current_generated_note" not in st.session_state:
+        st.session_state.current_generated_note = None
+    if "current_note_type" not in st.session_state:
+        st.session_state.current_note_type = ""
+    if "current_topic" not in st.session_state:
+        st.session_state.current_topic = ""
+    if "current_subject" not in st.session_state:
+        st.session_state.current_subject = ""
+    if "current_mode" not in st.session_state:
+        st.session_state.current_mode = ""
+
     generate_notes_btn = st.button("🚀 सविस्तर अभ्यास नोट्स तयार करा", key="btn_notes", use_container_width=True)
 
     if generate_notes_btn:
@@ -763,17 +774,12 @@ with tab1:
 
             # Case A: A4 Blue Ballpen Handwritten Sheet
             if "A4 Blue Ballpen" in study_mode:
-                if is_marathi:
-                    lang_rule = "Write in natural, simple spoken Marathi with Sanskrit terms and simple English in parentheses."
-                else:
-                    lang_rule = "STRICT INSTRUCTION: The user selected 'Simple English + Sanskrit'. Write 100% in pure English Roman script. All titles and terms in English."
-
+                lang_rule = "Write in natural, simple spoken Marathi with Sanskrit terms and simple English in parentheses." if is_marathi else "Write 100% in pure English Roman script. All titles and terms in English."
                 json_prompt = f"""
                 You are a senior Ayurveda Professor and BAMS University Paper Setter.
                 Subject: {subject}
                 Topic: {topic}
                 Language Selected: {language_preference}
-
                 {lang_rule}
 
                 Generate crisp exam notes strictly matching this JSON schema:
@@ -819,7 +825,6 @@ with tab1:
                     "punch_line": "{'द्रव्याचे कर्म सामर्थ्य म्हणजेच वीर्य होय.' if is_marathi else 'Virya is the quintessential potency through which action is achieved.'}"
                 }}
                 """
-
                 with st.spinner("✍️ AI अस्सल वहीच्या पानावर फोटोसारख्या नोट्स तयार करत आहे..."):
                     try:
                         raw_json = cached_ask_gemini(json_prompt, as_json=True)
@@ -828,57 +833,15 @@ with tab1:
                         if clean_json.startswith("```"): clean_json = clean_json[3:]
                         if clean_json.endswith("```"): clean_json = clean_json[:-3]
 
-                        sheet_data = json.loads(clean_json.strip())
-                        a4_html = render_photo_identical_sheet(sheet_data, subject, topic, is_marathi=is_marathi)
-
-                        st.balloons()
-                        st.success(f"✅ A4 Sheet तयार झाली आहे! (अपेक्षित गुण: {sheet_data.get('marks')})")
-
-                        share_text = f"🌿 *AyurVeda AI BAMS Notes*\n📚 *Subject:* {subject}\n🎯 *Topic:* {topic}\n✍️ *Punch Line:* {sheet_data.get('punch_line')}\n\nStudy Bot द्वारे तयार केलेली A4 Note!"
-                        encoded_wa = urllib.parse.quote(share_text)
-                        wa_url = f"[https://api.whatsapp.com/send?text=](https://api.whatsapp.com/send?text=){encoded_wa}"
-
-                        col_wa, col_db = st.columns([1, 1])
-                        with col_wa:
-                            st.markdown(f"""
-                            <a href="{wa_url}" target="_blank" style="
-                                display: inline-flex;
-                                align-items: center;
-                                justify-content: center;
-                                gap: 8px;
-                                background: #25d366;
-                                color: white !important;
-                                text-decoration: none;
-                                padding: 12px 20px;
-                                border-radius: 14px;
-                                font-weight: 800;
-                                font-size: 14px;
-                                width: 100%;
-                                box-shadow: 0 4px 12px rgba(37,211,102,0.3);
-                            ">
-                                📲 WhatsApp Study Group वर Share करा
-                            </a>
-                            """, unsafe_allow_html=True)
-                        with col_db:
-                            if st.button("💾 ही A4 Note खात्यात सेव्ह करा", key="save_a4_btn", use_container_width=True):
-                                try:
-                                    supabase.table("user_notes").insert({
-                                        "user_id": st.session_state.user_id,
-                                        "subject": subject,
-                                        "topic": topic,
-                                        "study_mode": study_mode,
-                                        "content": json.dumps(sheet_data)
-                                    }).execute()
-                                    st.success("✅ नोट तुमच्या खात्यात सुरक्षित सेव्ह झाली!")
-                                except Exception as s_err:
-                                    st.error(f"सेव्ह करताना त्रुटी: {s_err}")
-
-                        st.components.v1.html(a4_html, height=1300, scrolling=True)
-
+                        st.session_state.current_generated_note = json.loads(clean_json.strip())
+                        st.session_state.current_note_type = "a4_sheet"
+                        st.session_state.current_topic = topic
+                        st.session_state.current_subject = subject
+                        st.session_state.current_mode = study_mode
                     except Exception as e:
                         st.error(f"त्रुटी: {e}")
 
-            # Case B: MUHS / NCISM Past 5 Years Questions & Model Answer Key
+            # Case B: MUHS / NCISM Past 5 Years Questions
             elif "Past 5 Years Questions" in study_mode:
                 pyq_prompt = f"""
                 You are a senior MUHS / NCISM BAMS University Chief Examiner and Paper Setter.
@@ -897,28 +860,11 @@ with tab1:
                 with st.spinner("🎯 AI विद्यापीठ मागील ५ वर्षांचे प्रश्न व मॉडेल आन्सर तयार करत आहे..."):
                     try:
                         pyq_res = cached_ask_gemini(pyq_prompt, as_json=False)
-                        st.balloons()
-                        st.success("✅ University PYQ & Model Answer Key तयार झाली आहे!")
-
-                        col_s1, col_s2 = st.columns([1, 1])
-                        with col_s1:
-                            if st.button("💾 हे प्रश्नोत्तर खात्यात सेव्ह करा", key="save_pyq_btn", use_container_width=True):
-                                try:
-                                    supabase.table("user_notes").insert({
-                                        "user_id": st.session_state.user_id,
-                                        "subject": subject,
-                                        "topic": topic,
-                                        "study_mode": study_mode,
-                                        "content": pyq_res
-                                    }).execute()
-                                    st.success("✅ खात्यात सेव्ह झाले!")
-                                except Exception as err:
-                                    st.error(f"त्रुटी: {err}")
-                        with col_s2:
-                            encoded_pyq = urllib.parse.quote(f"🎯 *BAMS PYQ - {topic}*\n\n" + pyq_res[:500] + "...")
-                            st.link_button("📲 WhatsApp वर पाठवा", f"[https://api.whatsapp.com/send?text=](https://api.whatsapp.com/send?text=){encoded_pyq}", use_container_width=True)
-
-                        st.markdown(pyq_res)
+                        st.session_state.current_generated_note = pyq_res
+                        st.session_state.current_note_type = "text"
+                        st.session_state.current_topic = topic
+                        st.session_state.current_subject = subject
+                        st.session_state.current_mode = study_mode
                     except Exception as e:
                         st.error(f"त्रुटी: {e}")
 
@@ -948,129 +894,82 @@ with tab1:
                 13. 🎯 PG AIAPGET Special Focus.
                 14. 📝 संभाव्य परीक्षा प्रश्नसंच (NCISM Pattern: 1 LAQ, 2 SAQ, 4 MCQs).
                 15. 📊 Master Summary Table.
-
-                Guidelines:
-                - Do NOT summarize. Provide in-depth explanations with clean bullet points, tables, and bold headings.
                 """
                 with st.spinner(f"⚡ AI Professor '{topic}' वर सविस्तर नोट्स तयार करत आहेत..."):
                     try:
-                        notes_text = cached_ask_gemini(system_instruction, as_json=False)
-                        st.balloons()
-                        st.success(f"✅ '{topic}' वर संपूर्ण सविस्तर अभ्यास नोट्स तयार झाल्या आहेत!")
+                        notes_res = cached_ask_gemini(system_instruction, as_json=False)
+                        st.session_state.current_generated_note = notes_res
+                        st.session_state.current_note_type = "text"
+                        st.session_state.current_topic = topic
+                        st.session_state.current_subject = subject
+                        st.session_state.current_mode = study_mode
+                    except Exception as e:
+                        st.error(f"त्रुटी: {e}")
 
-                        html_content = markdown.markdown(notes_text, extensions=['tables', 'fenced_code'])
+    # Display & Save Section
+    if st.session_state.current_generated_note:
+        c_type = st.session_state.current_note_type
+        c_data = st.session_state.current_generated_note
+        c_top = st.session_state.current_topic
+        c_sub = st.session_state.current_subject
+        c_mod = st.session_state.current_mode
 
-                        html_export = f"""<!DOCTYPE html>
+        col_s1, col_s2 = st.columns([1, 1])
+        with col_s1:
+            if st.button("💾 ही नोट माझ्या खात्यात सेव्ह करा", key="save_n_tab1_fix", use_container_width=True):
+                try:
+                    save_payload = json.dumps(c_data) if c_type == "a4_sheet" else str(c_data)
+                    supabase.table("user_notes").insert({
+                        "user_id": st.session_state.user_id,
+                        "subject": c_sub,
+                        "topic": c_top,
+                        "study_mode": c_mod,
+                        "content": save_payload
+                    }).execute()
+                    st.success("✅ नोट तुमच्या खात्यात यशस्वीरीत्या सेव्ह झाली!")
+                    time.sleep(1)
+                    st.rerun()
+                except Exception as s_err:
+                    st.error(f"सेव्ह करताना त्रुटी: {s_err}")
+        with col_s2:
+            share_preview = f"🌿 *AyurVeda AI Notes*\n📚 *विषय:* {c_sub}\n🎯 *टॉपिक:* {c_top}\n\nAyurVeda AI Studio वर तयार केलेली नोट!"
+            encoded_share = urllib.parse.quote(share_preview)
+            st.link_button("📲 WhatsApp वर Share करा", f"[https://api.whatsapp.com/send?text=](https://api.whatsapp.com/send?text=){encoded_share}", use_container_width=True)
+
+        if c_type == "a4_sheet":
+            is_m = "मराठी" in language_preference
+            a4_html = render_photo_identical_sheet(c_data, c_sub, c_top, is_marathi=is_m)
+            st.components.v1.html(a4_html, height=1300, scrolling=True)
+        else:
+            html_content = markdown.markdown(c_data, extensions=['tables', 'fenced_code'])
+            html_export = f"""<!DOCTYPE html>
 <html lang="mr">
 <head>
 <meta charset="UTF-8">
-<title>{topic} - BAMS Comprehensive Notes</title>
+<title>{c_top} - BAMS Comprehensive Notes</title>
 <link href="[https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800;900&display=swap](https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800;900&display=swap)" rel="stylesheet">
 <style>
-    body {{
-        font-family: 'Mukta', sans-serif;
-        line-height: 1.8;
-        padding: 40px;
-        color: #111827;
-        max-width: 850px;
-        margin: auto;
-        background: #ffffff;
-    }}
-    .header-box {{
-        border-bottom: 3px solid #000000;
-        padding-bottom: 12px;
-        margin-bottom: 25px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }}
-    h1, h2, h3, h4 {{
-        color: #000000 !important;
-        margin-top: 26px;
-        margin-bottom: 12px;
-        font-weight: 900 !important;
-    }}
-    b, strong {{
-        color: #000000 !important;
-        font-weight: 800 !important;
-    }}
-    table {{
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px 0;
-        font-size: 14.5px;
-    }}
-    th, td {{
-        border: 1px solid #4b5563;
-        padding: 10px 12px;
-        text-align: left;
-    }}
-    blockquote {{
-        border-left: 4px solid #000000;
-        margin: 16px 0;
-        padding: 12px 20px;
-        background: #f8fafc;
-        font-weight: 700;
-        color: #000000;
-    }}
-    .print-btn {{
-        background: #000000;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-weight: 800;
-        cursor: pointer;
-    }}
+    body {{ font-family: 'Mukta', sans-serif; line-height: 1.8; padding: 30px; color: #111827; max-width: 820px; margin: auto; }}
+    table {{ width: 100%; border-collapse: collapse; margin: 15px 0; }}
+    th, td {{ border: 1px solid #4b5563; padding: 8px 10px; }}
+    blockquote {{ border-left: 4px solid #000; margin: 12px 0; padding: 10px 16px; background: #f8fafc; font-weight: 700; }}
 </style>
 </head>
 <body>
-    <div class="header-box">
-        <div>
-            <h2 style="margin:0; color:#000000;">🌿 AyurVeda AI - BAMS Study Notes</h2>
-            <div style="font-size:14px; color:#374151; margin-top:4px;">
-                <b>विद्यार्थी:</b> {s_name} | <b>कॉलेज:</b> {s_college}<br>
-                <b>विषय:</b> {subject} | <b>टॉपिक:</b> {topic}
-            </div>
-        </div>
-        <button class="print-btn" onclick="window.print()">🖨️ PDF सेव्ह करा</button>
-    </div>
-    <div class="content-body">{html_content}</div>
+    <h2>🌿 AyurVeda AI - {c_top}</h2>
+    <div><b>विद्यार्थी:</b> {s_name} | <b>विषय:</b> {c_sub}</div>
+    <hr>
+    <div>{html_content}</div>
 </body>
 </html>"""
-
-                        c_col1, c_col2, c_col3 = st.columns([1, 1, 1])
-                        with c_col1:
-                            st.download_button(
-                                label="📥 नोट्स सेव्ह करा (PDF)",
-                                data=html_export.encode('utf-8'),
-                                file_name=f"{topic.replace(' ', '_')}_Notes.html",
-                                mime="text/html",
-                                use_container_width=True
-                            )
-                        with c_col2:
-                            if st.button("💾 खात्यात सेव्ह करा", key="save_comp_note", use_container_width=True):
-                                try:
-                                    supabase.table("user_notes").insert({
-                                        "user_id": st.session_state.user_id,
-                                        "subject": subject,
-                                        "topic": topic,
-                                        "study_mode": study_mode,
-                                        "content": notes_text
-                                    }).execute()
-                                    st.success("✅ नोट सुरक्षित सेव्ह झाली!")
-                                except Exception as err:
-                                    st.error(f"त्रुटी: {err}")
-                        with c_col3:
-                            wa_summary = f"🌿 *AyurVeda AI Comprehensive Notes*\n📚 *विषय:* {subject}\n🎯 *टॉपिक:* {topic}\n\nAyurVeda AI वर उपलब्ध आहेत!"
-                            encoded_wa = urllib.parse.quote(wa_summary)
-                            wa_link = f"[https://api.whatsapp.com/send?text=](https://api.whatsapp.com/send?text=){encoded_wa}"
-                            st.link_button("📲 WhatsApp वर पाठवा", wa_link, use_container_width=True)
-
-                        st.markdown(f'<div style="background:#fff; border-radius:18px; padding:22px; margin-top:15px; border:1.8px solid {th["border_color"]}; line-height:1.8;">{notes_text}</div>', unsafe_allow_html=True)
-
-                    except Exception as e:
-                        st.error(f"त्रुटी: {e}")
+            st.download_button(
+                label="📥 नोट्स सेव्ह करा (Printable HTML)",
+                data=html_export.encode('utf-8'),
+                file_name=f"{c_top.replace(' ', '_')}_Notes.html",
+                mime="text/html",
+                use_container_width=True
+            )
+            st.markdown(f'<div style="background:#fff; border-radius:18px; padding:22px; margin-top:15px; border:1.8px solid {th["border_color"]}; line-height:1.8;">{c_data}</div>', unsafe_allow_html=True)
 
 # =========================================================================
 # TAB 2: MEDICINE FORMULATION & MANUFACTURING
@@ -1091,6 +990,9 @@ with tab2:
     m_lang = st.radio("🌐 भाषा:", ["Simple Indian English", "मराठी"], horizontal=True, key="m_lang")
     medicine_name = st.text_input("💊 गोळी किंवा औषधाचे नाव टाका:", placeholder="उदा. आरोग्यवर्धिनी वटी किंवा चंद्रप्रभावटी")
 
+    if "current_med_note" not in st.session_state:
+        st.session_state.current_med_note = None
+
     if st.button("🔬 औषध घटक व बनवण्याची कृती शिका", key="btn_med", use_container_width=True):
         if not medicine_name.strip():
             st.warning("⚠️ कृपया औषधाचे नाव टाका.")
@@ -1099,21 +1001,26 @@ with tab2:
                 try:
                     med_prompt = f"Explain manufacturing of {medicine_name} ({dosage_form}) in {m_lang} with ingredients table, purification, and steps in deep detail."
                     res_text = cached_ask_gemini(med_prompt, as_json=False)
-                    st.success("✅ माहिती तयार झाली आहे!")
-
-                    if st.button("💾 ही औषध कृती खात्यात सेव्ह करा", key="save_med_btn"):
-                        supabase.table("user_notes").insert({
-                            "user_id": st.session_state.user_id,
-                            "subject": "Rasashastra & Bhaishajya Kalpana",
-                            "topic": medicine_name,
-                            "study_mode": dosage_form,
-                            "content": res_text
-                        }).execute()
-                        st.success("✅ सेव्ह झाले!")
-
-                    st.markdown(res_text)
+                    st.session_state.current_med_note = res_text
                 except Exception as e:
                     st.error(f"त्रुटी: {e}")
+
+    if st.session_state.current_med_note:
+        st.markdown(st.session_state.current_med_note)
+        if st.button("💾 ही औषध कृती खात्यात सेव्ह करा", key="save_med_btn", use_container_width=True):
+            try:
+                supabase.table("user_notes").insert({
+                    "user_id": st.session_state.user_id,
+                    "subject": "Rasashastra & Bhaishajya Kalpana",
+                    "topic": medicine_name,
+                    "study_mode": dosage_form,
+                    "content": st.session_state.current_med_note
+                }).execute()
+                st.success("✅ खात्यात सेव्ह झाले!")
+                time.sleep(1)
+                st.rerun()
+            except Exception as e:
+                st.error(f"त्रुटी: {e}")
 
 # =========================================================================
 # TAB 3: AI BAMS VIVA-VOCE SIMULATOR
@@ -1135,6 +1042,9 @@ with tab3:
     viva_lang = st.radio("🌐 Viva भाषा:", ["मराठी + Sanskrit Terms", "Simple Indian English"], horizontal=True, key="viva_lang")
     viva_topic = st.text_input("🎙️ Examiner कोणत्या विषयावर प्रश्न विचारतील?", placeholder="उदा. Pitta Sthana, Ashwagandha Guna, Vatsanabha Shodhana", key="viva_top")
 
+    if "current_viva_note" not in st.session_state:
+        st.session_state.current_viva_note = None
+
     if st.button("🔥 AI Examiner कडून तोंडी परीक्षा प्रश्न घ्या", key="btn_viva", use_container_width=True):
         if not viva_topic.strip():
             st.warning("⚠️ कृपया विषयाचे नाव टाका.")
@@ -1155,21 +1065,26 @@ with tab3:
                     5. Modern Diagnostic Correlation Question
                     """
                     viva_res = cached_ask_gemini(viva_prompt, as_json=False)
-                    st.success("✅ Viva प्रश्नावली तयार झाली!")
-
-                    if st.button("💾 ही Viva प्रश्नावली सेव्ह करा", key="save_viva_btn"):
-                        supabase.table("user_notes").insert({
-                            "user_id": st.session_state.user_id,
-                            "subject": viva_sub,
-                            "topic": viva_topic,
-                            "study_mode": "Viva-Voce Questions",
-                            "content": viva_res
-                        }).execute()
-                        st.success("✅ सेव्ह झाले!")
-
-                    st.markdown(viva_res)
+                    st.session_state.current_viva_note = viva_res
                 except Exception as e:
                     st.error(f"त्रुटी: {e}")
+
+    if st.session_state.current_viva_note:
+        st.markdown(st.session_state.current_viva_note)
+        if st.button("💾 ही Viva प्रश्नावली सेव्ह करा", key="save_viva_btn", use_container_width=True):
+            try:
+                supabase.table("user_notes").insert({
+                    "user_id": st.session_state.user_id,
+                    "subject": viva_sub,
+                    "topic": viva_topic,
+                    "study_mode": "Viva-Voce Questions",
+                    "content": st.session_state.current_viva_note
+                }).execute()
+                st.success("✅ खात्यात सेव्ह झाले!")
+                time.sleep(1)
+                st.rerun()
+            except Exception as e:
+                st.error(f"त्रुटी: {e}")
 
 # =========================================================================
 # TAB 4: CLINICAL CASE STUDY
@@ -1191,6 +1106,9 @@ with tab4:
     case_lang = st.radio("🌐 भाषा:", ["मराठी + Clinical English", "Simple Indian English + Sanskrit"], horizontal=True, key="cs_lang")
     case_topic = st.text_input("🩺 आजाराचे नाव / मुख्य लक्षणे टाका:", placeholder="उदा. Amlapitta (GERD), Sandhivata (Osteoarthritis), Tamaka Shwasa (Asthma)", key="cs_top")
 
+    if "current_case_note" not in st.session_state:
+        st.session_state.current_case_note = None
+
     if st.button("📋 संपूर्ण क्लिनिकल केसशीट तयार करा", key="btn_case", use_container_width=True):
         if not case_topic.strip():
             st.warning("⚠️ कृपया आजाराचे नाव टाका.")
@@ -1206,21 +1124,26 @@ with tab4:
                     Generate a complete, professional Ayurvedic Clinical Case Presentation Paper.
                     """
                     case_res = cached_ask_gemini(case_prompt, as_json=False)
-                    st.success("✅ क्लिनिकल केस प्रेझेंटेशन तयार झाले!")
-
-                    if st.button("💾 ही केसशीट खात्यात सेव्ह करा", key="save_case_btn"):
-                        supabase.table("user_notes").insert({
-                            "user_id": st.session_state.user_id,
-                            "subject": case_subject,
-                            "topic": case_topic,
-                            "study_mode": "Clinical Case Study",
-                            "content": case_res
-                        }).execute()
-                        st.success("✅ सेव्ह झाले!")
-
-                    st.markdown(case_res)
+                    st.session_state.current_case_note = case_res
                 except Exception as e:
                     st.error(f"त्रुटी: {e}")
+
+    if st.session_state.current_case_note:
+        st.markdown(st.session_state.current_case_note)
+        if st.button("💾 ही केसशीट खात्यात सेव्ह करा", key="save_case_btn", use_container_width=True):
+            try:
+                supabase.table("user_notes").insert({
+                    "user_id": st.session_state.user_id,
+                    "subject": case_subject,
+                    "topic": case_topic,
+                    "study_mode": "Clinical Case Study",
+                    "content": st.session_state.current_case_note
+                }).execute()
+                st.success("✅ खात्यात सेव्ह झाले!")
+                time.sleep(1)
+                st.rerun()
+            except Exception as e:
+                st.error(f"त्रुटी: {e}")
 
 # =========================================================================
 # TAB 5: RESEARCH & EVIDENCE
@@ -1236,6 +1159,9 @@ with tab5:
 
     res_topic = st.text_input("🔬 औषधी वनस्पती / घटकाचे नाव टाका:", placeholder="उदा. Withania somnifera (Ashwagandha), Tinospora cordifolia (Guduchi)", key="res_top")
 
+    if "current_res_note" not in st.session_state:
+        st.session_state.current_res_note = None
+
     if st.button("🧬 वैज्ञानिक संशोधन व क्लिनिकल पुरावे शोधा", key="btn_research", use_container_width=True):
         if not res_topic.strip():
             st.warning("⚠️ कृपया संशोधन द्रव्याचे नाव टाका.")
@@ -1248,21 +1174,26 @@ with tab5:
                     Generate an authentic research summary with Phytochemicals, Mechanism, and Clinical trials.
                     """
                     res_out = cached_ask_gemini(res_prompt, as_json=False)
-                    st.success("✅ वैज्ञानिक संशोधन अहवाल तयार झाला!")
-
-                    if st.button("💾 हा संशोधन अहवाल सेव्ह करा", key="save_res_btn"):
-                        supabase.table("user_notes").insert({
-                            "user_id": st.session_state.user_id,
-                            "subject": "Research & Evidence",
-                            "topic": res_topic,
-                            "study_mode": "Modern Pharmacology",
-                            "content": res_out
-                        }).execute()
-                        st.success("✅ सेव्ह झाले!")
-
-                    st.markdown(res_out)
+                    st.session_state.current_res_note = res_out
                 except Exception as e:
                     st.error(f"त्रुटी: {e}")
+
+    if st.session_state.current_res_note:
+        st.markdown(st.session_state.current_res_note)
+        if st.button("💾 हा संशोधन अहवाल सेव्ह करा", key="save_res_btn", use_container_width=True):
+            try:
+                supabase.table("user_notes").insert({
+                    "user_id": st.session_state.user_id,
+                    "subject": "Research & Evidence",
+                    "topic": res_topic,
+                    "study_mode": "Modern Pharmacology",
+                    "content": st.session_state.current_res_note
+                }).execute()
+                st.success("✅ खात्यात सेव्ह झाले!")
+                time.sleep(1)
+                st.rerun()
+            except Exception as e:
+                st.error(f"त्रुटी: {e}")
 
 # --- Footer ---
 st.markdown(f"""
