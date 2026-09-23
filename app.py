@@ -5,219 +5,523 @@ import json
 import time
 import urllib.parse
 from datetime import datetime
+import re
 import markdown
 from supabase import create_client, Client
 
 # --- Page Setup ---
 st.set_page_config(
-    page_title="AyurVeda AI | VIP Academic Studio",
+    page_title="AyurVeda AI Studio | BAMS Academic Platform",
     page_icon="🌿",
-    layout="centered",
+    layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # =========================================================================
-# 🎯 AUTOMATIC DYNAMIC FESTIVAL THEME ENGINE
+# 🎯 AUTOMATIC DYNAMIC FESTIVAL THEME ENGINE (SUBTLE ACCENTS ONLY)
 # =========================================================================
 def get_current_festival_theme():
     now = datetime.now()
     month, day = now.month, now.day
 
+    base = {
+        "primary": "#176B4D",
+        "deep_green": "#0F4935",
+        "gold": "#C88A24",
+        "bg": "#F7F8F4",
+        "card_bg": "#FFFFFF",
+        "text": "#1E2924",
+        "muted": "#68756E",
+        "border": "#E2E8E3",
+        "success": "#15803D"
+    }
+
     if month == 9 and 12 <= day <= 26:
         return {
+            **base,
             "name": "ganeshotsav",
             "tag": "🌺 ॥ श्री गणेशाय नमः ॥ 🌺",
             "icon": "🪔",
-            "title_sub": "गणेशोत्सव विशेष पर्व | BAMS HANDWRITTEN STUDIO",
-            "bg": "radial-gradient(circle at 50% 0%, #fffbeb 0%, #fef3c7 25%, #fdfcf7 60%, #fff7ed 100%)",
-            "hero_grad": "linear-gradient(135deg, #b45309 0%, #c2410c 45%, #991b1b 100%)",
-            "hero_border": "#fef08a",
-            "btn_grad": "linear-gradient(135deg, #ea580c 0%, #d97706 50%, #b45309 100%)",
-            "border_color": "#fed7aa",
-            "focus_color": "#f59e0b",
-            "active_tab": "linear-gradient(135deg, #b45309 0%, #ea580c 100%)",
-            "footer_text": "🌺 ॥ गणपती बाप्पा मोरया ॥ 🌿",
-            "font_accent": "#92400e"
+            "accent_badge_bg": "#FEF3C7",
+            "accent_badge_text": "#92400E",
+            "accent_badge_border": "#FDE68A",
+            "active_tab_border": "#D97706",
+            "footer_text": "🌺 ॥ गणपती बाप्पा मोरया ॥ 🌿"
         }
     elif month == 10 and 10 <= day <= 24:
         return {
+            **base,
             "name": "navratri",
             "tag": "🌸 ॥ जय जगदंब - शुभ नवरात्री व विजयादशमी ॥ 🌸",
             "icon": "🔱",
-            "title_sub": "शक्ती व विद्या पर्व विशेष | BAMS HANDWRITTEN STUDIO",
-            "bg": "radial-gradient(circle at 50% 0%, #fff1f2 0%, #ffe4e6 30%, #fffdf9 70%, #fdf4ff 100%)",
-            "hero_grad": "linear-gradient(135deg, #9f1239 0%, #be123c 45%, #881337 100%)",
-            "hero_border": "#fda4af",
-            "btn_grad": "linear-gradient(135deg, #e11d48 0%, #be123c 50%, #9f1239 100%)",
-            "border_color": "#fecdd3",
-            "focus_color": "#e11d48",
-            "active_tab": "linear-gradient(135deg, #9f1239 0%, #e11d48 100%)",
-            "footer_text": "🌸 ॥ सर्वमंगल मांगल्ये शिवे सर्वार्थ साधिके ॥ 🌿",
-            "font_accent": "#881337"
+            "accent_badge_bg": "#FFE4E6",
+            "accent_badge_text": "#9F1239",
+            "accent_badge_border": "#FECDD3",
+            "active_tab_border": "#E11D48",
+            "footer_text": "🌸 ॥ सर्वमंगल मांगल्ये शिवे सर्वार्थ साधिके ॥ 🌿"
         }
     elif month == 11 and 4 <= day <= 14:
         return {
+            **base,
             "name": "diwali",
             "tag": "🪔 ॥ ॐ महालक्ष्म्यै नमः - शुभ दीपावली ॥ 🪔",
             "icon": "✨",
-            "title_sub": "दीपोत्सव महाविशेष पर्व | BAMS HANDWRITTEN STUDIO",
-            "bg": "radial-gradient(circle at 50% 0%, #172554 0%, #1e1b4b 40%, #0f172a 100%)",
-            "hero_grad": "linear-gradient(135deg, #d97706 0%, #b45309 40%, #78350f 100%)",
-            "hero_border": "#fde047",
-            "btn_grad": "linear-gradient(135deg, #eab308 0%, #ca8a04 50%, #a16207 100%)",
-            "border_color": "#fde047",
-            "focus_color": "#facc15",
-            "active_tab": "linear-gradient(135deg, #ca8a04 0%, #eab308 100%)",
-            "footer_text": "🪔 ॥ शुभ दीपावली - सुख समृद्धी लाभो ॥ 🌿",
-            "font_accent": "#facc15"
+            "accent_badge_bg": "#FEF9C3",
+            "accent_badge_text": "#854D0E",
+            "accent_badge_border": "#FDE047",
+            "active_tab_border": "#CA8A04",
+            "footer_text": "🪔 ॥ शुभ दीपावली - सुख समृद्धी लाभो ॥ 🌿"
         }
     else:
         return {
+            **base,
             "name": "ayurveda_classic",
             "tag": "🌿 ॥ नमामि धन्वंतरिमादिदेवम् - BAMS अकॅडेमिक स्टुडिओ ॥ 🌿",
             "icon": "🌱",
-            "title_sub": "NCISM BAMS A4 HANDWRITTEN STUDIO",
-            "bg": "radial-gradient(circle at 50% 0%, #ecfdf5 0%, #f0fdf4 35%, #f8fafc 70%, #e6fcf5 100%)",
-            "hero_grad": "linear-gradient(135deg, #064e3b 0%, #047857 50%, #064e3b 100%)",
-            "hero_border": "#a7f3d0",
-            "btn_grad": "linear-gradient(135deg, #059669 0%, #047857 50%, #064e3b 100%)",
-            "border_color": "#cbd5e1",
-            "focus_color": "#059669",
-            "active_tab": "linear-gradient(135deg, #064e3b 0%, #059669 100%)",
-            "footer_text": "🌿 ॥ आरोग्यं परमं भाग्यम् ॥ 🌿",
-            "font_accent": "#064e3b"
+            "accent_badge_bg": "#E8F5E9",
+            "accent_badge_text": "#0F4935",
+            "accent_badge_border": "#C8E6C9",
+            "active_tab_border": "#176B4D",
+            "footer_text": "🌿 ॥ आरोग्यं परमं भाग्यम् ॥ 🌿"
         }
 
 th = get_current_festival_theme()
 
-# --- VIP COMPACT CSS STYLES ---
+# =========================================================================
+# 🎨 PREMIUM MEDICAL AI SAAS DESIGN SYSTEM (CSS)
+# =========================================================================
 st.markdown(f"""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Mukta:wght@400;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Mukta:wght@400;500;600;700;800&display=swap');
 
+    /* Global Foundation */
     html, body, .stApp {{
-        background: {th['bg']} !important;
-        background-attachment: fixed !important;
-        font-family: 'Mukta', 'Plus Jakarta Sans', sans-serif !important;
-        color: #0f172a !important;
+        background-color: {th['bg']} !important;
+        background-image: radial-gradient(at 100% 0%, rgba(23, 107, 77, 0.03) 0px, transparent 50%),
+                          radial-gradient(at 0% 100%, rgba(200, 138, 36, 0.03) 0px, transparent 50%) !important;
+        font-family: 'Plus Jakarta Sans', 'Mukta', -apple-system, sans-serif !important;
+        color: {th['text']} !important;
+        -webkit-font-smoothing: antialiased;
     }}
-    
+
+    /* Global Responsive Container */
     .main .block-container {{
-        max-width: 820px !important;
-        padding-top: 0.8rem !important;
-        padding-bottom: 2.2rem !important;
+        max-width: 1140px !important;
+        padding-top: 1.25rem !important;
+        padding-bottom: 3.5rem !important;
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
         margin: auto !important;
     }}
 
-    .vip-navbar {{
+    /* Header Nav */
+    .saas-navbar {{
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 10px 18px;
-        background: rgba(255, 255, 255, 0.95) !important;
-        backdrop-filter: blur(16px);
-        border: 1.8px solid {th['border_color']} !important;
-        border-radius: 18px;
-        margin-bottom: 12px;
-        box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.06);
+        padding: 14px 24px;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid {th['border']};
+        border-radius: 16px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px -2px rgba(15, 73, 53, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
     }}
-    .brand-title {{
-        font-size: 20px;
-        font-weight: 900;
-        background: {th['btn_grad']};
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+    .saas-brand {{
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }}
+    .brand-logo-badge {{
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #176B4D 0%, #0F4935 100%);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 19px;
+        box-shadow: 0 4px 10px -2px rgba(23, 107, 77, 0.25);
+    }}
+    .brand-title-wrap {{
+        display: flex;
+        flex-direction: column;
+    }}
+    .brand-name {{
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: {th['deep_green']};
         margin: 0;
         line-height: 1.2;
     }}
-    .author-badge {{
-        background: #ffffff !important;
-        border: 1.5px solid {th['focus_color']};
-        padding: 6px 14px;
-        border-radius: 12px;
-        font-size: 12.5px;
-        font-weight: 800;
-        color: {th['font_accent']} !important;
+    .brand-sub {{
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: {th['muted']};
+        margin-top: 2px;
     }}
-
-    .vip-hero {{
-        background: {th['hero_grad']} !important;
-        padding: 16px 20px;
-        border-radius: 20px;
-        margin-bottom: 14px;
-        color: #ffffff !important;
-        box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.22);
-        border: 1.8px solid {th['hero_border']};
+    .author-pill {{
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #F0F4F2;
+        border: 1px solid #D5E0D9;
+        padding: 5px 12px;
+        border-radius: 9999px;
+        font-size: 12px;
+        font-weight: 700;
+        color: {th['deep_green']};
     }}
-    .vip-hero * {{ color: #ffffff !important; }}
-    .festive-tag {{
+    .author-avatar {{
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: {th['primary']};
+        color: #ffffff;
         display: inline-flex;
-        background: rgba(255, 255, 255, 0.22);
-        padding: 3px 12px;
-        border-radius: 20px;
-        font-size: 11.5px;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
         font-weight: 800;
+    }}
+
+    /* Welcome Hero Card */
+    .dashboard-welcome {{
+        background: #FFFFFF;
+        border: 1px solid {th['border']};
+        border-radius: 18px;
+        padding: 24px 28px;
+        margin-bottom: 22px;
+        box-shadow: 0 4px 14px -4px rgba(15, 73, 53, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+    }}
+    .welcome-meta h2 {{
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: {th['deep_green']} !important;
+        margin: 0 0 4px 0 !important;
+    }}
+    .welcome-meta p {{
+        font-size: 13.5px;
+        color: {th['muted']} !important;
+        margin: 0 !important;
+    }}
+    .festive-accent-badge {{
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: {th['accent_badge_bg']};
+        border: 1px solid {th['accent_badge_border']};
+        color: {th['accent_badge_text']};
+        font-size: 11.5px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 8px;
         margin-bottom: 6px;
-        border: 1px solid rgba(255, 255, 255, 0.35);
+    }}
+    .quick-status-grid {{
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }}
+    .status-chip {{
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #F4F6F4;
+        border: 1px solid #E2E8E3;
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 600;
+        color: {th['text']};
     }}
 
-    .vip-card-box {{
-        background: rgba(255, 255, 255, 0.97) !important;
-        border: 1.8px solid {th['border_color']} !important;
-        border-radius: 22px;
-        padding: 20px 22px;
-        box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.1);
-        margin: 0 auto;
+    /* Module Hero Banner */
+    .module-hero {{
+        background: linear-gradient(135deg, #0F4935 0%, #176B4D 100%);
+        color: #FFFFFF !important;
+        padding: 22px 26px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 20px -6px rgba(15, 73, 53, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }}
+    .module-hero * {{
+        color: #FFFFFF !important;
+    }}
+    .module-hero h3 {{
+        margin: 0 0 4px 0 !important;
+        font-size: 20px !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.01em;
+    }}
+    .module-hero p {{
+        margin: 0 !important;
+        font-size: 13.5px !important;
+        opacity: 0.9;
+        font-weight: 400;
+    }}
+    .module-tag {{
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 11.5px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
     }}
 
+    /* Modern Card Sections */
+    .saas-card {{
+        background: {th['card_bg']};
+        border: 1px solid {th['border']};
+        border-radius: 16px;
+        padding: 22px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px -2px rgba(15, 73, 53, 0.03);
+    }}
+    .step-pill {{
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: {th['primary']};
+        background: #EAF3EF;
+        padding: 3px 9px;
+        border-radius: 6px;
+        margin-bottom: 12px;
+    }}
+
+    /* Reading Experience / Textbook Presentation */
+    .textbook-container {{
+        background: #FFFFFF;
+        border: 1px solid {th['border']};
+        border-radius: 18px;
+        padding: 36px 40px;
+        box-shadow: 0 6px 20px -4px rgba(15, 73, 53, 0.04);
+        margin-top: 18px;
+        color: #1A2621;
+        font-family: 'Mukta', 'Plus Jakarta Sans', serif;
+        font-size: 16px;
+        line-height: 1.85;
+    }}
+    .textbook-container h1, .textbook-container h2, .textbook-container h3 {{
+        color: {th['deep_green']} !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.02em;
+        margin-top: 1.5em;
+        margin-bottom: 0.5em;
+        padding-bottom: 6px;
+        border-bottom: 1px solid #EBEFEA;
+    }}
+    .textbook-container blockquote {{
+        border-left: 4px solid {th['primary']};
+        background: #F4F8F6;
+        padding: 14px 20px;
+        margin: 18px 0;
+        border-radius: 0 12px 12px 0;
+        color: {th['deep_green']};
+        font-weight: 600;
+    }}
+    .textbook-container table {{
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 14.5px;
+    }}
+    .textbook-container th, .textbook-container td {{
+        border: 1px solid #E2E8E3;
+        padding: 10px 14px;
+        text-align: left;
+    }}
+    .textbook-container th {{
+        background-color: #F4F7F5;
+        color: {th['deep_green']};
+        font-weight: 700;
+    }}
+    .textbook-container tr:nth-child(even) {{
+        background-color: #FAFBF9;
+    }}
+
+    /* Question & Clinical Presentation Cards */
+    .viva-card {{
+        background: #FFFFFF;
+        border: 1px solid #E2E8E3;
+        border-radius: 14px;
+        padding: 18px 20px;
+        margin-bottom: 14px;
+        box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.03);
+    }}
+    .viva-badge {{
+        font-size: 11px;
+        font-weight: 800;
+        color: #C88A24;
+        background: #FEF9EE;
+        border: 1px solid #FBE6B8;
+        padding: 3px 8px;
+        border-radius: 6px;
+        display: inline-block;
+        margin-bottom: 8px;
+    }}
+
+    /* Streamlit Tabs Redesign */
+    .stTabs [data-baseweb="tab-list"] {{
+        gap: 6px;
+        background-color: transparent;
+        padding: 4px;
+        border-bottom: 2px solid #E8ECE8;
+        overflow-x: auto;
+        white-space: nowrap;
+        scrollbar-width: none;
+    }}
+    .stTabs [data-baseweb="tab-list"]::-webkit-scrollbar {{
+        display: none;
+    }}
+    .stTabs [data-baseweb="tab"] {{
+        background-color: transparent !important;
+        border: none !important;
+        border-bottom: 2px solid transparent !important;
+        border-radius: 0px !important;
+        padding: 10px 16px !important;
+        font-size: 14.5px !important;
+        font-weight: 600 !important;
+        color: {th['muted']} !important;
+        transition: all 0.2s ease !important;
+    }}
+    .stTabs [aria-selected="true"] {{
+        color: {th['primary']} !important;
+        border-bottom: 2px solid {th['active_tab_border']} !important;
+        font-weight: 700 !important;
+    }}
+
+    /* Streamlit Input Components */
     div[data-baseweb="select"] > div,
     div[data-baseweb="input"] > div {{
-        background-color: #ffffff !important;
-        border: 1.8px solid {th['border_color']} !important;
-        border-radius: 14px !important;
+        background-color: #FFFFFF !important;
+        border: 1px solid {th['border']} !important;
+        border-radius: 12px !important;
+        transition: all 0.2s ease !important;
     }}
     div[data-baseweb="select"] > div:hover,
     div[data-baseweb="input"] > div:hover {{
-        border-color: {th['focus_color']} !important;
+        border-color: #B5C4BC !important;
+    }}
+    div[data-baseweb="select"] > div:focus-within,
+    div[data-baseweb="input"] > div:focus-within {{
+        border-color: {th['primary']} !important;
+        box-shadow: 0 0 0 3px rgba(23, 107, 77, 0.1) !important;
     }}
 
+    /* Streamlit Button System */
     div.stButton > button {{
-        background: {th['btn_grad']} !important;
-        color: #ffffff !important;
-        border: 1.8px solid {th['hero_border']} !important;
-        border-radius: 16px !important;
-        padding: 12px 24px !important;
-        font-size: 15.5px !important;
-        font-weight: 800 !important;
-        box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.2) !important;
+        background: {th['primary']} !important;
+        color: #FFFFFF !important;
+        border: 1px solid {th['primary']} !important;
+        border-radius: 12px !important;
+        padding: 10px 22px !important;
+        font-size: 14.5px !important;
+        font-weight: 600 !important;
+        letter-spacing: -0.01em !important;
+        transition: all 0.2s ease !important;
+        box-shadow: 0 2px 6px -1px rgba(23, 107, 77, 0.25) !important;
+    }}
+    div.stButton > button:hover {{
+        background: {th['deep_green']} !important;
+        border-color: {th['deep_green']} !important;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px -2px rgba(23, 107, 77, 0.3) !important;
     }}
 
-    .stTabs [data-baseweb="tab-list"] {{
-        gap: 8px;
-        margin-bottom: 14px;
+    /* Sidebar Clean Polish */
+    [data-testid="stSidebar"] {{
+        background-color: #FFFFFF !important;
+        border-right: 1px solid {th['border']} !important;
     }}
-    .stTabs [data-baseweb="tab"] {{
-        background-color: rgba(255, 255, 255, 0.88) !important;
-        border-radius: 14px !important;
-        padding: 8px 16px !important;
-        font-weight: 800 !important;
-        font-size: 13.5px !important;
-        border: 1.5px solid {th['border_color']} !important;
+    .sidebar-profile-card {{
+        background: #F9FAF8;
+        border: 1px solid #E6ECE8;
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 18px;
     }}
-    .stTabs [aria-selected="true"] {{
-        background: {th['active_tab']} !important;
-        border-color: {th['focus_color']} !important;
-        color: #ffffff !important;
+    .sidebar-user-header {{
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 10px;
     }}
-    .stTabs [aria-selected="true"] * {{ color: #ffffff !important; }}
+    .sidebar-avatar {{
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #176B4D 0%, #0F4935 100%);
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }}
+    .sidebar-saved-card {{
+        background: #FFFFFF;
+        border: 1px solid #E5ECE7;
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        transition: all 0.15s ease;
+    }}
+    .sidebar-saved-card:hover {{
+        border-color: {th['primary']};
+    }}
 
-    .student-id-card {{
-        background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
-        border: 1.8px solid #86efac;
-        padding: 15px;
-        border-radius: 18px;
-        margin-bottom: 14px;
-        box-shadow: 0 6px 18px -4px rgba(0, 0, 0, 0.06);
+    /* Minimalist Footer */
+    .saas-footer {{
+        text-align: center;
+        padding: 24px 12px 10px 12px;
+        font-size: 12.5px;
+        color: {th['muted']};
+        border-top: 1px solid {th['border']};
+        margin-top: 40px;
+    }}
+
+    /* Mobile Responsive Polish */
+    @media (max-width: 768px) {{
+        .main .block-container {{
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+            padding-top: 0.75rem !important;
+        }}
+        .saas-navbar {{
+            padding: 10px 14px;
+        }}
+        .dashboard-welcome {{
+            padding: 16px 18px;
+        }}
+        .textbook-container {{
+            padding: 20px 18px;
+        }}
+        .module-hero {{
+            padding: 16px 18px;
+        }}
     }}
 </style>
 """, unsafe_allow_html=True)
@@ -231,9 +535,9 @@ client = genai.Client(api_key=api_key)
 supabase: Client = create_client(supabase_url, supabase_key)
 
 # =========================================================================
-# 🔄 30-MINUTE SESSION PERSISTENCE ENGINE
+# 🔄 30-MINUTE SESSION PERSISTENCE ENGINE (No logout on refresh)
 # =========================================================================
-SESSION_TIMEOUT = 1800
+SESSION_TIMEOUT = 1800  # 30 minutes in seconds
 now_ts = int(time.time())
 
 persisted_uid = st.query_params.get("uid")
@@ -271,109 +575,123 @@ if "profile" not in st.session_state or not st.session_state.profile:
         st.session_state.profile = fetch_profile(st.session_state.user_id)
 
 # =========================================================================
-# 🔐 VIP LOGIN & REGISTRATION INTERFACE
+# 🔐 VIP ONBOARDING & LOGIN INTERFACE
 # =========================================================================
 if not st.session_state.user_id:
     st.markdown(f"""
-    <div class="vip-navbar">
-        <div style="display:flex; align-items:center; gap:10px;">
-            <div style="font-size:26px;">{th['icon']}</div>
-            <div>
-                <div class="brand-title">🌿 AyurVeda AI Studio</div>
-                <small style="color:{th['font_accent']}; font-weight:800; font-size:11.5px;">{th['title_sub']}</small>
+    <div class="saas-navbar">
+        <div class="saas-brand">
+            <div class="brand-logo-badge">{th['icon']}</div>
+            <div class="brand-title-wrap">
+                <span class="brand-name">AyurVeda AI Studio</span>
+                <span class="brand-sub">BAMS • AI • Academic Platform</span>
             </div>
         </div>
-        <div class="author-badge">Avishkar Alase ✓</div>
+        <div class="author-pill">
+            <span class="author-avatar">AA</span>
+            <span>Avishkar Alase ✓</span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
+
+    auth_col1, auth_col2, auth_col3 = st.columns([1, 4, 1])
+    with auth_col2:
+        st.markdown(f"""
+        <div style="text-align: center; margin-bottom: 24px;">
+            <div class="festive-accent-badge">{th['tag']}</div>
+            <h2 style="font-size: 26px; font-weight: 800; color: {th['deep_green']}; margin: 6px 0 4px 0;">
+                BAMS Academic Portal
+            </h2>
+            <p style="font-size: 14px; color: {th['muted']}; margin: 0;">
+                NCISM syllabus, A4 handwritten notes, exam question banks and clinical suite.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown('<div class="saas-card">', unsafe_allow_html=True)
+        t_login, t_reg = st.tabs(["🔑 विद्यार्थी लॉगिन (Sign In)", "✨ नवीन नोंदणी (Student Register)"])
+
+        with t_login:
+            st.markdown(f"<div style='font-size: 15px; font-weight: 700; color: {th['deep_green']}; margin-bottom: 12px;'>खात्यात प्रवेश करा:</div>", unsafe_allow_html=True)
+            l_email = st.text_input("📧 ईमेल पत्ता:", placeholder="student@gmail.com", key="auth_login_email")
+            l_pass = st.text_input("🔒 पासवर्ड:", type="password", placeholder="तुमचा पासवर्ड", key="auth_login_pass")
+
+            if st.button("🚀 थेट लॉगिन करा (Enter Studio)", use_container_width=True, key="btn_l_submit"):
+                if not l_email.strip() or not l_pass.strip():
+                    st.warning("कृपया ईमेल आणि पासवर्ड दोन्ही टाका.")
+                else:
+                    try:
+                        res = supabase.auth.sign_in_with_password({"email": l_email.strip(), "password": l_pass.strip()})
+                        if res.user:
+                            uid = str(res.user.id)
+                            st.session_state.user_id = uid
+                            st.session_state.user_email = res.user.email
+                            st.session_state.last_active = int(time.time())
+                            st.query_params["uid"] = uid
+                            st.session_state.profile = fetch_profile(uid)
+                            st.success("🎉 लॉगिन यशस्वी झाले!")
+                            time.sleep(0.8)
+                            st.rerun()
+                    except Exception as e:
+                        st.error(f"लॉगिन अयशस्वी: {e}")
+
+        with t_reg:
+            st.markdown(f"<div style='font-size: 15px; font-weight: 700; color: {th['deep_green']}; margin-bottom: 12px;'>विद्यार्थी नोंदणी फॉर्म:</div>", unsafe_allow_html=True)
+            r_name = st.text_input("👤 विद्यार्थ्याचे पूर्ण नाव:", placeholder="उदा. राहुल प्रकाश जोशी")
+            
+            c_mob, c_age = st.columns([2, 1])
+            with c_mob:
+                r_mob = st.text_input("📱 मोबाईल नंबर:", placeholder="9876543210", max_chars=10)
+            with c_age:
+                r_age = st.number_input("वय (Age):", min_value=17, max_value=60, value=22)
+
+            r_col = st.text_input("🏛️ BAMS कॉलेजचे नाव:", placeholder="उदा. Government Ayurved College, Nanded")
+            r_yr = st.selectbox(
+                "🎓 BAMS वर्ष:",
+                ["BAMS 1st Professional (प्रथम वर्ष)", "BAMS 2nd Professional (द्वितीय वर्ष)", "BAMS 3rd Professional (तृतीय वर्ष)", "BAMS Final Professional (अंतिम वर्ष)", "BAMS Intern (इंटर्नशिप)"]
+            )
+            r_em = st.text_input("📧 ईमेल पत्ता:", placeholder="student@gmail.com", key="auth_reg_em")
+            r_pw = st.text_input("🔒 पासवर्ड (किमान ६ अक्षरे/अंक):", type="password", key="auth_reg_pw")
+
+            if st.button("✨ खाते तयार करा व VIP स्टुडिओ सुरू करा", use_container_width=True, key="btn_r_submit"):
+                if not r_name.strip() or not r_col.strip() or not r_em.strip() or len(r_pw.strip()) < 6:
+                    st.warning("कृपया सर्व आवश्यक माहिती आणि किमान ६ अक्षरांचा पासवर्ड भरा.")
+                else:
+                    try:
+                        auth_res = supabase.auth.sign_up({"email": r_em.strip(), "password": r_pw.strip()})
+                        if auth_res.user:
+                            uid = str(auth_res.user.id)
+                            p_data = {
+                                "user_id": uid,
+                                "full_name": r_name.strip(),
+                                "mobile_no": r_mob.strip(),
+                                "college_name": r_col.strip(),
+                                "bams_year": r_yr,
+                                "age": int(r_age)
+                            }
+                            supabase.table("user_profiles").upsert(p_data).execute()
+                            st.session_state.user_id = uid
+                            st.session_state.user_email = r_em.strip()
+                            st.session_state.last_active = int(time.time())
+                            st.session_state.profile = p_data
+                            st.query_params["uid"] = uid
+                            st.success("🎉 नोंदणी यशस्वी! स्टुडिओ सुरू होत आहे...")
+                            time.sleep(0.8)
+                            st.rerun()
+                    except Exception as e:
+                        st.error(f"नोंदणी त्रुटी: {e}")
+
+        st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown(f"""
-    <div class="vip-hero">
-        <div class="festive-tag">{th['tag']}</div>
-        <h3 style="margin:0 0 4px 0; font-weight:900; font-size:20px;">🎓 BAMS VIP अकॅडेमिक पोर्टल</h3>
-        <p style="margin:0; font-size:13px; opacity:0.95;">NCISM अभ्यासक्रम, A4 हस्तलिखित नोट्स, प्रश्नसंच व संपूर्ण क्लिनिकल सूट.</p>
+    <div class="saas-footer">
+        {th['footer_text']} • <strong>AyurVeda AI Studio</strong> • BAMS Academic Platform • Developed by <strong>Avishkar Alase</strong>
     </div>
     """, unsafe_allow_html=True)
-
-    st.markdown('<div class="vip-card-box">', unsafe_allow_html=True)
-    t_login, t_reg = st.tabs(["🔑 विद्यार्थी लॉगिन (Sign In)", "✨ नवीन नोंदणी (Student Register)"])
-
-    with t_login:
-        st.markdown(f"<h4 style='color:{th['font_accent']}; margin:0 0 10px 0; font-weight:900;'>लॉगिन करा:</h4>", unsafe_allow_html=True)
-        l_email = st.text_input("📧 ईमेल पत्ता:", placeholder="student@gmail.com", key="auth_login_email")
-        l_pass = st.text_input("🔒 पासवर्ड:", type="password", placeholder="तुमचा पासवर्ड", key="auth_login_pass")
-
-        if st.button("🚀 थेट लॉगिन करा (Enter Studio)", use_container_width=True, key="btn_l_submit"):
-            if not l_email.strip() or not l_pass.strip():
-                st.warning("कृपया ईमेल आणि पासवर्ड दोन्ही टाका.")
-            else:
-                try:
-                    res = supabase.auth.sign_in_with_password({"email": l_email.strip(), "password": l_pass.strip()})
-                    if res.user:
-                        uid = str(res.user.id)
-                        st.session_state.user_id = uid
-                        st.session_state.user_email = res.user.email
-                        st.session_state.last_active = int(time.time())
-                        st.query_params["uid"] = uid
-                        st.session_state.profile = fetch_profile(uid)
-                        st.success("🎉 लॉगिन यशस्वी झाले!")
-                        time.sleep(1)
-                        st.rerun()
-                except Exception as e:
-                    st.error(f"लॉगिन अयशस्वी: {e}")
-
-    with t_reg:
-        st.markdown(f"<h4 style='color:{th['font_accent']}; margin:0 0 10px 0; font-weight:900;'>विद्यार्थी नोंदणी फॉर्म:</h4>", unsafe_allow_html=True)
-        r_name = st.text_input("👤 विद्यार्थ्याचे पूर्ण नाव:", placeholder="उदा. राहुल प्रकाश जोशी")
-        
-        c_mob, c_age = st.columns([2, 1])
-        with c_mob:
-            r_mob = st.text_input("📱 मोबाईल नंबर:", placeholder="9423759186", max_chars=10)
-        with c_age:
-            r_age = st.number_input("वय (Age):", min_value=17, max_value=60, value=22)
-
-        r_col = st.text_input("🏛️ BAMS कॉलेजचे नाव:", placeholder="उदा. Government Ayurved College, Nanded")
-        r_yr = st.selectbox(
-            "🎓 BAMS वर्ष:",
-            ["BAMS 1st Professional (प्रथम वर्ष)", "BAMS 2nd Professional (द्वितीय वर्ष)", "BAMS 3rd Professional (तृतीय वर्ष)", "BAMS Final Professional (अंतिम वर्ष)", "BAMS Intern (इंटर्नशिप)"]
-        )
-        r_em = st.text_input("📧 ईमेल पत्ता:", placeholder="student@gmail.com", key="auth_reg_em")
-        r_pw = st.text_input("🔒 पासवर्ड (किमान ६ अक्षरे/अंक):", type="password", key="auth_reg_pw")
-
-        if st.button("✨ खाते तयार करा व VIP स्टुडिओ सुरू करा", use_container_width=True, key="btn_r_submit"):
-            if not r_name.strip() or not r_col.strip() or not r_em.strip() or len(r_pw.strip()) < 6:
-                st.warning("कृपया सर्व आवश्यक माहिती आणि किमान ६ अक्षरांचा पासवर्ड भरा.")
-            else:
-                try:
-                    auth_res = supabase.auth.sign_up({"email": r_em.strip(), "password": r_pw.strip()})
-                    if auth_res.user:
-                        uid = str(auth_res.user.id)
-                        p_data = {
-                            "user_id": uid,
-                            "full_name": r_name.strip(),
-                            "mobile_no": r_mob.strip(),
-                            "college_name": r_col.strip(),
-                            "bams_year": r_yr,
-                            "age": int(r_age)
-                        }
-                        supabase.table("user_profiles").upsert(p_data).execute()
-                        st.session_state.user_id = uid
-                        st.session_state.user_email = r_em.strip()
-                        st.session_state.last_active = int(time.time())
-                        st.session_state.profile = p_data
-                        st.query_params["uid"] = uid
-                        st.success("🎉 नोंदणी यशस्वी! स्टुडिओ सुरू होत आहे...")
-                        time.sleep(1)
-                        st.rerun()
-                except Exception as e:
-                    st.error(f"नोंदणी त्रुटी: {e}")
-
-    st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown(f"<div style='text-align:center; padding-top:20px; font-size:12.5px; font-weight:700; color:{th['font_accent']};'>{th['footer_text']} AyurVeda AI | Avishkar Alase</div>", unsafe_allow_html=True)
     st.stop()
 
 # =========================================================================
-# 🎯 DYNAMIC MODEL DISCOVERY & GEMINI CALLS
+# 🎯 DYNAMIC MODEL DISCOVERY & GEMINI ENGINE
 # =========================================================================
 @st.cache_data(show_spinner=False, ttl=86400)
 def get_working_models():
@@ -419,7 +737,7 @@ def cached_ask_gemini(prompt: str, as_json: bool = False):
     raise RuntimeError(f"API त्रुटी: {last_error[:120]}")
 
 # =========================================================================
-# अस्सल फोटोसारखी A4 HANDWRITTEN NOTE RENDERER
+# ✍️ EXACT A4 HANDWRITTEN NOTE RENDERER (UNCHANGED CORE)
 # =========================================================================
 def render_photo_identical_sheet(data, subject_name, topic_name, is_marathi=True):
     title = data.get("title", topic_name)
@@ -482,8 +800,8 @@ def render_photo_identical_sheet(data, subject_name, topic_name, is_marathi=True
             .action-bar {{ margin-bottom: 16px; display: flex; gap: 12px; font-family: sans-serif; }}
             .btn-action {{
                 background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-                color: white; border: none; padding: 12px 24px; font-size: 15px; font-weight: 800;
-                border-radius: 12px; cursor: pointer; box-shadow: 0 4px 14px rgba(2,132,199,0.35);
+                color: white; border: none; padding: 10px 22px; font-size: 14.5px; font-weight: 700;
+                border-radius: 10px; cursor: pointer; box-shadow: 0 4px 12px rgba(2,132,199,0.3);
             }}
             .a4-container {{
                 width: 780px; min-height: 1160px; background-color: #fcfbf7;
@@ -610,28 +928,57 @@ def render_photo_identical_sheet(data, subject_name, topic_name, is_marathi=True
     return html_code
 
 # =========================================================================
-# 👤 VIP SIDEBAR - विद्यार्थी आयडेंटिटी कार्ड आणि सेव्ह केलेल्या नोट्स
+# 👤 SIDEBAR - COMPACT IDENTITY CARD & SAVED NOTES
 # =========================================================================
 prof = st.session_state.profile or {}
 s_name = prof.get("full_name") or "विद्यार्थी"
-s_college = prof.get("college_name") or "Ayurvedic Medical College"
+s_college = prof.get("college_name") or "BAMS Medical College"
 s_year = prof.get("bams_year") or "BAMS Scholar"
 s_mob = prof.get("mobile_no") or "-"
 s_age = prof.get("age") or "-"
-s_email = st.session_state.get("user_email") or "Logged In"
+s_email = st.session_state.get("user_email") or "Active"
+
+initials = "".join([part[0].upper() for part in s_name.split()[:2]]) if s_name else "ST"
 
 with st.sidebar:
-    st.markdown("### 🎓 विद्यार्थी आयडेंटिटी कार्ड")
     st.markdown(f"""
-    <div class="student-id-card">
-        <h4 style="margin:0 0 5px 0; color:#064e3b; font-weight:900; font-size:17px;">👨‍⚕️ {s_name}</h4>
-        <div style="font-size:13px; margin-bottom:3px;"><b>🏛️ कॉलेज:</b> {s_college}</div>
-        <div style="font-size:13px; margin-bottom:3px;"><b>🎓 वर्ष:</b> {s_year}</div>
-        <div style="font-size:12.5px; color:#475569;"><b>📱 मो.:</b> {s_mob} | <b>वय:</b> {s_age}</div>
-        <div style="font-size:11.5px; color:#059669; margin-top:5px; word-break:break-all;"><b>📧:</b> {s_email}</div>
+    <div class="sidebar-profile-card">
+        <div class="sidebar-user-header">
+            <div class="sidebar-avatar">{initials}</div>
+            <div style="overflow: hidden;">
+                <div style="font-weight: 800; font-size: 15px; color: {th['deep_green']}; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">{s_name}</div>
+                <div style="font-size: 11.5px; color: {th['muted']}; font-weight: 600;">{s_year}</div>
+            </div>
+        </div>
+        <div style="font-size: 12px; color: {th['text']}; line-height: 1.5; border-top: 1px solid #E5ECE7; padding-top: 8px;">
+            <div>🏛️ <b>कॉलेज:</b> {s_college}</div>
+            <div style="display: flex; gap: 8px; margin-top: 2px;">
+                <span>📱 {s_mob}</span>
+                <span>• वय: {s_age}</span>
+            </div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
+    st.markdown("##### 📚 माझ्या सेव्ह केलेल्या नोट्स")
+    try:
+        notes_res = supabase.table("user_notes").select("*").eq("user_id", st.session_state.user_id).order("created_at", desc=True).execute()
+        if not notes_res.data:
+            st.caption("अद्याप कोणतीही नोट सेव्ह केलेली नाही.")
+        else:
+            for item in notes_res.data:
+                note_title = f"{item.get('subject', 'Note')[:14]} • {item.get('topic', '')[:14]}"
+                with st.expander(f"📄 {note_title}"):
+                    st.caption(f"{item.get('created_at', '')[:10]} | {item.get('study_mode', '')}")
+                    st.write(item.get("content", "")[:120] + "...")
+                    if st.button("🗑️ हटवा", key=f"del_{item['id']}"):
+                        supabase.table("user_notes").delete().eq("id", item["id"]).execute()
+                        st.success("हटवले!")
+                        st.rerun()
+    except Exception as e:
+        st.caption(f"लोडिंग त्रुटी: {e}")
+
+    st.write("")
     if st.button("🚪 बाहेर पडा (Logout)", use_container_width=True):
         try:
             supabase.auth.sign_out()
@@ -643,116 +990,129 @@ with st.sidebar:
         st.query_params.clear()
         st.rerun()
 
-    st.write("---")
-    st.markdown("### 📚 माझ्या सेव्ह केलेल्या नोट्स")
-    try:
-        notes_res = supabase.table("user_notes").select("*").eq("user_id", st.session_state.user_id).order("created_at", desc=True).execute()
-        if not notes_res.data:
-            st.info("अद्याप कोणतीही नोट सेव्ह केलेली नाही.")
-        else:
-            for item in notes_res.data:
-                with st.expander(f"📌 {item.get('subject', '')} - {item.get('topic', '')[:16]}"):
-                    st.caption(f"{item.get('created_at', '')[:10]} | {item.get('study_mode', '')}")
-                    st.write(item.get("content", "")[:180] + "...")
-                    if st.button("🗑️ हटवा", key=f"del_{item['id']}"):
-                        supabase.table("user_notes").delete().eq("id", item["id"]).execute()
-                        st.success("हटवले!")
-                        st.rerun()
-    except Exception as e:
-        st.error(f"नोट्स लोड करताना त्रुटी: {e}")
-
 # =========================================================================
-# 🌿 मुख्य VIP स्टुडिओ (५ टॅब्स)
+# 🌿 MAIN DASHBOARD HEADER & WELCOME
 # =========================================================================
 st.markdown(f"""
-<div class="vip-navbar">
-    <div style="display:flex; align-items:center; gap:10px;">
-        <div style="font-size:26px;">{th['icon']}</div>
-        <div>
-            <div class="brand-title">🌿 AyurVeda AI Studio</div>
-            <small style="color:{th['font_accent']}; font-weight:800; font-size:11.5px;">{th['title_sub']}</small>
+<div class="saas-navbar">
+    <div class="saas-brand">
+        <div class="brand-logo-badge">{th['icon']}</div>
+        <div class="brand-title-wrap">
+            <span class="brand-name">AyurVeda AI Studio</span>
+            <span class="brand-sub">BAMS Smart Academic Platform</span>
         </div>
     </div>
-    <div class="author-badge">Avishkar Alase ✓</div>
+    <div class="author-pill">
+        <span class="author-avatar">AA</span>
+        <span>Avishkar Alase ✓</span>
+    </div>
+</div>
+
+<div class="dashboard-welcome">
+    <div class="welcome-meta">
+        <div class="festive-accent-badge">{th['tag']}</div>
+        <h2>Good Morning 👋 Welcome back, {s_name.split()[0]}</h2>
+        <p>BAMS Academic Workspace • Professional Year: <b>{s_year}</b></p>
+    </div>
+    <div class="quick-status-grid">
+        <span class="status-chip">📖 Study</span>
+        <span class="status-chip">📝 Notes</span>
+        <span class="status-chip">🎯 PYQ</span>
+        <span class="status-chip">🎙 Viva</span>
+        <span class="status-chip">🩺 Clinical</span>
+        <span class="status-chip">🔬 Research</span>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
+# 5 Redesigned Compact Modules (Navigation)
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📖 BAMS स्टडी नोट्स व प्रश्नसंच (Syllabus & PYQ)",
-    "🧪 औषध घटक व निर्माण विधी (Medicine & Manufacturing)",
-    "🎯 AI BAMS Viva-Voce Simulator (तोंडी परीक्षा)",
-    "🩺 Clinical Case Study (केस प्रेझेंटेशन)",
-    "🔬 Research & Evidence (वैज्ञानिक संशोधन)"
+    "📖 Study",
+    "🧪 Medicine",
+    "🎯 Viva",
+    "🩺 Clinical",
+    "🔬 Research"
 ])
 
 # =========================================================================
-# TAB 1: SYLLABUS STUDY NOTES & UNIVERSITY PYQ SOLVER
+# TAB 1: BAMS STUDY NOTES & EXAM PREPARATION
 # =========================================================================
 with tab1:
     st.markdown(f"""
-    <div class="vip-hero">
-        <div class="festive-tag">{th['tag']}</div>
-        <h3 style="margin:0 0 4px 0; font-weight:900; font-size:20px;">🎯 BAMS A4 बॉलपेन Handwritten नोट्स व PYQ Solver</h3>
-        <p style="margin:0; font-size:13px; opacity:0.95;">ठळक मुख्य हेडिंग, सुवाच्य अक्षरे, महत्वाच्या शब्दांना <b>Red Highlight</b>, फ्लोचार्ट आणि मागील ५ वर्षांचे विद्यापीठ प्रश्नोत्तर.</p>
+    <div class="module-hero">
+        <div>
+            <h3>BAMS Study Studio</h3>
+            <p>AI-powered notes, PYQs & exam preparation</p>
+        </div>
+        <div class="module-tag">NCISM • MUHS • BAMS</div>
     </div>
     """, unsafe_allow_html=True)
 
-    bams_year = st.selectbox(
-        "🎓 BAMS वर्ष निवडा (Academic Year):",
-        [
-            "BAMS 1st Professional (प्रथम वर्ष)",
-            "BAMS 2nd Professional (द्वितीय वर्ष)",
-            "BAMS 3rd Professional (तृतीय वर्ष)",
-            "BAMS Final Professional (अंतिम वर्ष)"
-        ]
-    )
+    st.markdown('<div class="saas-card">', unsafe_allow_html=True)
+    c1, c2 = st.columns([1, 1])
+    with c1:
+        st.markdown('<div class="step-pill">STEP 01 • 🎓 Professional Year</div>', unsafe_allow_html=True)
+        bams_year = st.selectbox(
+            "BAMS वर्ष निवडा:",
+            [
+                "BAMS 1st Professional (प्रथम वर्ष)",
+                "BAMS 2nd Professional (द्वितीय वर्ष)",
+                "BAMS 3rd Professional (तृतीय वर्ष)",
+                "BAMS Final Professional (अंतिम वर्ष)"
+            ]
+        )
+    with c2:
+        st.markdown('<div class="step-pill">STEP 02 • 📚 Subject</div>', unsafe_allow_html=True)
+        subject = st.selectbox(
+            "विषय निवडा:",
+            [
+                "Agada Tantra & Vyavahara Ayurveda (अगद तंत्र)",
+                "Kriya Sharir (क्रिया शारीर)",
+                "Rachana Sharir (रचना शारीर)",
+                "Dravyaguna Vijnana (द्रव्यगुण विज्ञान)",
+                "Rasashastra & Bhaishajya Kalpana (रसशास्त्र व भैषज्य कल्पना)",
+                "Roga Nidan & Vikriti Vigyan (रोगनिदान)",
+                "Samhita Siddhant & Charak Samhita (संहिता सिद्धांत)",
+                "Kayachikitsa (कायचिकित्सा)",
+                "Panchakarma (पंचकर्म)",
+                "Shalya Tantra (शल्य तंत्र)",
+                "Shalakya Tantra (शालाक्य तंत्र)",
+                "Prasuti Tantra & Stri Roga (प्रसूति तंत्र व स्त्रीरोग)",
+                "Kaumarbhritya (कौमारभृत्य)"
+            ]
+        )
 
-    subject = st.selectbox(
-        "📚 विषय निवडा (Select Subject):",
-        [
-            "Agada Tantra & Vyavahara Ayurveda (अगद तंत्र)",
-            "Kriya Sharir (क्रिया शारीर)",
-            "Rachana Sharir (रचना शारीर)",
-            "Dravyaguna Vijnana (द्रव्यगुण विज्ञान)",
-            "Rasashastra & Bhaishajya Kalpana (रसशास्त्र व भैषज्य कल्पना)",
-            "Roga Nidan & Vikriti Vigyan (रोगनिदान)",
-            "Samhita Siddhant & Charak Samhita (संहिता सिद्धांत)",
-            "Kayachikitsa (कायचिकित्सा)",
-            "Panchakarma (पंचकर्म)",
-            "Shalya Tantra (शल्य तंत्र)",
-            "Shalakya Tantra (शालाक्य तंत्र)",
-            "Prasuti Tantra & Stri Roga (प्रसूति तंत्र व स्त्रीरोग)",
-            "Kaumarbhritya (कौमारभृत्य)"
-        ]
-    )
+    c3, c4 = st.columns([1, 1])
+    with c3:
+        st.markdown('<div class="step-pill">STEP 03 • 🎯 Study Mode</div>', unsafe_allow_html=True)
+        study_mode = st.selectbox(
+            "अभ्यासाचा प्रकार निवडा:",
+            [
+                "📖 Comprehensive Notes (संपूर्ण सविस्तर अभ्यास नोट्स)",
+                "📋 A4 Blue Ballpen Handwritten Sheet (अस्सल A4 पेन नोट्स)",
+                "🎯 MUHS / NCISM Past 5 Years Questions & Model Answer Key",
+                "📜 Only Shlokas & Meanings (फक्त मूळ श्लोक, अन्वय व अर्थ)",
+                "📝 10-Mark LAQ Answer Format (दीर्घोत्तरी प्रश्न-उत्तर फॉरमॅट)",
+                "⚡ Quick Revision / Viva Voce Points (तोंडी परीक्षेसाठी महत्त्वाचे मुद्दे)"
+            ]
+        )
+    with c4:
+        st.markdown('<div class="step-pill">STEP 04 • 🌐 Language</div>', unsafe_allow_html=True)
+        language_preference = st.radio(
+            "माध्यम निवडा:",
+            [
+                "🚩 मराठी (संस्कृत + अर्थ)",
+                "🌿 Simple English + Sanskrit"
+            ],
+            horizontal=True
+        )
 
-    study_mode = st.selectbox(
-        "🎯 अभ्यासाचा प्रकार निवडा (Study Mode):",
-        [
-            "📖 Comprehensive Notes (संपूर्ण सविस्तर अभ्यास नोट्स)",
-            "📋 A4 Blue Ballpen Handwritten Sheet (अस्सल A4 पेन नोट्स)",
-            "🎯 MUHS / NCISM Past 5 Years Questions & Model Answer Key",
-            "📜 Only Shlokas & Meanings (फक्त मूळ श्लोक, अन्वय व अर्थ)",
-            "📝 10-Mark LAQ Answer Format (दीर्घोत्तरी प्रश्न-उत्तर फॉरमॅट)",
-            "⚡ Quick Revision / Viva Voce Points (तोंडी परीक्षेसाठी महत्त्वाचे मुद्दे)"
-        ]
-    )
-
-    language_preference = st.radio(
-        "🌐 माध्यम निवडा (Select Study Medium):",
-        [
-            "🚩 मराठी (संस्कृत + अर्थ)",
-            "🌿 Simple English + Sanskrit"
-        ],
-        horizontal=True
-    )
-
+    st.markdown('<div class="step-pill">STEP 05 • 🔍 Topic</div>', unsafe_allow_html=True)
     topic = st.text_input(
-        "🔍 अभ्यासाचा विषय / प्रश्न टाका:",
+        "अभ्यासाचा विषय / प्रश्न प्रविष्ट करा:",
         placeholder="उदा. Virya, Ojas, Pitta Dosha, Rakta Dhatu, Ashwagandha, Agada"
     )
 
-    # Session state variables to ensure notes persist across reruns
     if "current_generated_note" not in st.session_state:
         st.session_state.current_generated_note = None
     if "current_note_type" not in st.session_state:
@@ -764,7 +1124,8 @@ with tab1:
     if "current_mode" not in st.session_state:
         st.session_state.current_mode = ""
 
-    generate_notes_btn = st.button("🚀 सविस्तर अभ्यास नोट्स तयार करा", key="btn_notes", use_container_width=True)
+    generate_notes_btn = st.button("✨ Generate Study Notes", key="btn_notes", use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
     if generate_notes_btn:
         if not topic.strip():
@@ -772,7 +1133,6 @@ with tab1:
         else:
             is_marathi = "मराठी" in language_preference
 
-            # Case A: A4 Blue Ballpen Handwritten Sheet
             if "A4 Blue Ballpen" in study_mode:
                 lang_rule = "Write in natural, simple spoken Marathi with Sanskrit terms and simple English in parentheses." if is_marathi else "Write 100% in pure English Roman script. All titles and terms in English."
                 json_prompt = f"""
@@ -825,7 +1185,7 @@ with tab1:
                     "punch_line": "{'द्रव्याचे कर्म सामर्थ्य म्हणजेच वीर्य होय.' if is_marathi else 'Virya is the quintessential potency through which action is achieved.'}"
                 }}
                 """
-                with st.spinner("✍️ AI अस्सल वहीच्या पानावर फोटोसारख्या नोट्स तयार करत आहे..."):
+                with st.spinner("✨ Preparing your BAMS study notes..."):
                     try:
                         raw_json = cached_ask_gemini(json_prompt, as_json=True)
                         clean_json = raw_json.strip()
@@ -841,7 +1201,6 @@ with tab1:
                     except Exception as e:
                         st.error(f"त्रुटी: {e}")
 
-            # Case B: MUHS / NCISM Past 5 Years Questions
             elif "Past 5 Years Questions" in study_mode:
                 pyq_prompt = f"""
                 You are a senior MUHS / NCISM BAMS University Chief Examiner and Paper Setter.
@@ -857,7 +1216,7 @@ with tab1:
 
                 Format with bold headings, clean bullet points, and high readability.
                 """
-                with st.spinner("🎯 AI विद्यापीठ मागील ५ वर्षांचे प्रश्न व मॉडेल आन्सर तयार करत आहे..."):
+                with st.spinner("✨ Preparing your BAMS study notes..."):
                     try:
                         pyq_res = cached_ask_gemini(pyq_prompt, as_json=False)
                         st.session_state.current_generated_note = pyq_res
@@ -868,7 +1227,6 @@ with tab1:
                     except Exception as e:
                         st.error(f"त्रुटी: {e}")
 
-            # Case C: Comprehensive Notes (14 Exhaustive Modules)
             else:
                 system_instruction = f"""
                 Tu ek senior BAMS Gold Medalist Professor aani NCISM/MUHS Chief Paper Setter aahes.
@@ -895,7 +1253,7 @@ with tab1:
                 14. 📝 संभाव्य परीक्षा प्रश्नसंच (NCISM Pattern: 1 LAQ, 2 SAQ, 4 MCQs).
                 15. 📊 Master Summary Table.
                 """
-                with st.spinner(f"⚡ AI Professor '{topic}' वर सविस्तर नोट्स तयार करत आहेत..."):
+                with st.spinner("✨ Preparing your BAMS study notes..."):
                     try:
                         notes_res = cached_ask_gemini(system_instruction, as_json=False)
                         st.session_state.current_generated_note = notes_res
@@ -906,7 +1264,7 @@ with tab1:
                     except Exception as e:
                         st.error(f"त्रुटी: {e}")
 
-    # Display & Save Section
+    # Display Result Area
     if st.session_state.current_generated_note:
         c_type = st.session_state.current_note_type
         c_data = st.session_state.current_generated_note
@@ -914,9 +1272,17 @@ with tab1:
         c_sub = st.session_state.current_subject
         c_mod = st.session_state.current_mode
 
-        col_s1, col_s2 = st.columns([1, 1])
+        st.markdown(f"""
+        <div style="border-bottom: 1.5px solid #E2E8E3; padding-bottom: 12px; margin-top: 26px;">
+            <div style="font-size: 11px; font-weight: 800; color: {th['primary']}; text-transform: uppercase; letter-spacing: 0.05em;">📚 Generated Study Notes</div>
+            <h3 style="margin: 4px 0 2px 0; color: {th['deep_green']}; font-weight: 800;">{c_top}</h3>
+            <div style="font-size: 13px; color: {th['muted']}; font-weight: 600;">{c_sub} • {c_mod}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        col_s1, col_s2, col_s3 = st.columns([1, 1, 1])
         with col_s1:
-            if st.button("💾 ही नोट माझ्या खात्यात सेव्ह करा", key="save_n_tab1_fix", use_container_width=True):
+            if st.button("💾 Save to My Account", key="save_n_tab1_fix", use_container_width=True):
                 try:
                     save_payload = json.dumps(c_data) if c_type == "a4_sheet" else str(c_data)
                     supabase.table("user_notes").insert({
@@ -926,88 +1292,113 @@ with tab1:
                         "study_mode": c_mod,
                         "content": save_payload
                     }).execute()
-                    st.success("✅ नोट तुमच्या खात्यात यशस्वीरीत्या सेव्ह झाली!")
-                    time.sleep(1)
+                    st.success("✅ नोट तुमच्या खात्यात सुरक्षित सेव्ह झाली!")
+                    time.sleep(0.8)
                     st.rerun()
                 except Exception as s_err:
                     st.error(f"सेव्ह करताना त्रुटी: {s_err}")
         with col_s2:
             share_preview = f"🌿 *AyurVeda AI Notes*\n📚 *विषय:* {c_sub}\n🎯 *टॉपिक:* {c_top}\n\nAyurVeda AI Studio वर तयार केलेली नोट!"
             encoded_share = urllib.parse.quote(share_preview)
-            st.link_button("📲 WhatsApp वर Share करा", f"[https://api.whatsapp.com/send?text=](https://api.whatsapp.com/send?text=){encoded_share}", use_container_width=True)
+            st.link_button("📲 WhatsApp Share", f"[https://api.whatsapp.com/send?text=](https://api.whatsapp.com/send?text=){encoded_share}", use_container_width=True)
 
-        if c_type == "a4_sheet":
-            is_m = "मराठी" in language_preference
-            a4_html = render_photo_identical_sheet(c_data, c_sub, c_top, is_marathi=is_m)
-            st.components.v1.html(a4_html, height=1300, scrolling=True)
-        else:
-            html_content = markdown.markdown(c_data, extensions=['tables', 'fenced_code'])
-            html_export = f"""<!DOCTYPE html>
+        with col_s3:
+            if c_type != "a4_sheet":
+                html_content = markdown.markdown(c_data, extensions=['tables', 'fenced_code'])
+                html_export = f"""<!DOCTYPE html>
 <html lang="mr">
 <head>
 <meta charset="UTF-8">
-<title>{c_top} - BAMS Comprehensive Notes</title>
-<link href="[https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800;900&display=swap](https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800;900&display=swap)" rel="stylesheet">
+<title>{c_top} - BAMS Notes</title>
+<link href="[https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&display=swap](https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&display=swap)" rel="stylesheet">
 <style>
-    body {{ font-family: 'Mukta', sans-serif; line-height: 1.8; padding: 30px; color: #111827; max-width: 820px; margin: auto; }}
-    table {{ width: 100%; border-collapse: collapse; margin: 15px 0; }}
-    th, td {{ border: 1px solid #4b5563; padding: 8px 10px; }}
-    blockquote {{ border-left: 4px solid #000; margin: 12px 0; padding: 10px 16px; background: #f8fafc; font-weight: 700; }}
+    body {{ font-family: 'Mukta', sans-serif; line-height: 1.8; padding: 40px; color: #111827; max-width: 860px; margin: auto; }}
+    table {{ width: 100%; border-collapse: collapse; margin: 18px 0; }}
+    th, td {{ border: 1px solid #4b5563; padding: 10px 14px; }}
+    blockquote {{ border-left: 4px solid #176B4D; margin: 14px 0; padding: 10px 18px; background: #f8fafc; font-weight: 700; }}
 </style>
 </head>
 <body>
-    <h2>🌿 AyurVeda AI - {c_top}</h2>
+    <h2>🌿 AyurVeda AI • {c_top}</h2>
     <div><b>विद्यार्थी:</b> {s_name} | <b>विषय:</b> {c_sub}</div>
     <hr>
     <div>{html_content}</div>
 </body>
 </html>"""
-            st.download_button(
-                label="📥 नोट्स सेव्ह करा (Printable HTML)",
-                data=html_export.encode('utf-8'),
-                file_name=f"{c_top.replace(' ', '_')}_Notes.html",
-                mime="text/html",
-                use_container_width=True
-            )
-            st.markdown(f'<div style="background:#fff; border-radius:18px; padding:22px; margin-top:15px; border:1.8px solid {th["border_color"]}; line-height:1.8;">{c_data}</div>', unsafe_allow_html=True)
+                st.download_button(
+                    label="📥 Download Printable File",
+                    data=html_export.encode('utf-8'),
+                    file_name=f"{c_top.replace(' ', '_')}_Notes.html",
+                    mime="text/html",
+                    use_container_width=True
+                )
+
+        if c_type == "a4_sheet":
+            st.markdown(f"""
+            <div class="saas-card" style="margin-top: 14px; background: #FAFBF9;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 800; font-size: 15px; color: {th['deep_green']};">✍️ A4 Handwritten Sheet Ready</div>
+                        <small style="color: {th['muted']};">{c_sub} • {c_top} • 10 Marks / LAQ</small>
+                    </div>
+                    <span class="status-chip" style="background:#EAF3EF; color:{th['primary']};">Verified A4 Format</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            is_m = "मराठी" in language_preference
+            a4_html = render_photo_identical_sheet(c_data, c_sub, c_top, is_marathi=is_m)
+            st.components.v1.html(a4_html, height=1300, scrolling=True)
+        else:
+            st.markdown(f'<div class="textbook-container">{c_data}</div>', unsafe_allow_html=True)
 
 # =========================================================================
-# TAB 2: MEDICINE FORMULATION & MANUFACTURING
+# TAB 2: MEDICINE LAB & FORMULATION GUIDE
 # =========================================================================
 with tab2:
     st.markdown("""
-    <div class="vip-hero" style="background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%) !important; border-color: #5eead4;">
-        <div class="festive-tag" style="background: rgba(255,255,255,0.18);">🌿 रसौषधी विधी</div>
-        <h3 style="margin:0 0 4px 0; font-weight:900; font-size:20px;">🧪 रसशास्त्र व भैषज्य कल्पना स्पेशल</h3>
-        <p style="margin:0; font-size:13px; opacity:0.95;">आयुर्वेदिक औषध घटक व सविस्तर निर्माण विधी सोप्या स्टेप्समध्ये शिका.</p>
+    <div class="module-hero">
+        <div>
+            <h3>🧪 Medicine Lab</h3>
+            <p>Learn Ayurvedic formulations, ingredients and preparation methods.</p>
+        </div>
+        <div class="module-tag">Bhaishajya Kalpana • Rasashastra</div>
     </div>
     """, unsafe_allow_html=True)
 
-    dosage_form = st.selectbox(
-        "🏺 औषधाचा प्रकार (Dosage Form):",
-        ["Vati / Gutika (गोळी / वटी)", "Churna (चूर्ण)", "Asava & Arishta (आसव व अरिष्ट)", "Taila / Ghrita (सिद्ध तेल व घृत)", "Bhasma & Pishti (भस्म व पिष्टी)"]
-    )
-    m_lang = st.radio("🌐 भाषा:", ["Simple Indian English", "मराठी"], horizontal=True, key="m_lang")
-    medicine_name = st.text_input("💊 गोळी किंवा औषधाचे नाव टाका:", placeholder="उदा. आरोग्यवर्धिनी वटी किंवा चंद्रप्रभावटी")
+    st.markdown('<div class="saas-card">', unsafe_allow_html=True)
+    m_col1, m_col2 = st.columns([1, 1])
+    with m_col1:
+        st.markdown('<div class="step-pill">Dosage Form</div>', unsafe_allow_html=True)
+        dosage_form = st.selectbox(
+            "औषधाचा प्रकार (Dosage Form):",
+            ["Vati / Gutika (गोळी / वटी)", "Churna (चूर्ण)", "Asava & Arishta (आसव व अरिष्ट)", "Taila / Ghrita (सिद्ध तेल व घृत)", "Bhasma & Pishti (भस्म व पिष्टी)"]
+        )
+    with m_col2:
+        st.markdown('<div class="step-pill">Language</div>', unsafe_allow_html=True)
+        m_lang = st.radio("भाषा निवडा:", ["Simple Indian English", "मराठी"], horizontal=True, key="m_lang")
+
+    st.markdown('<div class="step-pill">Medicine Name</div>', unsafe_allow_html=True)
+    medicine_name = st.text_input("गोळी किंवा औषधाचे नाव टाका:", placeholder="उदा. आरोग्यवर्धिनी वटी, चंद्रप्रभावटी, सुवर्णभस्म")
 
     if "current_med_note" not in st.session_state:
         st.session_state.current_med_note = None
 
-    if st.button("🔬 औषध घटक व बनवण्याची कृती शिका", key="btn_med", use_container_width=True):
+    if st.button("🔬 Generate Formulation Guide", key="btn_med", use_container_width=True):
         if not medicine_name.strip():
             st.warning("⚠️ कृपया औषधाचे नाव टाका.")
         else:
-            with st.spinner(f"🔬 AI तज्ज्ञ '{medicine_name}' ची निर्माण पद्धत तयार करत आहे..."):
+            with st.spinner("🧪 Analyzing formulation..."):
                 try:
                     med_prompt = f"Explain manufacturing of {medicine_name} ({dosage_form}) in {m_lang} with ingredients table, purification, and steps in deep detail."
                     res_text = cached_ask_gemini(med_prompt, as_json=False)
                     st.session_state.current_med_note = res_text
                 except Exception as e:
                     st.error(f"त्रुटी: {e}")
+    st.markdown('</div>', unsafe_allow_html=True)
 
     if st.session_state.current_med_note:
-        st.markdown(st.session_state.current_med_note)
-        if st.button("💾 ही औषध कृती खात्यात सेव्ह करा", key="save_med_btn", use_container_width=True):
+        st.markdown(f'<div class="textbook-container">{st.session_state.current_med_note}</div>', unsafe_allow_html=True)
+        if st.button("💾 Save Formulation to Notes", key="save_med_btn"):
             try:
                 supabase.table("user_notes").insert({
                     "user_id": st.session_state.user_id,
@@ -1017,39 +1408,49 @@ with tab2:
                     "content": st.session_state.current_med_note
                 }).execute()
                 st.success("✅ खात्यात सेव्ह झाले!")
-                time.sleep(1)
+                time.sleep(0.8)
                 st.rerun()
             except Exception as e:
                 st.error(f"त्रुटी: {e}")
 
 # =========================================================================
-# TAB 3: AI BAMS VIVA-VOCE SIMULATOR
+# TAB 3: AI VIVA SIMULATOR
 # =========================================================================
 with tab3:
     st.markdown("""
-    <div class="vip-hero" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%) !important; border-color: #a5b4fc;">
-        <div class="festive-tag" style="background: rgba(255,255,255,0.18);">🎓 तोंडी परीक्षा सिम्युलेटर</div>
-        <h3 style="margin:0 0 4px 0; font-weight:900; font-size:20px;">🎯 BAMS University Practical & Viva Simulator</h3>
-        <p style="margin:0; font-size:13px; opacity:0.95;">External Examiner च्या दृष्टिकोनातून विचारले जाणारे ५ महत्त्वाचे प्रश्न व आदर्श उत्तरे.</p>
+    <div class="module-hero">
+        <div>
+            <h3>🎙 BAMS Viva Simulator</h3>
+            <p>Oral viva examination simulation with external examiner evaluation.</p>
+        </div>
+        <div class="module-tag">AI EXAMINER</div>
     </div>
     """, unsafe_allow_html=True)
 
-    viva_sub = st.selectbox(
-        "📚 Viva साठी विषय:",
-        ["Kriya Sharir", "Rachana Sharir", "Dravyaguna", "Rasa Shastra", "Agada Tantra", "Kayachikitsa", "Shalya Tantra"],
-        key="viva_sub"
-    )
-    viva_lang = st.radio("🌐 Viva भाषा:", ["मराठी + Sanskrit Terms", "Simple Indian English"], horizontal=True, key="viva_lang")
-    viva_topic = st.text_input("🎙️ Examiner कोणत्या विषयावर प्रश्न विचारतील?", placeholder="उदा. Pitta Sthana, Ashwagandha Guna, Vatsanabha Shodhana", key="viva_top")
+    st.markdown('<div class="saas-card">', unsafe_allow_html=True)
+    v_col1, v_col2 = st.columns([1, 1])
+    with v_col1:
+        st.markdown('<div class="step-pill">Subject</div>', unsafe_allow_html=True)
+        viva_sub = st.selectbox(
+            "Viva साठी विषय:",
+            ["Kriya Sharir", "Rachana Sharir", "Dravyaguna", "Rasa Shastra", "Agada Tantra", "Kayachikitsa", "Shalya Tantra"],
+            key="viva_sub"
+        )
+    with v_col2:
+        st.markdown('<div class="step-pill">Language</div>', unsafe_allow_html=True)
+        viva_lang = st.radio("Viva भाषा:", ["मराठी + Sanskrit Terms", "Simple Indian English"], horizontal=True, key="viva_lang")
+
+    st.markdown('<div class="step-pill">Topic</div>', unsafe_allow_html=True)
+    viva_topic = st.text_input("परीक्षक कोणत्या विषयावर प्रश्न विचारतील?", placeholder="उदा. Pitta Sthana, Ashwagandha Guna, Vatsanabha Shodhana", key="viva_top")
 
     if "current_viva_note" not in st.session_state:
         st.session_state.current_viva_note = None
 
-    if st.button("🔥 AI Examiner कडून तोंडी परीक्षा प्रश्न घ्या", key="btn_viva", use_container_width=True):
+    if st.button("🎯 Start Viva", key="btn_viva", use_container_width=True):
         if not viva_topic.strip():
             st.warning("⚠️ कृपया विषयाचे नाव टाका.")
         else:
-            with st.spinner("🎙️ External Examiner प्रश्न तयार करत आहेत..."):
+            with st.spinner("🎙 AI Examiner is preparing questions..."):
                 try:
                     viva_prompt = f"""
                     You are a strict University External Examiner for BAMS Practical Exams.
@@ -1068,10 +1469,33 @@ with tab3:
                     st.session_state.current_viva_note = viva_res
                 except Exception as e:
                     st.error(f"त्रुटी: {e}")
+    st.markdown('</div>', unsafe_allow_html=True)
 
     if st.session_state.current_viva_note:
-        st.markdown(st.session_state.current_viva_note)
-        if st.button("💾 ही Viva प्रश्नावली सेव्ह करा", key="save_viva_btn", use_container_width=True):
+        v_raw = st.session_state.current_viva_note
+        # Parse into separate interactive question cards if formatted with numbering
+        q_blocks = re.split(r'\n(?=[0-9]+\.|\*\*Question|\* \*\*|\bQuestion [0-9]+:)', v_raw)
+        
+        st.markdown("#### 📋 Examiner Questions & Evaluation")
+        if len(q_blocks) > 1:
+            for idx, block in enumerate(q_blocks):
+                cleaned_block = block.strip()
+                if not cleaned_block:
+                    continue
+                st.markdown(f"""
+                <div class="viva-card">
+                    <span class="viva-badge">QUESTION {idx+1:02d}</span>
+                </div>
+                """, unsafe_allow_html=True)
+                lines = cleaned_block.split("\n", 1)
+                st.markdown(f"**{lines[0].replace('**', '')}**")
+                if len(lines) > 1:
+                    with st.expander("View Model Answer"):
+                        st.markdown(lines[1])
+        else:
+            st.markdown(f'<div class="textbook-container">{v_raw}</div>', unsafe_allow_html=True)
+
+        if st.button("💾 Save Viva Set to Notes", key="save_viva_btn"):
             try:
                 supabase.table("user_notes").insert({
                     "user_id": st.session_state.user_id,
@@ -1081,39 +1505,49 @@ with tab3:
                     "content": st.session_state.current_viva_note
                 }).execute()
                 st.success("✅ खात्यात सेव्ह झाले!")
-                time.sleep(1)
+                time.sleep(0.8)
                 st.rerun()
             except Exception as e:
                 st.error(f"त्रुटी: {e}")
 
 # =========================================================================
-# TAB 4: CLINICAL CASE STUDY
+# TAB 4: CLINICAL CASE PRESENTATION
 # =========================================================================
 with tab4:
     st.markdown("""
-    <div class="vip-hero" style="background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%) !important; border-color: #7dd3fc;">
-        <div class="festive-tag" style="background: rgba(255,255,255,0.18);">🩺 क्लिनिकल ओपीडी व IPD केसशीट</div>
-        <h3 style="margin:0 0 4px 0; font-weight:900; font-size:20px;">📋 Complete Ayurvedic Clinical Case Presentation</h3>
-        <p style="margin:0; font-size:13px; opacity:0.95;">Kayachikitsa, Panchakarma व Shalya साठी अष्टविध परीक्षा, संप्राप्ती विघटन, दीपन-पाचन व प्रत्यक्ष उपचार योजना.</p>
+    <div class="module-hero">
+        <div>
+            <h3>🩺 Clinical Case Studio</h3>
+            <p>Complete hospital OPD/IPD Ayurvedic clinical case presentation.</p>
+        </div>
+        <div class="module-tag">CASE PRESENTATION</div>
     </div>
     """, unsafe_allow_html=True)
 
-    case_subject = st.selectbox(
-        "🏥 क्लिनिकल विभाग (Department):",
-        ["Kayachikitsa (कायचिकित्सा)", "Panchakarma (पंचकर्म)", "Shalya Tantra (शल्य)", "Shalakya (नेत्र/कर्ण/नासा)", "Stri Roga & Prasuti (स्त्रीरोग)", "Kaumarbhritya (बालरोग)"],
-        key="case_sub"
-    )
-    case_lang = st.radio("🌐 भाषा:", ["मराठी + Clinical English", "Simple Indian English + Sanskrit"], horizontal=True, key="cs_lang")
-    case_topic = st.text_input("🩺 आजाराचे नाव / मुख्य लक्षणे टाका:", placeholder="उदा. Amlapitta (GERD), Sandhivata (Osteoarthritis), Tamaka Shwasa (Asthma)", key="cs_top")
+    st.markdown('<div class="saas-card">', unsafe_allow_html=True)
+    c_col1, c_col2 = st.columns([1, 1])
+    with c_col1:
+        st.markdown('<div class="step-pill">Department</div>', unsafe_allow_html=True)
+        case_subject = st.selectbox(
+            "क्लिनिकल विभाग (Department):",
+            ["Kayachikitsa (कायचिकित्सा)", "Panchakarma (पंचकर्म)", "Shalya Tantra (शल्य)", "Shalakya (नेत्र/कर्ण/नासा)", "Stri Roga & Prasuti (स्त्रीरोग)", "Kaumarbhritya (बालरोग)"],
+            key="case_sub"
+        )
+    with c_col2:
+        st.markdown('<div class="step-pill">Language</div>', unsafe_allow_html=True)
+        case_lang = st.radio("भाषा निवडा:", ["मराठी + Clinical English", "Simple Indian English + Sanskrit"], horizontal=True, key="cs_lang")
+
+    st.markdown('<div class="step-pill">Disease / Symptoms</div>', unsafe_allow_html=True)
+    case_topic = st.text_input("आजाराचे नाव / मुख्य लक्षणे प्रविष्ट करा:", placeholder="उदा. Amlapitta (GERD), Sandhivata (Osteoarthritis), Tamaka Shwasa (Asthma)", key="cs_top")
 
     if "current_case_note" not in st.session_state:
         st.session_state.current_case_note = None
 
-    if st.button("📋 संपूर्ण क्लिनिकल केसशीट तयार करा", key="btn_case", use_container_width=True):
+    if st.button("📋 Generate Case Sheet", key="btn_case", use_container_width=True):
         if not case_topic.strip():
             st.warning("⚠️ कृपया आजाराचे नाव टाका.")
         else:
-            with st.spinner(f"🩺 AI क्लिनिकल तज्ज्ञ '{case_topic}' ची परिपूर्ण हॉस्पिटल केसशीट तयार करत आहे..."):
+            with st.spinner("🩺 Preparing clinical case presentation..."):
                 try:
                     case_prompt = f"""
                     You are a Chief Clinical Physician and BAMS PG Guide in an Ayurvedic Hospital.
@@ -1127,10 +1561,11 @@ with tab4:
                     st.session_state.current_case_note = case_res
                 except Exception as e:
                     st.error(f"त्रुटी: {e}")
+    st.markdown('</div>', unsafe_allow_html=True)
 
     if st.session_state.current_case_note:
-        st.markdown(st.session_state.current_case_note)
-        if st.button("💾 ही केसशीट खात्यात सेव्ह करा", key="save_case_btn", use_container_width=True):
+        st.markdown(f'<div class="textbook-container">{st.session_state.current_case_note}</div>', unsafe_allow_html=True)
+        if st.button("💾 Save Case Presentation to Notes", key="save_case_btn"):
             try:
                 supabase.table("user_notes").insert({
                     "user_id": st.session_state.user_id,
@@ -1140,33 +1575,37 @@ with tab4:
                     "content": st.session_state.current_case_note
                 }).execute()
                 st.success("✅ खात्यात सेव्ह झाले!")
-                time.sleep(1)
+                time.sleep(0.8)
                 st.rerun()
             except Exception as e:
                 st.error(f"त्रुटी: {e}")
 
 # =========================================================================
-# TAB 5: RESEARCH & EVIDENCE
+# TAB 5: RESEARCH & EVIDENCE LAB
 # =========================================================================
 with tab5:
     st.markdown("""
-    <div class="vip-hero" style="background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%) !important; border-color: #c7d2fe;">
-        <div class="festive-tag" style="background: rgba(255,255,255,0.18);">🔬 सायंटिफिक ॲव्हिडन्स व क्लिनिकल ट्रायल्स</div>
-        <h3 style="margin:0 0 4px 0; font-weight:900; font-size:20px;">🧬 Evidence-Based Modern Ayurvedic Research</h3>
-        <p style="margin:0; font-size:13px; opacity:0.95;">Active Phytochemicals, PubMed/Clinical Trial पुरावे, Pharmacology आणि Safety & Toxicity प्रोफाईल.</p>
+    <div class="module-hero">
+        <div>
+            <h3>🔬 Research & Evidence Lab</h3>
+            <p>Evidence-based Ayurvedic research assistant</p>
+        </div>
+        <div class="module-tag">SCIENTIFIC EVIDENCE</div>
     </div>
     """, unsafe_allow_html=True)
 
-    res_topic = st.text_input("🔬 औषधी वनस्पती / घटकाचे नाव टाका:", placeholder="उदा. Withania somnifera (Ashwagandha), Tinospora cordifolia (Guduchi)", key="res_top")
+    st.markdown('<div class="saas-card">', unsafe_allow_html=True)
+    st.markdown('<div class="step-pill">Herb / Drug / Compound</div>', unsafe_allow_html=True)
+    res_topic = st.text_input("औषधी वनस्पती किंवा सक्रिय घटक:", placeholder="उदा. Withania somnifera (Ashwagandha), Tinospora cordifolia (Guduchi), Curcumin", key="res_top")
 
     if "current_res_note" not in st.session_state:
         st.session_state.current_res_note = None
 
-    if st.button("🧬 वैज्ञानिक संशोधन व क्लिनिकल पुरावे शोधा", key="btn_research", use_container_width=True):
+    if st.button("🧬 Generate Research Summary", key="btn_research", use_container_width=True):
         if not res_topic.strip():
             st.warning("⚠️ कृपया संशोधन द्रव्याचे नाव टाका.")
         else:
-            with st.spinner(f"🧬 AI संशोधक '{res_topic}' चे पुरावे संकलित करत आहे..."):
+            with st.spinner("🔬 Analyzing available evidence..."):
                 try:
                     res_prompt = f"""
                     You are a Lead Scientist in Ayurvedic Reverse Pharmacology.
@@ -1177,10 +1616,11 @@ with tab5:
                     st.session_state.current_res_note = res_out
                 except Exception as e:
                     st.error(f"त्रुटी: {e}")
+    st.markdown('</div>', unsafe_allow_html=True)
 
     if st.session_state.current_res_note:
-        st.markdown(st.session_state.current_res_note)
-        if st.button("💾 हा संशोधन अहवाल सेव्ह करा", key="save_res_btn", use_container_width=True):
+        st.markdown(f'<div class="textbook-container">{st.session_state.current_res_note}</div>', unsafe_allow_html=True)
+        if st.button("💾 Save Research Report to Notes", key="save_res_btn"):
             try:
                 supabase.table("user_notes").insert({
                     "user_id": st.session_state.user_id,
@@ -1190,14 +1630,18 @@ with tab5:
                     "content": st.session_state.current_res_note
                 }).execute()
                 st.success("✅ खात्यात सेव्ह झाले!")
-                time.sleep(1)
+                time.sleep(0.8)
                 st.rerun()
             except Exception as e:
                 st.error(f"त्रुटी: {e}")
 
-# --- Footer ---
+# =========================================================================
+# 🌿 SAAS FOOTER
+# =========================================================================
 st.markdown(f"""
-<div style="text-align:center; padding:30px 10px 15px 10px; font-size:13px; color:{th['font_accent']}; font-weight:800;">
-    {th['footer_text']} <strong>AyurVeda AI Studio</strong> | Developed by <strong>Avishkar Alase</strong>
+<div class="saas-footer">
+    🌿 <strong>AyurVeda AI Studio</strong><br>
+    BAMS • AI • Academic Platform<br>
+    Developed by <strong>Avishkar Alase</strong>
 </div>
 """, unsafe_allow_html=True)
