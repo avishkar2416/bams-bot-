@@ -6,19 +6,29 @@ import time
 import urllib.parse
 from datetime import datetime
 import re
+import html
+import io
 import markdown
 from supabase import create_client, Client
 
-# --- Page Setup ---
+# PDF Generation Imports (ReportLab)
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
+
+# =========================================================================
+# ⚙️ PAGE CONFIGURATION
+# =========================================================================
 st.set_page_config(
     page_title="AyurVeda AI Studio | BAMS Academic Platform",
     page_icon="🌿",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # =========================================================================
-# 🎯 AUTOMATIC DYNAMIC FESTIVAL THEME ENGINE (SUBTLE ACCENTS ONLY)
+# 🎯 AUTOMATIC DYNAMIC FESTIVAL THEME ENGINE
 # =========================================================================
 def get_current_festival_theme():
     now = datetime.now()
@@ -32,7 +42,7 @@ def get_current_festival_theme():
         "card_bg": "#FFFFFF",
         "text": "#1E2924",
         "muted": "#68756E",
-        "border": "#E2E8E3",
+        "border": "#E8EBE7",
         "success": "#15803D"
     }
 
@@ -42,6 +52,8 @@ def get_current_festival_theme():
             "name": "ganeshotsav",
             "tag": "🌺 ॥ श्री गणेशाय नमः ॥ 🌺",
             "icon": "🪔",
+            "festive_title": "॥ श्री गणेशाय नमः ॥",
+            "festive_subtitle": "ज्ञान, आरोग्य आणि यशाच्या हार्दिक शुभेच्छा !",
             "accent_badge_bg": "#FEF3C7",
             "accent_badge_text": "#92400E",
             "accent_badge_border": "#FDE68A",
@@ -52,8 +64,10 @@ def get_current_festival_theme():
         return {
             **base,
             "name": "navratri",
-            "tag": "🌸 ॥ जय जगदंब - शुभ नवरात्री व विजयादशमी ॥ 🌸",
+            "tag": "🌸 ॥ जय जगदंब - शुभ नवरात्री ॥ 🌸",
             "icon": "🔱",
+            "festive_title": "॥ जय जगदंब - शुभ नवरात्री ॥",
+            "festive_subtitle": "शक्ती, विद्या आणि आरोग्याची मंगलमय साधना !",
             "accent_badge_bg": "#FFE4E6",
             "accent_badge_text": "#9F1239",
             "accent_badge_border": "#FECDD3",
@@ -66,6 +80,8 @@ def get_current_festival_theme():
             "name": "diwali",
             "tag": "🪔 ॥ ॐ महालक्ष्म्यै नमः - शुभ दीपावली ॥ 🪔",
             "icon": "✨",
+            "festive_title": "॥ ॐ महालक्ष्म्यै नमः - शुभ दीपावली ॥",
+            "festive_subtitle": "दीपोत्सवाच्या प्रकाशाने आयुष्य समृद्ध व निरोगी होवो !",
             "accent_badge_bg": "#FEF9C3",
             "accent_badge_text": "#854D0E",
             "accent_badge_border": "#FDE047",
@@ -76,11 +92,13 @@ def get_current_festival_theme():
         return {
             **base,
             "name": "ayurveda_classic",
-            "tag": "🌿 ॥ नमामि धन्वंतरिमादिदेवम् - BAMS अकॅडेमिक स्टुडिओ ॥ 🌿",
+            "tag": "🌿 ॥ नमामि धन्वंतरिमादिदेवम् ॥ 🌿",
             "icon": "🌱",
-            "accent_badge_bg": "#E8F5E9",
+            "festive_title": "॥ नमामि धन्वंतरिमादिदेवम् ॥",
+            "festive_subtitle": "ज्ञान, आरोग्य आणि आयुर्वेदाच्या सर्वांगीण अभ्यासाचे व्यासपीठ !",
+            "accent_badge_bg": "#EAF5EF",
             "accent_badge_text": "#0F4935",
-            "accent_badge_border": "#C8E6C9",
+            "accent_badge_border": "#CCE7D8",
             "active_tab_border": "#176B4D",
             "footer_text": "🌿 ॥ आरोग्यं परमं भाग्यम् ॥ 🌿"
         }
@@ -88,439 +106,426 @@ def get_current_festival_theme():
 th = get_current_festival_theme()
 
 # =========================================================================
-# 🎨 PREMIUM MEDICAL AI SAAS DESIGN SYSTEM (CSS)
+# 📄 DIRECT PDF GENERATOR ENGINE (REPORTLAB)
+# =========================================================================
+def generate_direct_pdf(title, subject, student_name, text_content):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=36,
+        leftMargin=36,
+        topMargin=36,
+        bottomMargin=36
+    )
+    styles = getSampleStyleSheet()
+    
+    header_title_style = ParagraphStyle(
+        'HeaderTitle',
+        parent=styles['Heading1'],
+        fontName='Helvetica-Bold',
+        fontSize=18,
+        textColor=colors.HexColor('#0F4935'),
+        spaceAfter=6
+    )
+    meta_style = ParagraphStyle(
+        'MetaStyle',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=10,
+        textColor=colors.HexColor('#4A5851'),
+        spaceAfter=14
+    )
+    body_style = ParagraphStyle(
+        'BodyDark',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=10.5,
+        leading=15,
+        textColor=colors.HexColor('#1E2924'),
+        spaceAfter=8
+    )
+    h2_style = ParagraphStyle(
+        'H2Style',
+        parent=styles['Heading2'],
+        fontName='Helvetica-Bold',
+        fontSize=13,
+        textColor=colors.HexColor('#176B4D'),
+        spaceBefore=10,
+        spaceAfter=4
+    )
+
+    story = []
+    story.append(Paragraph("AyurVeda AI Studio - BAMS Academic Notes", header_title_style))
+    story.append(Paragraph(f"<b>Subject:</b> {subject} | <b>Topic:</b> {title} | <b>Student:</b> {student_name} | <b>Date:</b> {datetime.now().strftime('%d-%m-%Y')}", meta_style))
+    story.append(Spacer(1, 10))
+
+    # Clean text to paragraph flow
+    lines = text_content.split('\n')
+    for line in lines:
+        clean = line.strip()
+        if not clean:
+            story.append(Spacer(1, 4))
+            continue
+        # Remove bold markdown delimiters for PDF paragraph
+        safe_line = clean.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+        if safe_line.startswith('#'):
+            heading_txt = safe_line.lstrip('#').strip()
+            story.append(Paragraph(heading_txt, h2_style))
+        elif safe_line.startswith('*') or safe_line.startswith('-'):
+            bullet_txt = f"&bull; {safe_line.lstrip('*- ').strip()}"
+            story.append(Paragraph(bullet_txt, body_style))
+        else:
+            story.append(Paragraph(safe_line, body_style))
+
+    doc.build(story)
+    buffer.seek(0)
+    return buffer
+
+# =========================================================================
+# 🎨 HIGH-FIDELITY CSS - SCREENSHOT REPLICATION
 # =========================================================================
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Mukta:wght@400;500;600;700;800&display=swap');
 
-    /* Global Foundation */
     html, body, .stApp {{
-        background-color: {th['bg']} !important;
-        background-image: radial-gradient(at 100% 0%, rgba(23, 107, 77, 0.03) 0px, transparent 50%),
-                          radial-gradient(at 0% 100%, rgba(200, 138, 36, 0.03) 0px, transparent 50%) !important;
+        background-color: #F6F8F5 !important;
         font-family: 'Plus Jakarta Sans', 'Mukta', -apple-system, sans-serif !important;
-        color: {th['text']} !important;
+        color: #1E2924 !important;
         -webkit-font-smoothing: antialiased;
     }}
 
-    /* Global Responsive Container */
     .main .block-container {{
-        max-width: 1140px !important;
-        padding-top: 1.25rem !important;
-        padding-bottom: 3.5rem !important;
-        padding-left: 1.5rem !important;
-        padding-right: 1.5rem !important;
-        margin: auto !important;
+        max-width: 840px !important;
+        margin: 0 auto !important;
+        padding-top: 0.6rem !important;
+        padding-bottom: 5.5rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
     }}
 
-    /* Header Nav */
-    .saas-navbar {{
+    header[data-testid="stHeader"], footer, div[data-testid="stToolbar"] {{
+        display: none !important;
+    }}
+
+    /* Top Header Card */
+    .header-card {{
+        background: #FFFFFF;
+        border: 1px solid #EBEFEA;
+        border-radius: 20px;
+        padding: 10px 16px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 14px 24px;
-        background: rgba(255, 255, 255, 0.92);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid {th['border']};
-        border-radius: 16px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 8px -2px rgba(15, 73, 53, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+        box-shadow: 0 3px 12px rgba(15, 73, 53, 0.03);
+        margin-bottom: 12px;
     }}
-    .saas-brand {{
+    .header-left {{
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
     }}
-    .brand-logo-badge {{
-        width: 38px;
-        height: 38px;
-        border-radius: 10px;
-        background: linear-gradient(135deg, #176B4D 0%, #0F4935 100%);
-        color: #ffffff;
+    .menu-toggle-icon {{
+        font-size: 20px;
+        color: #1E2924;
+    }}
+    .header-brand-wrap {{
         display: flex;
         align-items: center;
-        justify-content: center;
-        font-size: 19px;
-        box-shadow: 0 4px 10px -2px rgba(23, 107, 77, 0.25);
+        gap: 8px;
     }}
-    .brand-title-wrap {{
+    .brand-leaf-icon {{
+        font-size: 24px;
+        line-height: 1;
+    }}
+    .header-titles {{
         display: flex;
         flex-direction: column;
     }}
-    .brand-name {{
-        font-size: 18px;
+    .header-main-title {{
+        font-size: 17px;
         font-weight: 800;
-        letter-spacing: -0.02em;
-        color: {th['deep_green']};
-        margin: 0;
+        color: #0F4935;
         line-height: 1.2;
     }}
-    .brand-sub {{
+    .header-sub-title {{
         font-size: 11px;
         font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: {th['muted']};
-        margin-top: 2px;
+        color: #68756E;
     }}
-    .author-pill {{
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        background: #F0F4F2;
-        border: 1px solid #D5E0D9;
-        padding: 5px 12px;
-        border-radius: 9999px;
-        font-size: 12px;
-        font-weight: 700;
-        color: {th['deep_green']};
-    }}
-    .author-avatar {{
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: {th['primary']};
-        color: #ffffff;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 10px;
-        font-weight: 800;
-    }}
-
-    /* Welcome Hero Card */
-    .dashboard-welcome {{
-        background: #FFFFFF;
-        border: 1px solid {th['border']};
-        border-radius: 18px;
-        padding: 24px 28px;
-        margin-bottom: 22px;
-        box-shadow: 0 4px 14px -4px rgba(15, 73, 53, 0.05);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 16px;
-    }}
-    .welcome-meta h2 {{
-        font-size: 22px;
-        font-weight: 800;
-        letter-spacing: -0.02em;
-        color: {th['deep_green']} !important;
-        margin: 0 0 4px 0 !important;
-    }}
-    .welcome-meta p {{
-        font-size: 13.5px;
-        color: {th['muted']} !important;
-        margin: 0 !important;
-    }}
-    .festive-accent-badge {{
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: {th['accent_badge_bg']};
-        border: 1px solid {th['accent_badge_border']};
-        color: {th['accent_badge_text']};
-        font-size: 11.5px;
-        font-weight: 700;
-        padding: 4px 10px;
-        border-radius: 8px;
-        margin-bottom: 6px;
-    }}
-    .quick-status-grid {{
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }}
-    .status-chip {{
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: #F4F6F4;
-        border: 1px solid #E2E8E3;
-        padding: 6px 12px;
-        border-radius: 10px;
-        font-size: 12px;
-        font-weight: 600;
-        color: {th['text']};
-    }}
-
-    /* Module Hero Banner */
-    .module-hero {{
-        background: linear-gradient(135deg, #0F4935 0%, #176B4D 100%);
-        color: #FFFFFF !important;
-        padding: 22px 26px;
-        border-radius: 16px;
-        margin-bottom: 20px;
-        box-shadow: 0 8px 20px -6px rgba(15, 73, 53, 0.25);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 12px;
-    }}
-    .module-hero * {{
-        color: #FFFFFF !important;
-    }}
-    .module-hero h3 {{
-        margin: 0 0 4px 0 !important;
-        font-size: 20px !important;
-        font-weight: 800 !important;
-        letter-spacing: -0.01em;
-    }}
-    .module-hero p {{
-        margin: 0 !important;
-        font-size: 13.5px !important;
-        opacity: 0.9;
-        font-weight: 400;
-    }}
-    .module-tag {{
-        background: rgba(255, 255, 255, 0.16);
-        border: 1px solid rgba(255, 255, 255, 0.28);
-        padding: 4px 10px;
-        border-radius: 8px;
-        font-size: 11.5px;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-    }}
-
-    /* Modern Card Sections */
-    .saas-card {{
-        background: {th['card_bg']};
-        border: 1px solid {th['border']};
-        border-radius: 16px;
-        padding: 22px;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 12px -2px rgba(15, 73, 53, 0.03);
-    }}
-    .step-pill {{
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 11px;
-        font-weight: 800;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: {th['primary']};
-        background: #EAF3EF;
-        padding: 3px 9px;
-        border-radius: 6px;
-        margin-bottom: 12px;
-    }}
-
-    /* Reading Experience / Textbook Presentation */
-    .textbook-container {{
-        background: #FFFFFF;
-        border: 1px solid {th['border']};
-        border-radius: 18px;
-        padding: 36px 40px;
-        box-shadow: 0 6px 20px -4px rgba(15, 73, 53, 0.04);
-        margin-top: 18px;
-        color: #1A2621;
-        font-family: 'Mukta', 'Plus Jakarta Sans', serif;
-        font-size: 16px;
-        line-height: 1.85;
-    }}
-    .textbook-container h1, .textbook-container h2, .textbook-container h3 {{
-        color: {th['deep_green']} !important;
-        font-weight: 800 !important;
-        letter-spacing: -0.02em;
-        margin-top: 1.5em;
-        margin-bottom: 0.5em;
-        padding-bottom: 6px;
-        border-bottom: 1px solid #EBEFEA;
-    }}
-    .textbook-container blockquote {{
-        border-left: 4px solid {th['primary']};
-        background: #F4F8F6;
-        padding: 14px 20px;
-        margin: 18px 0;
-        border-radius: 0 12px 12px 0;
-        color: {th['deep_green']};
-        font-weight: 600;
-    }}
-    .textbook-container table {{
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px 0;
-        font-size: 14.5px;
-    }}
-    .textbook-container th, .textbook-container td {{
-        border: 1px solid #E2E8E3;
-        padding: 10px 14px;
-        text-align: left;
-    }}
-    .textbook-container th {{
-        background-color: #F4F7F5;
-        color: {th['deep_green']};
-        font-weight: 700;
-    }}
-    .textbook-container tr:nth-child(even) {{
-        background-color: #FAFBF9;
-    }}
-
-    /* Question & Clinical Presentation Cards */
-    .viva-card {{
-        background: #FFFFFF;
-        border: 1px solid #E2E8E3;
-        border-radius: 14px;
-        padding: 18px 20px;
-        margin-bottom: 14px;
-        box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.03);
-    }}
-    .viva-badge {{
-        font-size: 11px;
-        font-weight: 800;
-        color: #C88A24;
-        background: #FEF9EE;
-        border: 1px solid #FBE6B8;
-        padding: 3px 8px;
-        border-radius: 6px;
-        display: inline-block;
-        margin-bottom: 8px;
-    }}
-
-    /* Streamlit Tabs Redesign */
-    .stTabs [data-baseweb="tab-list"] {{
-        gap: 6px;
-        background-color: transparent;
-        padding: 4px;
-        border-bottom: 2px solid #E8ECE8;
-        overflow-x: auto;
-        white-space: nowrap;
-        scrollbar-width: none;
-    }}
-    .stTabs [data-baseweb="tab-list"]::-webkit-scrollbar {{
-        display: none;
-    }}
-    .stTabs [data-baseweb="tab"] {{
-        background-color: transparent !important;
-        border: none !important;
-        border-bottom: 2px solid transparent !important;
-        border-radius: 0px !important;
-        padding: 10px 16px !important;
-        font-size: 14.5px !important;
-        font-weight: 600 !important;
-        color: {th['muted']} !important;
-        transition: all 0.2s ease !important;
-    }}
-    .stTabs [aria-selected="true"] {{
-        color: {th['primary']} !important;
-        border-bottom: 2px solid {th['active_tab_border']} !important;
-        font-weight: 700 !important;
-    }}
-
-    /* Streamlit Input Components */
-    div[data-baseweb="select"] > div,
-    div[data-baseweb="input"] > div {{
-        background-color: #FFFFFF !important;
-        border: 1px solid {th['border']} !important;
-        border-radius: 12px !important;
-        transition: all 0.2s ease !important;
-    }}
-    div[data-baseweb="select"] > div:hover,
-    div[data-baseweb="input"] > div:hover {{
-        border-color: #B5C4BC !important;
-    }}
-    div[data-baseweb="select"] > div:focus-within,
-    div[data-baseweb="input"] > div:focus-within {{
-        border-color: {th['primary']} !important;
-        box-shadow: 0 0 0 3px rgba(23, 107, 77, 0.1) !important;
-    }}
-
-    /* Streamlit Button System */
-    div.stButton > button {{
-        background: {th['primary']} !important;
-        color: #FFFFFF !important;
-        border: 1px solid {th['primary']} !important;
-        border-radius: 12px !important;
-        padding: 10px 22px !important;
-        font-size: 14.5px !important;
-        font-weight: 600 !important;
-        letter-spacing: -0.01em !important;
-        transition: all 0.2s ease !important;
-        box-shadow: 0 2px 6px -1px rgba(23, 107, 77, 0.25) !important;
-    }}
-    div.stButton > button:hover {{
-        background: {th['deep_green']} !important;
-        border-color: {th['deep_green']} !important;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px -2px rgba(23, 107, 77, 0.3) !important;
-    }}
-
-    /* Sidebar Clean Polish */
-    [data-testid="stSidebar"] {{
-        background-color: #FFFFFF !important;
-        border-right: 1px solid {th['border']} !important;
-    }}
-    .sidebar-profile-card {{
-        background: #F9FAF8;
-        border: 1px solid #E6ECE8;
-        border-radius: 14px;
-        padding: 16px;
-        margin-bottom: 18px;
-    }}
-    .sidebar-user-header {{
+    .header-right {{
         display: flex;
         align-items: center;
         gap: 12px;
-        margin-bottom: 10px;
     }}
-    .sidebar-avatar {{
-        width: 36px;
-        height: 36px;
+    .avatar-circle {{
+        width: 38px;
+        height: 38px;
         border-radius: 50%;
         background: linear-gradient(135deg, #176B4D 0%, #0F4935 100%);
-        color: #ffffff;
+        color: #FFFFFF;
         font-weight: 800;
-        font-size: 13px;
+        font-size: 13.5px;
         display: flex;
         align-items: center;
         justify-content: center;
     }}
-    .sidebar-saved-card {{
+
+    /* Welcome Card */
+    .welcome-card {{
         background: #FFFFFF;
-        border: 1px solid #E5ECE7;
-        border-radius: 10px;
-        padding: 10px 12px;
+        border: 1px solid #EBEFEA;
+        border-radius: 20px;
+        padding: 16px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 3px 12px rgba(15, 73, 53, 0.03);
+        margin-bottom: 12px;
+    }}
+    .welcome-left {{
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }}
+    .welcome-avatar {{
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #3B5A4D;
+        color: #FFFFFF;
+        font-weight: 800;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }}
+    .welcome-text {{
+        display: flex;
+        flex-direction: column;
+    }}
+    .welcome-greeting {{
+        font-size: 13px;
+        color: #1E2924;
+        font-weight: 600;
+    }}
+    .welcome-name {{
+        font-size: 17px;
+        font-weight: 800;
+        color: #0F4935;
+        line-height: 1.25;
+    }}
+    .welcome-subtext {{
+        font-size: 11.5px;
+        color: #68756E;
+    }}
+    .welcome-right-badge {{
+        background: #F1F6F2;
+        border: 1px solid #DFECE3;
+        border-radius: 16px;
+        padding: 8px 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }}
+
+    /* Festival Strip */
+    .festival-strip {{
+        background: #FFFDF7;
+        border: 1px solid #F6E6C5;
+        border-radius: 18px;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+    }}
+    .festival-strip-left {{
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }}
+    .festival-lamp {{
+        font-size: 22px;
+        background: #FEF3C7;
+        border-radius: 12px;
+        padding: 4px 8px;
+    }}
+    .festival-title {{
+        font-size: 13.5px;
+        font-weight: 800;
+        color: #92400E;
+    }}
+    .festival-sub {{
+        font-size: 11.5px;
+        color: #78350F;
+    }}
+
+    /* Navigation Buttons */
+    div[data-testid="stHorizontalBlock"]:has(button[key^="nav_btn_"]) {{
+        gap: 6px !important;
+        margin-bottom: 14px !important;
+    }}
+    button[key^="nav_btn_"] {{
+        background: #FFFFFF !important;
+        color: #1E2924 !important;
+        border: 1px solid #E5E9E4 !important;
+        border-radius: 16px !important;
+        padding: 8px 4px !important;
+        height: 70px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+    }}
+    button[key^="nav_btn_active_"] {{
+        background: #0F4935 !important;
+        color: #FFFFFF !important;
+        border: 1px solid #0F4935 !important;
+        border-radius: 16px !important;
+        padding: 8px 4px !important;
+        height: 70px !important;
+        font-size: 12px !important;
+        font-weight: 800 !important;
+        box-shadow: 0 4px 12px rgba(15, 73, 53, 0.25) !important;
+    }}
+    button[key^="nav_btn_active_"] p, button[key^="nav_btn_active_"] div {{
+        color: #FFFFFF !important;
+    }}
+
+    /* Hero Card */
+    .hero-card {{
+        background: linear-gradient(135deg, #093727 0%, #0F4935 60%, #176B4D 100%);
+        border-radius: 22px;
+        padding: 20px 22px;
+        color: #FFFFFF;
+        margin-bottom: 14px;
+        box-shadow: 0 8px 24px -4px rgba(15, 73, 53, 0.28);
+    }}
+    .hero-tag-pill {{
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 20px;
+        padding: 3px 12px;
+        font-size: 11px;
+        font-weight: 700;
         margin-bottom: 8px;
-        transition: all 0.15s ease;
+        color: #E2ECE6;
     }}
-    .sidebar-saved-card:hover {{
-        border-color: {th['primary']};
+    .hero-main-title {{
+        font-size: 24px;
+        font-weight: 800;
+        margin: 0;
+        color: #FFFFFF;
     }}
-
-    /* Minimalist Footer */
-    .saas-footer {{
-        text-align: center;
-        padding: 24px 12px 10px 12px;
+    .hero-main-title span {{
+        color: #E8C172;
+    }}
+    .hero-desc {{
         font-size: 12.5px;
-        color: {th['muted']};
-        border-top: 1px solid {th['border']};
-        margin-top: 40px;
+        color: #E0EAE4;
+        margin: 6px 0 16px 0;
+    }}
+    .hero-benefits-grid {{
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+        padding-top: 14px;
+    }}
+    .benefit-label {{
+        font-size: 10.5px;
+        font-weight: 600;
+        color: #F1F6F3;
     }}
 
-    /* Mobile Responsive Polish */
-    @media (max-width: 768px) {{
-        .main .block-container {{
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
-            padding-top: 0.75rem !important;
-        }}
-        .saas-navbar {{
-            padding: 10px 14px;
-        }}
-        .dashboard-welcome {{
-            padding: 16px 18px;
-        }}
-        .textbook-container {{
-            padding: 20px 18px;
-        }}
-        .module-hero {{
-            padding: 16px 18px;
+    /* Card Box */
+    .study-form-card {{
+        background: #FFFFFF;
+        border: 1px solid #EBEFEA;
+        border-radius: 22px;
+        padding: 22px;
+        box-shadow: 0 4px 16px rgba(15, 73, 53, 0.04);
+        margin-bottom: 16px;
+    }}
+    .step-badge {{
+        background: #E8F2EC;
+        color: #0F4935;
+        font-size: 11px;
+        font-weight: 800;
+        padding: 2px 6px;
+        border-radius: 6px;
+    }}
+
+    /* Main CTA */
+    div.stButton > button[key^="btn_generate_"] {{
+        background: linear-gradient(135deg, #176B4D 0%, #0F4935 100%) !important;
+        color: #FFFFFF !important;
+        border: none !important;
+        border-radius: 18px !important;
+        padding: 16px 28px !important;
+        font-size: 16px !important;
+        font-weight: 800 !important;
+        box-shadow: 0 6px 20px -2px rgba(15, 73, 53, 0.35) !important;
+    }}
+
+    /* Textbook Rendering */
+    .textbook-container {{
+        background: #FFFFFF;
+        border: 1px solid #E2E8E3;
+        border-radius: 20px;
+        padding: 26px 28px;
+        margin-top: 18px;
+        font-size: 15.5px;
+        line-height: 1.8;
+    }}
+    .textbook-container h1, .textbook-container h2, .textbook-container h3 {{
+        color: #0F4935 !important;
+        font-weight: 800 !important;
+    }}
+    .textbook-container blockquote {{
+        border-left: 4px solid #176B4D;
+        background: #F4F8F6;
+        padding: 10px 16px;
+        border-radius: 0 10px 10px 0;
+        font-weight: 700;
+        color: #0F4935;
+    }}
+
+    /* Bottom Navbar */
+    .bottom-navbar-fixed {{
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 62px;
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(14px);
+        border-top: 1px solid #E5EBE6;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        z-index: 9999;
+        max-width: 840px;
+        margin: 0 auto;
+    }}
+    .bottom-nav-item {{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #68756E;
+        font-size: 11px;
+        font-weight: 600;
+    }}
+    .bottom-nav-item.active {{
+        color: #176B4D;
+        font-weight: 800;
+    }}
+
+    @media (max-width: 640px) {{
+        .hero-benefits-grid {{
+            grid-template-columns: repeat(2, 1fr);
         }}
     }}
 </style>
@@ -535,9 +540,9 @@ client = genai.Client(api_key=api_key)
 supabase: Client = create_client(supabase_url, supabase_key)
 
 # =========================================================================
-# 🔄 30-MINUTE SESSION PERSISTENCE ENGINE (No logout on refresh)
+# 🔄 30-MINUTE SESSION PERSISTENCE ENGINE
 # =========================================================================
-SESSION_TIMEOUT = 1800  # 30 minutes in seconds
+SESSION_TIMEOUT = 1800
 now_ts = int(time.time())
 
 persisted_uid = st.query_params.get("uid")
@@ -574,45 +579,55 @@ if "profile" not in st.session_state or not st.session_state.profile:
     if st.session_state.user_id:
         st.session_state.profile = fetch_profile(st.session_state.user_id)
 
+# Initialize navigation states
+if "active_nav" not in st.session_state:
+    st.session_state.active_nav = "Study"
+if "study_mode_sel" not in st.session_state:
+    st.session_state.study_mode_sel = "📖 Comprehensive Notes (संपूर्ण सविस्तर अभ्यास नोट्स)"
+if "study_lang_sel" not in st.session_state:
+    st.session_state.study_lang_sel = "🚩 मराठी (संस्कृत + अर्थ)"
+if "topic_input_val" not in st.session_state:
+    st.session_state.topic_input_val = ""
+
+# Exam session states
+if "exam_paper_data" not in st.session_state:
+    st.session_state.exam_paper_data = None
+if "exam_eval_data" not in st.session_state:
+    st.session_state.exam_eval_data = None
+
 # =========================================================================
-# 🔐 VIP ONBOARDING & LOGIN INTERFACE
+# 🔐 AUTHENTICATION MODAL (LOGIN & REGISTRATION)
 # =========================================================================
 if not st.session_state.user_id:
     st.markdown(f"""
-    <div class="saas-navbar">
-        <div class="saas-brand">
-            <div class="brand-logo-badge">{th['icon']}</div>
-            <div class="brand-title-wrap">
-                <span class="brand-name">AyurVeda AI Studio</span>
-                <span class="brand-sub">BAMS • AI • Academic Platform</span>
+    <div class="header-card">
+        <div class="header-left">
+            <span class="brand-leaf-icon">🌿</span>
+            <div class="header-titles">
+                <span class="header-main-title">AyurVeda AI Studio</span>
+                <span class="header-sub-title">BAMS Smart Academic Platform</span>
             </div>
         </div>
-        <div class="author-pill">
-            <span class="author-avatar">AA</span>
-            <span>Avishkar Alase ✓</span>
-        </div>
+        <div class="avatar-circle">AA</div>
     </div>
     """, unsafe_allow_html=True)
 
-    auth_col1, auth_col2, auth_col3 = st.columns([1, 4, 1])
+    auth_col1, auth_col2, auth_col3 = st.columns([1, 6, 1])
     with auth_col2:
         st.markdown(f"""
-        <div style="text-align: center; margin-bottom: 24px;">
-            <div class="festive-accent-badge">{th['tag']}</div>
-            <h2 style="font-size: 26px; font-weight: 800; color: {th['deep_green']}; margin: 6px 0 4px 0;">
-                BAMS Academic Portal
-            </h2>
-            <p style="font-size: 14px; color: {th['muted']}; margin: 0;">
-                NCISM syllabus, A4 handwritten notes, exam question banks and clinical suite.
-            </p>
+        <div style="text-align: center; margin: 18px 0;">
+            <div class="festival-strip" style="justify-content: center; display: inline-flex;">
+                <span style="font-weight: 700; color: #92400E;">{th['tag']}</span>
+            </div>
+            <h2 style="font-size: 24px; font-weight: 800; color: #0F4935; margin: 6px 0;">विद्यार्थी अकॅडेमिक पोर्टल</h2>
+            <p style="font-size: 13.5px; color: #68756E; margin: 0;">NCISM BAMS अभ्यासक्रम, A4 हस्तलिखित नोट्स, विद्यापीठ परीक्षा व प्रश्नसंच.</p>
         </div>
         """, unsafe_allow_html=True)
 
-        st.markdown('<div class="saas-card">', unsafe_allow_html=True)
+        st.markdown('<div class="study-form-card">', unsafe_allow_html=True)
         t_login, t_reg = st.tabs(["🔑 विद्यार्थी लॉगिन (Sign In)", "✨ नवीन नोंदणी (Student Register)"])
 
         with t_login:
-            st.markdown(f"<div style='font-size: 15px; font-weight: 700; color: {th['deep_green']}; margin-bottom: 12px;'>खात्यात प्रवेश करा:</div>", unsafe_allow_html=True)
             l_email = st.text_input("📧 ईमेल पत्ता:", placeholder="student@gmail.com", key="auth_login_email")
             l_pass = st.text_input("🔒 पासवर्ड:", type="password", placeholder="तुमचा पासवर्ड", key="auth_login_pass")
 
@@ -636,9 +651,7 @@ if not st.session_state.user_id:
                         st.error(f"लॉगिन अयशस्वी: {e}")
 
         with t_reg:
-            st.markdown(f"<div style='font-size: 15px; font-weight: 700; color: {th['deep_green']}; margin-bottom: 12px;'>विद्यार्थी नोंदणी फॉर्म:</div>", unsafe_allow_html=True)
             r_name = st.text_input("👤 विद्यार्थ्याचे पूर्ण नाव:", placeholder="उदा. राहुल प्रकाश जोशी")
-            
             c_mob, c_age = st.columns([2, 1])
             with c_mob:
                 r_mob = st.text_input("📱 मोबाईल नंबर:", placeholder="9876543210", max_chars=10)
@@ -648,14 +661,20 @@ if not st.session_state.user_id:
             r_col = st.text_input("🏛️ BAMS कॉलेजचे नाव:", placeholder="उदा. Government Ayurved College, Nanded")
             r_yr = st.selectbox(
                 "🎓 BAMS वर्ष:",
-                ["BAMS 1st Professional (प्रथम वर्ष)", "BAMS 2nd Professional (द्वितीय वर्ष)", "BAMS 3rd Professional (तृतीय वर्ष)", "BAMS Final Professional (अंतिम वर्ष)", "BAMS Intern (इंटर्नशिप)"]
+                [
+                    "BAMS 1st Professional (प्रथम वर्ष)",
+                    "BAMS 2nd Professional (द्वितीय वर्ष)",
+                    "BAMS 3rd Professional (तृतीय वर्ष)",
+                    "BAMS Final Professional (अंतिम वर्ष)",
+                    "BAMS Intern (इंटर्नशिप)"
+                ]
             )
             r_em = st.text_input("📧 ईमेल पत्ता:", placeholder="student@gmail.com", key="auth_reg_em")
-            r_pw = st.text_input("🔒 पासवर्ड (किमान ६ अक्षरे/अंक):", type="password", key="auth_reg_pw")
+            r_pw = st.text_input("🔒 पासवर्ड (किमान ६ अक्षरे):", type="password", key="auth_reg_pw")
 
             if st.button("✨ खाते तयार करा व VIP स्टुडिओ सुरू करा", use_container_width=True, key="btn_r_submit"):
                 if not r_name.strip() or not r_col.strip() or not r_em.strip() or len(r_pw.strip()) < 6:
-                    st.warning("कृपया सर्व आवश्यक माहिती आणि किमान ६ अक्षरांचा पासवर्ड भरा.")
+                    st.warning("कृपया सर्व माहिती व किमान ६ अक्षरांचा पासवर्ड भरा.")
                 else:
                     try:
                         auth_res = supabase.auth.sign_up({"email": r_em.strip(), "password": r_pw.strip()})
@@ -682,16 +701,10 @@ if not st.session_state.user_id:
                         st.error(f"नोंदणी त्रुटी: {e}")
 
         st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown(f"""
-    <div class="saas-footer">
-        {th['footer_text']} • <strong>AyurVeda AI Studio</strong> • BAMS Academic Platform • Developed by <strong>Avishkar Alase</strong>
-    </div>
-    """, unsafe_allow_html=True)
     st.stop()
 
 # =========================================================================
-# 🎯 DYNAMIC MODEL DISCOVERY & GEMINI ENGINE
+# 🎯 DYNAMIC GEMINI MODEL ENGINE
 # =========================================================================
 @st.cache_data(show_spinner=False, ttl=86400)
 def get_working_models():
@@ -928,34 +941,31 @@ def render_photo_identical_sheet(data, subject_name, topic_name, is_marathi=True
     return html_code
 
 # =========================================================================
-# 👤 SIDEBAR - COMPACT IDENTITY CARD & SAVED NOTES
+# 👤 PROFILE EXTRACTION & SIDEBAR
 # =========================================================================
 prof = st.session_state.profile or {}
-s_name = prof.get("full_name") or "विद्यार्थी"
-s_college = prof.get("college_name") or "BAMS Medical College"
-s_year = prof.get("bams_year") or "BAMS Scholar"
+s_name = prof.get("full_name") or "Avishkar Alase"
+s_college = prof.get("college_name") or "Government Ayurved College"
+s_year = prof.get("bams_year") or "BAMS 1st Professional"
 s_mob = prof.get("mobile_no") or "-"
 s_age = prof.get("age") or "-"
 s_email = st.session_state.get("user_email") or "Active"
 
-initials = "".join([part[0].upper() for part in s_name.split()[:2]]) if s_name else "ST"
+initials = "".join([part[0].upper() for part in s_name.split()[:2]]) if s_name else "AA"
 
 with st.sidebar:
     st.markdown(f"""
-    <div class="sidebar-profile-card">
-        <div class="sidebar-user-header">
-            <div class="sidebar-avatar">{initials}</div>
-            <div style="overflow: hidden;">
-                <div style="font-weight: 800; font-size: 15px; color: {th['deep_green']}; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">{s_name}</div>
-                <div style="font-size: 11.5px; color: {th['muted']}; font-weight: 600;">{s_year}</div>
+    <div style="padding: 10px 0;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+            <div class="avatar-circle">{initials}</div>
+            <div>
+                <div style="font-weight: 800; font-size: 15px; color: #0F4935;">{s_name}</div>
+                <div style="font-size: 12px; color: #68756E;">{s_year}</div>
             </div>
         </div>
-        <div style="font-size: 12px; color: {th['text']}; line-height: 1.5; border-top: 1px solid #E5ECE7; padding-top: 8px;">
+        <div style="font-size: 12px; color: #1E2924; background: #F8FAF7; border: 1px solid #E5ECE7; border-radius: 12px; padding: 10px; line-height: 1.6;">
             <div>🏛️ <b>कॉलेज:</b> {s_college}</div>
-            <div style="display: flex; gap: 8px; margin-top: 2px;">
-                <span>📱 {s_mob}</span>
-                <span>• वय: {s_age}</span>
-            </div>
+            <div>📱 <b>मोबाईल:</b> {s_mob} • वय: {s_age}</div>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -979,7 +989,7 @@ with st.sidebar:
         st.caption(f"लोडिंग त्रुटी: {e}")
 
     st.write("")
-    if st.button("🚪 बाहेर पडा (Logout)", use_container_width=True):
+    if st.button("🚪 बाहेर पडा (Logout)", use_container_width=True, key="btn_logout_sidebar"):
         try:
             supabase.auth.sign_out()
         except Exception:
@@ -991,160 +1001,213 @@ with st.sidebar:
         st.rerun()
 
 # =========================================================================
-# 🌿 MAIN DASHBOARD HEADER & WELCOME
+# 📱 TOP HEADER
 # =========================================================================
 st.markdown(f"""
-<div class="saas-navbar">
-    <div class="saas-brand">
-        <div class="brand-logo-badge">{th['icon']}</div>
-        <div class="brand-title-wrap">
-            <span class="brand-name">AyurVeda AI Studio</span>
-            <span class="brand-sub">BAMS Smart Academic Platform</span>
+<div class="header-card">
+    <div class="header-left">
+        <span class="menu-toggle-icon">☰</span>
+        <div class="header-brand-wrap">
+            <span class="brand-leaf-icon">🌿</span>
+            <div class="header-titles">
+                <span class="header-main-title">AyurVeda AI Studio</span>
+                <span class="header-sub-title">BAMS Smart Academic Platform</span>
+            </div>
         </div>
     </div>
-    <div class="author-pill">
-        <span class="author-avatar">AA</span>
-        <span>Avishkar Alase ✓</span>
-    </div>
-</div>
-
-<div class="dashboard-welcome">
-    <div class="welcome-meta">
-        <div class="festive-accent-badge">{th['tag']}</div>
-        <h2>Good Morning 👋 Welcome back, {s_name.split()[0]}</h2>
-        <p>BAMS Academic Workspace • Professional Year: <b>{s_year}</b></p>
-    </div>
-    <div class="quick-status-grid">
-        <span class="status-chip">📖 Study</span>
-        <span class="status-chip">📝 Notes</span>
-        <span class="status-chip">🎯 PYQ</span>
-        <span class="status-chip">🎙 Viva</span>
-        <span class="status-chip">🩺 Clinical</span>
-        <span class="status-chip">🔬 Research</span>
+    <div class="header-right">
+        <span style="font-size:18px;">🔍</span>
+        <span style="font-size:18px;">🔔</span>
+        <div class="avatar-circle">{initials}</div>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-# 5 Redesigned Compact Modules (Navigation)
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📖 Study",
-    "🧪 Medicine",
-    "🎯 Viva",
-    "🩺 Clinical",
-    "🔬 Research"
-])
+# =========================================================================
+# 👋 WELCOME CARD
+# =========================================================================
+first_name = s_name.split()[0]
+safe_first_name = html.escape(first_name)
+st.markdown(f"""
+<div class="welcome-card">
+    <div class="welcome-left">
+        <div class="welcome-avatar">{initials}</div>
+        <div class="welcome-text">
+            <div class="welcome-greeting">Good Morning 👋</div>
+            <div class="welcome-name">Welcome back, {safe_first_name}</div>
+            <div class="welcome-subtext">Stay consistent, keep learning.</div>
+        </div>
+    </div>
+    <div class="welcome-right-badge">
+        <span style="font-size:16px;">📅</span>
+        <div style="display:flex; flex-direction:column;">
+            <span style="font-size:12px; font-weight:700; color:#0F4935;">BAMS Scholar</span>
+            <span style="font-size:10px; font-style:italic; color:#436957;">Ayurveda for<br>a Better Tomorrow</span>
+        </div>
+        <span style="font-size:24px; opacity:0.7;">🌿</span>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 # =========================================================================
-# TAB 1: BAMS STUDY NOTES & EXAM PREPARATION
+# 🪔 DYNAMIC FESTIVAL STRIP
 # =========================================================================
-with tab1:
-    st.markdown(f"""
-    <div class="module-hero">
+st.markdown(f"""
+<div class="festival-strip">
+    <div class="festival-strip-left">
+        <div class="festival-lamp">{th['icon']}</div>
         <div>
-            <h3>BAMS Study Studio</h3>
-            <p>AI-powered notes, PYQs & exam preparation</p>
+            <div class="festival-title">{th['festive_title']}</div>
+            <div class="festival-sub">{th['festive_subtitle']}</div>
         </div>
-        <div class="module-tag">NCISM • MUHS • BAMS</div>
+    </div>
+    <div style="font-weight:700; color:#92400E;">›</div>
+</div>
+""", unsafe_allow_html=True)
+
+# =========================================================================
+# 🧭 FEATURE NAVIGATION CARDS (6 TABS INCLUDING UNIVERSITY EXAM)
+# =========================================================================
+nav_cols = st.columns(6)
+nav_items = [
+    ("Study", "📖"),
+    ("Medicine", "🧪"),
+    ("Viva", "🎙"),
+    ("Clinical", "🩺"),
+    ("Research", "🔬"),
+    ("Exam", "🎓")
+]
+
+for idx, (n_name, n_icon) in enumerate(nav_items):
+    with nav_cols[idx]:
+        is_active = (st.session_state.active_nav == n_name)
+        k_prefix = "nav_btn_active_" if is_active else "nav_btn_"
+        btn_label = f"{n_icon}\n{n_name}"
+        if st.button(btn_label, key=f"{k_prefix}{n_name}", use_container_width=True):
+            st.session_state.active_nav = n_name
+            st.rerun()
+
+# =========================================================================
+# 🏛️ TAB MODULE ROUTER
+# =========================================================================
+
+# -------------------------------------------------------------------------
+# MODULE 1: STUDY STUDIO
+# -------------------------------------------------------------------------
+if st.session_state.active_nav == "Study":
+    st.markdown("""
+    <div class="hero-card">
+        <div class="hero-tag-pill">BAMS • AI • NCISM • MUHS</div>
+        <h2 class="hero-main-title">BAMS <span>Study Studio</span></h2>
+        <div class="hero-desc">AI-powered notes, PYQs and exam-focused preparation for every BAMS student.</div>
+        <div class="hero-benefits-grid">
+            <div>✍️ <span class="benefit-label">Handwritten Style</span></div>
+            <div>🎯 <span class="benefit-label">PYQ Solved</span></div>
+            <div>🧠 <span class="benefit-label">Exam Focused</span></div>
+            <div>⚡ <span class="benefit-label">Quick Revision</span></div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown('<div class="saas-card">', unsafe_allow_html=True)
-    c1, c2 = st.columns([1, 1])
+    st.markdown("""
+    <div class="study-form-card">
+        <div style="font-size: 18px; font-weight: 800; color: #0F4935; margin-bottom: 12px;">
+            🌿 Create Your Study Notes
+        </div>
+    """, unsafe_allow_html=True)
+
+    c1, c2 = st.columns(2)
     with c1:
-        st.markdown('<div class="step-pill">STEP 01 • 🎓 Professional Year</div>', unsafe_allow_html=True)
+        st.markdown('<div style="font-size:13px; font-weight:700; color:#0F4935; margin-bottom:4px;"><span class="step-badge">01</span> Professional Year</div>', unsafe_allow_html=True)
         bams_year = st.selectbox(
-            "BAMS वर्ष निवडा:",
-            [
-                "BAMS 1st Professional (प्रथम वर्ष)",
-                "BAMS 2nd Professional (द्वितीय वर्ष)",
-                "BAMS 3rd Professional (तृतीय वर्ष)",
-                "BAMS Final Professional (अंतिम वर्ष)"
-            ]
+            "BAMS Year",
+            ["BAMS 1st Professional (प्रथम वर्ष)", "BAMS 2nd Professional (द्वितीय वर्ष)", "BAMS 3rd Professional (तृतीय वर्ष)", "BAMS Final Professional (अंतिम वर्ष)"],
+            label_visibility="collapsed"
         )
     with c2:
-        st.markdown('<div class="step-pill">STEP 02 • 📚 Subject</div>', unsafe_allow_html=True)
+        st.markdown('<div style="font-size:13px; font-weight:700; color:#0F4935; margin-bottom:4px;"><span class="step-badge">02</span> Subject</div>', unsafe_allow_html=True)
         subject = st.selectbox(
-            "विषय निवडा:",
+            "Subject",
             [
-                "Agada Tantra & Vyavahara Ayurveda (अगद तंत्र)",
-                "Kriya Sharir (क्रिया शारीर)",
-                "Rachana Sharir (रचना शारीर)",
-                "Dravyaguna Vijnana (द्रव्यगुण विज्ञान)",
-                "Rasashastra & Bhaishajya Kalpana (रसशास्त्र व भैषज्य कल्पना)",
-                "Roga Nidan & Vikriti Vigyan (रोगनिदान)",
-                "Samhita Siddhant & Charak Samhita (संहिता सिद्धांत)",
-                "Kayachikitsa (कायचिकित्सा)",
-                "Panchakarma (पंचकर्म)",
-                "Shalya Tantra (शल्य तंत्र)",
-                "Shalakya Tantra (शालाक्य तंत्र)",
-                "Prasuti Tantra & Stri Roga (प्रसूति तंत्र व स्त्रीरोग)",
-                "Kaumarbhritya (कौमारभृत्य)"
-            ]
-        )
-
-    c3, c4 = st.columns([1, 1])
-    with c3:
-        st.markdown('<div class="step-pill">STEP 03 • 🎯 Study Mode</div>', unsafe_allow_html=True)
-        study_mode = st.selectbox(
-            "अभ्यासाचा प्रकार निवडा:",
-            [
-                "📖 Comprehensive Notes (संपूर्ण सविस्तर अभ्यास नोट्स)",
-                "📋 A4 Blue Ballpen Handwritten Sheet (अस्सल A4 पेन नोट्स)",
-                "🎯 MUHS / NCISM Past 5 Years Questions & Model Answer Key",
-                "📜 Only Shlokas & Meanings (फक्त मूळ श्लोक, अन्वय व अर्थ)",
-                "📝 10-Mark LAQ Answer Format (दीर्घोत्तरी प्रश्न-उत्तर फॉरमॅट)",
-                "⚡ Quick Revision / Viva Voce Points (तोंडी परीक्षेसाठी महत्त्वाचे मुद्दे)"
-            ]
-        )
-    with c4:
-        st.markdown('<div class="step-pill">STEP 04 • 🌐 Language</div>', unsafe_allow_html=True)
-        language_preference = st.radio(
-            "माध्यम निवडा:",
-            [
-                "🚩 मराठी (संस्कृत + अर्थ)",
-                "🌿 Simple English + Sanskrit"
+                "Agada Tantra & Vyavahara Ayurveda (अगद तंत्र)", "Kriya Sharir (क्रिया शारीर)", "Rachana Sharir (रचना शारीर)",
+                "Dravyaguna Vijnana (द्रव्यगुण विज्ञान)", "Rasashastra & Bhaishajya Kalpana (रसशास्त्र व भैषज्य कल्पना)",
+                "Roga Nidan & Vikriti Vigyan (रोगनिदान)", "Samhita Siddhant & Charak Samhita (संहिता सिद्धांत)",
+                "Kayachikitsa (कायचिकित्सा)", "Panchakarma (पंचकर्म)", "Shalya Tantra (शल्य तंत्र)",
+                "Shalakya Tantra (शालाक्य तंत्र)", "Prasuti Tantra & Stri Roga (प्रसूति तंत्र व स्त्रीरोग)", "Kaumarbhritya (कौमारभृत्य)"
             ],
-            horizontal=True
+            label_visibility="collapsed"
         )
 
-    st.markdown('<div class="step-pill">STEP 05 • 🔍 Topic</div>', unsafe_allow_html=True)
-    topic = st.text_input(
-        "अभ्यासाचा विषय / प्रश्न प्रविष्ट करा:",
-        placeholder="उदा. Virya, Ojas, Pitta Dosha, Rakta Dhatu, Ashwagandha, Agada"
+    st.markdown('<div style="font-size:13px; font-weight:700; color:#0F4935; margin: 10px 0 4px 0;"><span class="step-badge">03</span> Study Mode</div>', unsafe_allow_html=True)
+    mode_options = [
+        ("📖 Comprehensive Notes (संपूर्ण सविस्तर अभ्यास नोट्स)", "📄 Comprehensive Notes"),
+        ("🎯 MUHS / NCISM Past 5 Years Questions & Model Answer Key", "🎯 PYQ Focus"),
+        ("⚡ Quick Revision / Viva Voce Points (तोंडी परीक्षेसाठी महत्त्वाचे मुद्दे)", "⚡ Quick Revision"),
+        ("📋 A4 Blue Ballpen Handwritten Sheet (अस्सल A4 पेन नोट्स)", "✍️ A4 Handwritten")
+    ]
+    m_cols = st.columns(4)
+    for m_idx, (m_val, m_title) in enumerate(mode_options):
+        with m_cols[m_idx]:
+            is_m_active = (st.session_state.study_mode_sel == m_val)
+            m_key = f"mode_sel_active_{m_idx}" if is_m_active else f"mode_sel_{m_idx}"
+            display_title = f"✓ {m_title}" if is_m_active else m_title
+            if st.button(display_title, key=m_key, use_container_width=True):
+                st.session_state.study_mode_sel = m_val
+                st.rerun()
+
+    st.markdown('<div style="font-size:13px; font-weight:700; color:#0F4935; margin: 10px 0 4px 0;"><span class="step-badge">04</span> Study Medium</div>', unsafe_allow_html=True)
+    l_cols = st.columns(2)
+    lang_opts = [("🚩 मराठी (संस्कृत + अर्थ)", "🇮🇳 मराठी (संस्कृत + अर्थ)"), ("🌿 Simple English + Sanskrit", "🌐 Simple English + Sanskrit")]
+    for l_idx, (l_val, l_title) in enumerate(lang_opts):
+        with l_cols[l_idx]:
+            is_l_active = (st.session_state.study_lang_sel == l_val)
+            l_key = f"lang_sel_active_{l_idx}" if is_l_active else f"lang_sel_{l_idx}"
+            display_ltitle = f"✓ {l_title}" if is_l_active else l_title
+            if st.button(display_ltitle, key=l_key, use_container_width=True):
+                st.session_state.study_lang_sel = l_val
+                st.rerun()
+
+    st.markdown('<div style="font-size:13px; font-weight:700; color:#0F4935; margin: 10px 0 4px 0;"><span class="step-badge">05</span> What do you want to study?</div>', unsafe_allow_html=True)
+    topic_input = st.text_input(
+        "Topic Input",
+        value=st.session_state.topic_input_val,
+        placeholder="उदा. Virya, Ojas, Pitta Dosha, Rakta Dhatu, Ashwagandha...",
+        label_visibility="collapsed",
+        key="main_topic_input"
     )
 
-    if "current_generated_note" not in st.session_state:
-        st.session_state.current_generated_note = None
-    if "current_note_type" not in st.session_state:
-        st.session_state.current_note_type = ""
-    if "current_topic" not in st.session_state:
-        st.session_state.current_topic = ""
-    if "current_subject" not in st.session_state:
-        st.session_state.current_subject = ""
-    if "current_mode" not in st.session_state:
-        st.session_state.current_mode = ""
+    pop_cols = st.columns(5)
+    pop_list = ["Virya", "Ojas", "Pitta Dosha", "Rakta Dhatu", "Ashwagandha"]
+    for p_idx, p_name in enumerate(pop_list):
+        with pop_cols[p_idx]:
+            if st.button(p_name, key=f"topic_chip_{p_idx}", use_container_width=True):
+                st.session_state.topic_input_val = p_name
+                st.rerun()
 
-    generate_notes_btn = st.button("✨ Generate Study Notes", key="btn_notes", use_container_width=True)
+    generate_notes_btn = st.button("✨ Generate Study Notes →", key="btn_generate_main", use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
     if generate_notes_btn:
-        if not topic.strip():
+        final_topic = topic_input.strip() or st.session_state.topic_input_val.strip()
+        if not final_topic:
             st.warning("⚠️ कृपया अभ्यासाचा विषय प्रविष्ट करा.")
         else:
-            is_marathi = "मराठी" in language_preference
+            is_marathi = "मराठी" in st.session_state.study_lang_sel
+            active_study_mode = st.session_state.study_mode_sel
+            lang_preference = st.session_state.study_lang_sel
 
-            if "A4 Blue Ballpen" in study_mode:
-                lang_rule = "Write in natural, simple spoken Marathi with Sanskrit terms and simple English in parentheses." if is_marathi else "Write 100% in pure English Roman script. All titles and terms in English."
+            if "A4 Blue Ballpen" in active_study_mode:
+                lang_rule = "Write in natural, simple spoken Marathi with Sanskrit terms and simple English in parentheses." if is_marathi else "Write 100% in pure English Roman script."
                 json_prompt = f"""
                 You are a senior Ayurveda Professor and BAMS University Paper Setter.
                 Subject: {subject}
-                Topic: {topic}
-                Language Selected: {language_preference}
+                Topic: {final_topic}
+                Language Selected: {lang_preference}
                 {lang_rule}
 
                 Generate crisp exam notes strictly matching this JSON schema:
                 {{
-                    "title": "{topic}",
+                    "title": "{final_topic}",
                     "marks": "10 Marks (LAQ)",
                     "definition": "{'पाचन, दहन व उष्णता निर्माण करणारे द्रव्य.' if is_marathi else 'The bio-principle responsible for transformation and potency.'}",
                     "definition_sub": "{'शरीरातील परिवर्तनाचे मुख्य तत्त्व' if is_marathi else 'Core principle in the body'}",
@@ -1195,35 +1258,33 @@ with tab1:
 
                         st.session_state.current_generated_note = json.loads(clean_json.strip())
                         st.session_state.current_note_type = "a4_sheet"
-                        st.session_state.current_topic = topic
+                        st.session_state.current_topic = final_topic
                         st.session_state.current_subject = subject
-                        st.session_state.current_mode = study_mode
+                        st.session_state.current_mode = active_study_mode
                     except Exception as e:
                         st.error(f"त्रुटी: {e}")
 
-            elif "Past 5 Years Questions" in study_mode:
+            elif "Past 5 Years Questions" in active_study_mode:
                 pyq_prompt = f"""
                 You are a senior MUHS / NCISM BAMS University Chief Examiner and Paper Setter.
                 Subject: {subject}
-                Topic: {topic}
-                Language Selected: {language_preference}
-
+                Topic: {final_topic}
+                Language Selected: {lang_preference}
                 Create a definitive, high-yield 'University Past 5-Year Question Paper & Model Answer Analysis' for this topic:
                 1. 🎯 Top 3 Frequently Asked University Questions (LAQ, SAQ, Viva).
                 2. ✍️ Examiner's Step-by-Step Model Answer Blueprint (How to score 10/10 Marks).
                 3. ⚠️ Common Mistakes to Avoid.
                 4. 💡 Pro Examiner Tip for Top University Ranks.
-
-                Format with bold headings, clean bullet points, and high readability.
+                Format with bold headings and clean points.
                 """
                 with st.spinner("✨ Preparing your BAMS study notes..."):
                     try:
                         pyq_res = cached_ask_gemini(pyq_prompt, as_json=False)
                         st.session_state.current_generated_note = pyq_res
                         st.session_state.current_note_type = "text"
-                        st.session_state.current_topic = topic
+                        st.session_state.current_topic = final_topic
                         st.session_state.current_subject = subject
-                        st.session_state.current_mode = study_mode
+                        st.session_state.current_mode = active_study_mode
                     except Exception as e:
                         st.error(f"त्रुटी: {e}")
 
@@ -1232,40 +1293,38 @@ with tab1:
                 Tu ek senior BAMS Gold Medalist Professor aani NCISM/MUHS Chief Paper Setter aahes.
                 Subject: {subject}
                 Academic Level: {bams_year}
-                Topic: {topic}
-                Language Mode: {language_preference}
+                Topic: {final_topic}
+                Language Mode: {lang_preference}
 
                 Kontaahi mudda skip na karta, khali dilelya 14 sections madhye exhaustively deep, point-to-point notes tayar kar:
-
                 1. 📜 व्युत्पत्ती, निरुक्ती व श्लोक अन्वय (Mukhya Sanskrit Shloka > blockquote madhye reference granthasaha).
-                2. 🔬 व्याख्या व स्वरूप (Comprehensive Definition & Essential Characteristics).
-                3. 🌱 उत्पत्ती व निर्मिती प्रक्रिया (Origin & Formation Process).
-                4. 📍 स्थान व आश्रय (Physiological Seats & Distribution).
-                5. ⚗️ गुणधर्म व भौतिक लक्षणे (Specific Attributes, Guna, Virya, Vipaka, Prabhava).
-                6. ⚙️ प्राकृत कर्मे व कार्यपद्धती (Normal Physiological Functions with Clinical Examples).
-                7. 📏 प्रमाण व परीक्षण पद्धती (Anjali Pramana, Clinical Dosage).
-                8. ⚠️ विकृती, क्षय व वृद्धी लक्षणे (Pathological States).
-                9. 🔗 संबंधित संकल्पनांशी तुलना (Differential Diagnosis Table).
-                10. 🏥 आधुनिक विज्ञानाशी सांगड (Modern Physiology, Biochemistry Correlation).
-                11. 💊 चिकित्सा व औषधीय महत्त्व (Clinical Application, Prime Formulations).
+                2. 🔬 व्याख्या व स्वरूप.
+                3. 🌱 उत्पत्ती व निर्मिती प्रक्रिया.
+                4. 📍 स्थान व आश्रय.
+                5. ⚗️ गुणधर्म व भौतिक लक्षणे.
+                6. ⚙️ प्राकृत कर्मे व कार्यपद्धती.
+                7. 📏 प्रमाण व परीक्षण पद्धती.
+                8. ⚠️ विकृती, क्षय व वृद्धी लक्षणे.
+                9. 🔗 संबंधित संकल्पनांशी तुलना.
+                10. 🏥 आधुनिक विज्ञानाशी सांगड.
+                11. 💊 चिकित्सा व औषधीय महत्त्व.
                 12. ⭐ High-Yield Points & Memory Mnemonics.
                 13. 🎯 PG AIAPGET Special Focus.
                 14. 📝 संभाव्य परीक्षा प्रश्नसंच (NCISM Pattern: 1 LAQ, 2 SAQ, 4 MCQs).
-                15. 📊 Master Summary Table.
                 """
                 with st.spinner("✨ Preparing your BAMS study notes..."):
                     try:
                         notes_res = cached_ask_gemini(system_instruction, as_json=False)
                         st.session_state.current_generated_note = notes_res
                         st.session_state.current_note_type = "text"
-                        st.session_state.current_topic = topic
+                        st.session_state.current_topic = final_topic
                         st.session_state.current_subject = subject
-                        st.session_state.current_mode = study_mode
+                        st.session_state.current_mode = active_study_mode
                     except Exception as e:
                         st.error(f"त्रुटी: {e}")
 
-    # Display Result Area
-    if st.session_state.current_generated_note:
+    # Result Rendering with DIRECT PDF DOWNLOAD
+    if st.session_state.get("current_generated_note"):
         c_type = st.session_state.current_note_type
         c_data = st.session_state.current_generated_note
         c_top = st.session_state.current_topic
@@ -1273,16 +1332,16 @@ with tab1:
         c_mod = st.session_state.current_mode
 
         st.markdown(f"""
-        <div style="border-bottom: 1.5px solid #E2E8E3; padding-bottom: 12px; margin-top: 26px;">
-            <div style="font-size: 11px; font-weight: 800; color: {th['primary']}; text-transform: uppercase; letter-spacing: 0.05em;">📚 Generated Study Notes</div>
-            <h3 style="margin: 4px 0 2px 0; color: {th['deep_green']}; font-weight: 800;">{c_top}</h3>
-            <div style="font-size: 13px; color: {th['muted']}; font-weight: 600;">{c_sub} • {c_mod}</div>
+        <div style="border-bottom: 1.5px solid #E2E8E3; padding-bottom: 10px; margin-top: 22px;">
+            <div style="font-size: 11px; font-weight: 800; color: #176B4D; text-transform: uppercase;">📚 Generated Result</div>
+            <h3 style="margin: 4px 0 2px 0; color: #0F4935; font-weight: 800;">{c_top}</h3>
+            <div style="font-size: 13px; color: #68756E;">{c_sub} • {c_mod}</div>
         </div>
         """, unsafe_allow_html=True)
 
         col_s1, col_s2, col_s3 = st.columns([1, 1, 1])
         with col_s1:
-            if st.button("💾 Save to My Account", key="save_n_tab1_fix", use_container_width=True):
+            if st.button("💾 Save Note", key="save_n_tab1_fix", use_container_width=True):
                 try:
                     save_payload = json.dumps(c_data) if c_type == "a4_sheet" else str(c_data)
                     supabase.table("user_notes").insert({
@@ -1292,356 +1351,300 @@ with tab1:
                         "study_mode": c_mod,
                         "content": save_payload
                     }).execute()
-                    st.success("✅ नोट तुमच्या खात्यात सुरक्षित सेव्ह झाली!")
+                    st.success("✅ नोट खात्यात सेव्ह झाली!")
                     time.sleep(0.8)
                     st.rerun()
                 except Exception as s_err:
-                    st.error(f"सेव्ह करताना त्रुटी: {s_err}")
+                    st.error(f"सेव्ह त्रुटी: {s_err}")
+
         with col_s2:
-            share_preview = f"🌿 *AyurVeda AI Notes*\n📚 *विषय:* {c_sub}\n🎯 *टॉपिक:* {c_top}\n\nAyurVeda AI Studio वर तयार केलेली नोट!"
+            share_preview = f"🌿 *AyurVeda AI Notes*\n📚 *विषय:* {c_sub}\n🎯 *टॉपिक:* {c_top}"
             encoded_share = urllib.parse.quote(share_preview)
             st.link_button("📲 WhatsApp Share", f"[https://api.whatsapp.com/send?text=](https://api.whatsapp.com/send?text=){encoded_share}", use_container_width=True)
 
         with col_s3:
-            if c_type != "a4_sheet":
-                html_content = markdown.markdown(c_data, extensions=['tables', 'fenced_code'])
-                html_export = f"""<!DOCTYPE html>
-<html lang="mr">
-<head>
-<meta charset="UTF-8">
-<title>{c_top} - BAMS Notes</title>
-<link href="[https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&display=swap](https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&display=swap)" rel="stylesheet">
-<style>
-    body {{ font-family: 'Mukta', sans-serif; line-height: 1.8; padding: 40px; color: #111827; max-width: 860px; margin: auto; }}
-    table {{ width: 100%; border-collapse: collapse; margin: 18px 0; }}
-    th, td {{ border: 1px solid #4b5563; padding: 10px 14px; }}
-    blockquote {{ border-left: 4px solid #176B4D; margin: 14px 0; padding: 10px 18px; background: #f8fafc; font-weight: 700; }}
-</style>
-</head>
-<body>
-    <h2>🌿 AyurVeda AI • {c_top}</h2>
-    <div><b>विद्यार्थी:</b> {s_name} | <b>विषय:</b> {c_sub}</div>
-    <hr>
-    <div>{html_content}</div>
-</body>
-</html>"""
-                st.download_button(
-                    label="📥 Download Printable File",
-                    data=html_export.encode('utf-8'),
-                    file_name=f"{c_top.replace(' ', '_')}_Notes.html",
-                    mime="text/html",
-                    use_container_width=True
-                )
+            # 🎯 DIRECT PDF GENERATION & DOWNLOAD
+            raw_text_for_pdf = json.dumps(c_data, ensure_ascii=False) if c_type == "a4_sheet" else str(c_data)
+            pdf_bytes = generate_direct_pdf(c_top, c_sub, s_name, raw_text_for_pdf)
+            st.download_button(
+                label="📄 थेट PDF डाउनलोड करा",
+                data=pdf_bytes,
+                file_name=f"{c_top.replace(' ', '_')}_BAMS_Notes.pdf",
+                mime="application/pdf",
+                use_container_width=True
+            )
 
         if c_type == "a4_sheet":
-            st.markdown(f"""
-            <div class="saas-card" style="margin-top: 14px; background: #FAFBF9;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div style="font-weight: 800; font-size: 15px; color: {th['deep_green']};">✍️ A4 Handwritten Sheet Ready</div>
-                        <small style="color: {th['muted']};">{c_sub} • {c_top} • 10 Marks / LAQ</small>
-                    </div>
-                    <span class="status-chip" style="background:#EAF3EF; color:{th['primary']};">Verified A4 Format</span>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            is_m = "मराठी" in language_preference
+            is_m = "मराठी" in st.session_state.study_lang_sel
             a4_html = render_photo_identical_sheet(c_data, c_sub, c_top, is_marathi=is_m)
             st.components.v1.html(a4_html, height=1300, scrolling=True)
         else:
             st.markdown(f'<div class="textbook-container">{c_data}</div>', unsafe_allow_html=True)
 
-# =========================================================================
-# TAB 2: MEDICINE LAB & FORMULATION GUIDE
-# =========================================================================
-with tab2:
+# -------------------------------------------------------------------------
+# MODULE 2: MEDICINE LAB
+# -------------------------------------------------------------------------
+elif st.session_state.active_nav == "Medicine":
     st.markdown("""
-    <div class="module-hero">
-        <div>
-            <h3>🧪 Medicine Lab</h3>
-            <p>Learn Ayurvedic formulations, ingredients and preparation methods.</p>
-        </div>
-        <div class="module-tag">Bhaishajya Kalpana • Rasashastra</div>
+    <div class="hero-card">
+        <div class="hero-tag-pill">Bhaishajya Kalpana • Rasashastra</div>
+        <h2 class="hero-main-title">🧪 Medicine Lab</h2>
+        <div class="hero-desc">Learn Ayurvedic formulations, ingredients, shodhana and manufacturing procedures.</div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown('<div class="saas-card">', unsafe_allow_html=True)
-    m_col1, m_col2 = st.columns([1, 1])
+    st.markdown('<div class="study-form-card">', unsafe_allow_html=True)
+    m_col1, m_col2 = st.columns(2)
     with m_col1:
-        st.markdown('<div class="step-pill">Dosage Form</div>', unsafe_allow_html=True)
-        dosage_form = st.selectbox(
-            "औषधाचा प्रकार (Dosage Form):",
-            ["Vati / Gutika (गोळी / वटी)", "Churna (चूर्ण)", "Asava & Arishta (आसव व अरिष्ट)", "Taila / Ghrita (सिद्ध तेल व घृत)", "Bhasma & Pishti (भस्म व पिष्टी)"]
-        )
+        dosage_form = st.selectbox("Dosage Form:", ["Vati / Gutika", "Churna", "Asava & Arishta", "Taila / Ghrita", "Bhasma & Pishti"])
     with m_col2:
-        st.markdown('<div class="step-pill">Language</div>', unsafe_allow_html=True)
-        m_lang = st.radio("भाषा निवडा:", ["Simple Indian English", "मराठी"], horizontal=True, key="m_lang")
+        m_lang = st.radio("Language:", ["Simple Indian English", "मराठी"], horizontal=True, key="m_lang")
 
-    st.markdown('<div class="step-pill">Medicine Name</div>', unsafe_allow_html=True)
-    medicine_name = st.text_input("गोळी किंवा औषधाचे नाव टाका:", placeholder="उदा. आरोग्यवर्धिनी वटी, चंद्रप्रभावटी, सुवर्णभस्म")
+    medicine_name = st.text_input("औषधाचे नाव टाका:", placeholder="उदा. आरोग्यवर्धिनी वटी, चंद्रप्रभावटी")
 
     if "current_med_note" not in st.session_state:
         st.session_state.current_med_note = None
 
     if st.button("🔬 Generate Formulation Guide", key="btn_med", use_container_width=True):
-        if not medicine_name.strip():
-            st.warning("⚠️ कृपया औषधाचे नाव टाका.")
-        else:
+        if medicine_name.strip():
             with st.spinner("🧪 Analyzing formulation..."):
-                try:
-                    med_prompt = f"Explain manufacturing of {medicine_name} ({dosage_form}) in {m_lang} with ingredients table, purification, and steps in deep detail."
-                    res_text = cached_ask_gemini(med_prompt, as_json=False)
-                    st.session_state.current_med_note = res_text
-                except Exception as e:
-                    st.error(f"त्रुटी: {e}")
+                med_prompt = f"Explain manufacturing of {medicine_name} ({dosage_form}) in {m_lang} with ingredients table, purification, and steps in deep detail."
+                st.session_state.current_med_note = cached_ask_gemini(med_prompt, as_json=False)
+
     st.markdown('</div>', unsafe_allow_html=True)
 
     if st.session_state.current_med_note:
         st.markdown(f'<div class="textbook-container">{st.session_state.current_med_note}</div>', unsafe_allow_html=True)
-        if st.button("💾 Save Formulation to Notes", key="save_med_btn"):
-            try:
-                supabase.table("user_notes").insert({
-                    "user_id": st.session_state.user_id,
-                    "subject": "Rasashastra & Bhaishajya Kalpana",
-                    "topic": medicine_name,
-                    "study_mode": dosage_form,
-                    "content": st.session_state.current_med_note
-                }).execute()
-                st.success("✅ खात्यात सेव्ह झाले!")
-                time.sleep(0.8)
-                st.rerun()
-            except Exception as e:
-                st.error(f"त्रुटी: {e}")
+        pdf_bytes = generate_direct_pdf(medicine_name, "Rasashastra", s_name, st.session_state.current_med_note)
+        st.download_button("📄 थेट PDF डाऊनलोड", pdf_bytes, file_name=f"{medicine_name}_Guide.pdf", mime="application/pdf")
 
-# =========================================================================
-# TAB 3: AI VIVA SIMULATOR
-# =========================================================================
-with tab3:
+# -------------------------------------------------------------------------
+# MODULE 3: VIVA SIMULATOR
+# -------------------------------------------------------------------------
+elif st.session_state.active_nav == "Viva":
     st.markdown("""
-    <div class="module-hero">
-        <div>
-            <h3>🎙 BAMS Viva Simulator</h3>
-            <p>Oral viva examination simulation with external examiner evaluation.</p>
-        </div>
-        <div class="module-tag">AI EXAMINER</div>
+    <div class="hero-card">
+        <div class="hero-tag-pill">AI EXAMINER</div>
+        <h2 class="hero-main-title">🎙 BAMS Viva Simulator</h2>
+        <div class="hero-desc">Oral viva examination simulation with external examiner evaluation.</div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown('<div class="saas-card">', unsafe_allow_html=True)
-    v_col1, v_col2 = st.columns([1, 1])
+    st.markdown('<div class="study-form-card">', unsafe_allow_html=True)
+    v_col1, v_col2 = st.columns(2)
     with v_col1:
-        st.markdown('<div class="step-pill">Subject</div>', unsafe_allow_html=True)
-        viva_sub = st.selectbox(
-            "Viva साठी विषय:",
-            ["Kriya Sharir", "Rachana Sharir", "Dravyaguna", "Rasa Shastra", "Agada Tantra", "Kayachikitsa", "Shalya Tantra"],
-            key="viva_sub"
-        )
+        viva_sub = st.selectbox("Subject:", ["Kriya Sharir", "Rachana Sharir", "Dravyaguna", "Rasa Shastra", "Agada Tantra", "Kayachikitsa", "Shalya Tantra"], key="viva_sub")
     with v_col2:
-        st.markdown('<div class="step-pill">Language</div>', unsafe_allow_html=True)
-        viva_lang = st.radio("Viva भाषा:", ["मराठी + Sanskrit Terms", "Simple Indian English"], horizontal=True, key="viva_lang")
+        viva_lang = st.radio("Language:", ["मराठी + Sanskrit Terms", "Simple Indian English"], horizontal=True, key="viva_lang")
 
-    st.markdown('<div class="step-pill">Topic</div>', unsafe_allow_html=True)
-    viva_topic = st.text_input("परीक्षक कोणत्या विषयावर प्रश्न विचारतील?", placeholder="उदा. Pitta Sthana, Ashwagandha Guna, Vatsanabha Shodhana", key="viva_top")
+    viva_topic = st.text_input("परीक्षक कोणत्या विषयावर प्रश्न विचारतील?", placeholder="उदा. Pitta Sthana, Ashwagandha Guna", key="viva_top")
 
     if "current_viva_note" not in st.session_state:
         st.session_state.current_viva_note = None
 
     if st.button("🎯 Start Viva", key="btn_viva", use_container_width=True):
-        if not viva_topic.strip():
-            st.warning("⚠️ कृपया विषयाचे नाव टाका.")
-        else:
+        if viva_topic.strip():
             with st.spinner("🎙 AI Examiner is preparing questions..."):
-                try:
-                    viva_prompt = f"""
-                    You are a strict University External Examiner for BAMS Practical Exams.
-                    Subject: {viva_sub}
-                    Topic: {viva_topic}
-                    Language: {viva_lang}
+                viva_prompt = f"Generate 5 high-yield Viva questions with model answers on {viva_topic} ({viva_sub}) in {viva_lang}."
+                st.session_state.current_viva_note = cached_ask_gemini(viva_prompt, as_json=False)
 
-                    Generate 5 high-yield, tricky Viva-Voce questions with precise model answers that students must speak:
-                    1. Direct Definition / Shloka Reference Question
-                    2. Clinical / Dosha Action Question
-                    3. Tricky Difference / Exception Question
-                    4. Dravyaguna / Formulation Question
-                    5. Modern Diagnostic Correlation Question
-                    """
-                    viva_res = cached_ask_gemini(viva_prompt, as_json=False)
-                    st.session_state.current_viva_note = viva_res
-                except Exception as e:
-                    st.error(f"त्रुटी: {e}")
     st.markdown('</div>', unsafe_allow_html=True)
 
     if st.session_state.current_viva_note:
-        v_raw = st.session_state.current_viva_note
-        # Parse into separate interactive question cards if formatted with numbering
-        q_blocks = re.split(r'\n(?=[0-9]+\.|\*\*Question|\* \*\*|\bQuestion [0-9]+:)', v_raw)
-        
-        st.markdown("#### 📋 Examiner Questions & Evaluation")
-        if len(q_blocks) > 1:
-            for idx, block in enumerate(q_blocks):
-                cleaned_block = block.strip()
-                if not cleaned_block:
-                    continue
-                st.markdown(f"""
-                <div class="viva-card">
-                    <span class="viva-badge">QUESTION {idx+1:02d}</span>
-                </div>
-                """, unsafe_allow_html=True)
-                lines = cleaned_block.split("\n", 1)
-                st.markdown(f"**{lines[0].replace('**', '')}**")
-                if len(lines) > 1:
-                    with st.expander("View Model Answer"):
-                        st.markdown(lines[1])
-        else:
-            st.markdown(f'<div class="textbook-container">{v_raw}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="textbook-container">{st.session_state.current_viva_note}</div>', unsafe_allow_html=True)
 
-        if st.button("💾 Save Viva Set to Notes", key="save_viva_btn"):
-            try:
-                supabase.table("user_notes").insert({
-                    "user_id": st.session_state.user_id,
-                    "subject": viva_sub,
-                    "topic": viva_topic,
-                    "study_mode": "Viva-Voce Questions",
-                    "content": st.session_state.current_viva_note
-                }).execute()
-                st.success("✅ खात्यात सेव्ह झाले!")
-                time.sleep(0.8)
-                st.rerun()
-            except Exception as e:
-                st.error(f"त्रुटी: {e}")
-
-# =========================================================================
-# TAB 4: CLINICAL CASE PRESENTATION
-# =========================================================================
-with tab4:
+# -------------------------------------------------------------------------
+# MODULE 4: CLINICAL CASE STUDIO
+# -------------------------------------------------------------------------
+elif st.session_state.active_nav == "Clinical":
     st.markdown("""
-    <div class="module-hero">
-        <div>
-            <h3>🩺 Clinical Case Studio</h3>
-            <p>Complete hospital OPD/IPD Ayurvedic clinical case presentation.</p>
-        </div>
-        <div class="module-tag">CASE PRESENTATION</div>
+    <div class="hero-card">
+        <div class="hero-tag-pill">CASE PRESENTATION</div>
+        <h2 class="hero-main-title">🩺 Clinical Case Studio</h2>
+        <div class="hero-desc">Hospital OPD/IPD case sheets with Ashtavidha Pariksha, Samprapti & Chikitsa plan.</div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown('<div class="saas-card">', unsafe_allow_html=True)
-    c_col1, c_col2 = st.columns([1, 1])
+    st.markdown('<div class="study-form-card">', unsafe_allow_html=True)
+    c_col1, c_col2 = st.columns(2)
     with c_col1:
-        st.markdown('<div class="step-pill">Department</div>', unsafe_allow_html=True)
-        case_subject = st.selectbox(
-            "क्लिनिकल विभाग (Department):",
-            ["Kayachikitsa (कायचिकित्सा)", "Panchakarma (पंचकर्म)", "Shalya Tantra (शल्य)", "Shalakya (नेत्र/कर्ण/नासा)", "Stri Roga & Prasuti (स्त्रीरोग)", "Kaumarbhritya (बालरोग)"],
-            key="case_sub"
-        )
+        case_subject = st.selectbox("Department:", ["Kayachikitsa", "Panchakarma", "Shalya Tantra", "Shalakya", "Stri Roga", "Kaumarbhritya"], key="case_sub")
     with c_col2:
-        st.markdown('<div class="step-pill">Language</div>', unsafe_allow_html=True)
-        case_lang = st.radio("भाषा निवडा:", ["मराठी + Clinical English", "Simple Indian English + Sanskrit"], horizontal=True, key="cs_lang")
+        case_lang = st.radio("Language:", ["मराठी + Clinical English", "Simple Indian English + Sanskrit"], horizontal=True, key="cs_lang")
 
-    st.markdown('<div class="step-pill">Disease / Symptoms</div>', unsafe_allow_html=True)
-    case_topic = st.text_input("आजाराचे नाव / मुख्य लक्षणे प्रविष्ट करा:", placeholder="उदा. Amlapitta (GERD), Sandhivata (Osteoarthritis), Tamaka Shwasa (Asthma)", key="cs_top")
+    case_topic = st.text_input("आजाराचे नाव / मुख्य लक्षणे:", placeholder="उदा. Amlapitta (GERD), Sandhivata", key="cs_top")
 
     if "current_case_note" not in st.session_state:
         st.session_state.current_case_note = None
 
     if st.button("📋 Generate Case Sheet", key="btn_case", use_container_width=True):
-        if not case_topic.strip():
-            st.warning("⚠️ कृपया आजाराचे नाव टाका.")
-        else:
-            with st.spinner("🩺 Preparing clinical case presentation..."):
-                try:
-                    case_prompt = f"""
-                    You are a Chief Clinical Physician and BAMS PG Guide in an Ayurvedic Hospital.
-                    Department: {case_subject}
-                    Disease/Condition: {case_topic}
-                    Language: {case_lang}
+        if case_topic.strip():
+            with st.spinner("🩺 Preparing clinical case sheet..."):
+                case_prompt = f"Generate a complete Ayurvedic Clinical Case Paper for {case_topic} ({case_subject}) in {case_lang}."
+                st.session_state.current_case_note = cached_ask_gemini(case_prompt, as_json=False)
 
-                    Generate a complete, professional Ayurvedic Clinical Case Presentation Paper.
-                    """
-                    case_res = cached_ask_gemini(case_prompt, as_json=False)
-                    st.session_state.current_case_note = case_res
-                except Exception as e:
-                    st.error(f"त्रुटी: {e}")
     st.markdown('</div>', unsafe_allow_html=True)
 
     if st.session_state.current_case_note:
         st.markdown(f'<div class="textbook-container">{st.session_state.current_case_note}</div>', unsafe_allow_html=True)
-        if st.button("💾 Save Case Presentation to Notes", key="save_case_btn"):
-            try:
-                supabase.table("user_notes").insert({
-                    "user_id": st.session_state.user_id,
-                    "subject": case_subject,
-                    "topic": case_topic,
-                    "study_mode": "Clinical Case Study",
-                    "content": st.session_state.current_case_note
-                }).execute()
-                st.success("✅ खात्यात सेव्ह झाले!")
-                time.sleep(0.8)
-                st.rerun()
-            except Exception as e:
-                st.error(f"त्रुटी: {e}")
+        pdf_bytes = generate_direct_pdf(case_topic, case_subject, s_name, st.session_state.current_case_note)
+        st.download_button("📄 Case Sheet PDF डाऊनलोड", pdf_bytes, file_name=f"{case_topic}_Case_Sheet.pdf", mime="application/pdf")
 
-# =========================================================================
-# TAB 5: RESEARCH & EVIDENCE LAB
-# =========================================================================
-with tab5:
+# -------------------------------------------------------------------------
+# MODULE 5: RESEARCH & EVIDENCE LAB
+# -------------------------------------------------------------------------
+elif st.session_state.active_nav == "Research":
     st.markdown("""
-    <div class="module-hero">
-        <div>
-            <h3>🔬 Research & Evidence Lab</h3>
-            <p>Evidence-based Ayurvedic research assistant</p>
-        </div>
-        <div class="module-tag">SCIENTIFIC EVIDENCE</div>
+    <div class="hero-card">
+        <div class="hero-tag-pill">SCIENTIFIC EVIDENCE</div>
+        <h2 class="hero-main-title">🔬 Research & Evidence Lab</h2>
+        <div class="hero-desc">Evidence-based Ayurvedic research assistant with phytochemicals and pharmacology.</div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown('<div class="saas-card">', unsafe_allow_html=True)
-    st.markdown('<div class="step-pill">Herb / Drug / Compound</div>', unsafe_allow_html=True)
-    res_topic = st.text_input("औषधी वनस्पती किंवा सक्रिय घटक:", placeholder="उदा. Withania somnifera (Ashwagandha), Tinospora cordifolia (Guduchi), Curcumin", key="res_top")
+    st.markdown('<div class="study-form-card">', unsafe_allow_html=True)
+    res_topic = st.text_input("औषधी वनस्पती / सक्रिय घटक:", placeholder="उदा. Withania somnifera, Curcumin", key="res_top")
 
     if "current_res_note" not in st.session_state:
         st.session_state.current_res_note = None
 
     if st.button("🧬 Generate Research Summary", key="btn_research", use_container_width=True):
-        if not res_topic.strip():
-            st.warning("⚠️ कृपया संशोधन द्रव्याचे नाव टाका.")
-        else:
-            with st.spinner("🔬 Analyzing available evidence..."):
-                try:
-                    res_prompt = f"""
-                    You are a Lead Scientist in Ayurvedic Reverse Pharmacology.
-                    Drug/Herb: {res_topic}
-                    Generate an authentic research summary with Phytochemicals, Mechanism, and Clinical trials.
-                    """
-                    res_out = cached_ask_gemini(res_prompt, as_json=False)
-                    st.session_state.current_res_note = res_out
-                except Exception as e:
-                    st.error(f"त्रुटी: {e}")
+        if res_topic.strip():
+            with st.spinner("🔬 Analyzing research trials & evidence..."):
+                res_prompt = f"Provide active phytochemicals, pharmacological action and trials for {res_topic}."
+                st.session_state.current_res_note = cached_ask_gemini(res_prompt, as_json=False)
+
     st.markdown('</div>', unsafe_allow_html=True)
 
     if st.session_state.current_res_note:
         st.markdown(f'<div class="textbook-container">{st.session_state.current_res_note}</div>', unsafe_allow_html=True)
-        if st.button("💾 Save Research Report to Notes", key="save_res_btn"):
-            try:
-                supabase.table("user_notes").insert({
-                    "user_id": st.session_state.user_id,
-                    "subject": "Research & Evidence",
-                    "topic": res_topic,
-                    "study_mode": "Modern Pharmacology",
-                    "content": st.session_state.current_res_note
-                }).execute()
-                st.success("✅ खात्यात सेव्ह झाले!")
-                time.sleep(0.8)
-                st.rerun()
-            except Exception as e:
-                st.error(f"त्रुटी: {e}")
+        pdf_bytes = generate_direct_pdf(res_topic, "Research", s_name, st.session_state.current_res_note)
+        st.download_button("📄 Research PDF डाऊनलोड", pdf_bytes, file_name=f"{res_topic}_Research.pdf", mime="application/pdf")
+
+# -------------------------------------------------------------------------
+# 🎓 MODULE 6: UNIVERSITY MOCK EXAM SIMULATOR (NEW FEATURE)
+# -------------------------------------------------------------------------
+elif st.session_state.active_nav == "Exam":
+    st.markdown("""
+    <div class="hero-card">
+        <div class="hero-tag-pill">MUHS • NCISM EXAM HALL</div>
+        <h2 class="hero-main-title">🎓 University Mock Exam</h2>
+        <div class="hero-desc">NCISM Pattern Question Papers (MCQ, SAQ, LAQ) with AI Chief Examiner Evaluation.</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="study-form-card">', unsafe_allow_html=True)
+    ex_c1, ex_c2 = st.columns(2)
+    with ex_c1:
+        exam_subject = st.selectbox(
+            "परीक्षेचा विषय:",
+            ["Kriya Sharir", "Rachana Sharir", "Dravyaguna Vijnana", "Rasashastra", "Roga Nidan", "Kayachikitsa", "Shalya Tantra", "Agada Tantra"],
+            key="exam_sub_box"
+        )
+    with ex_c2:
+        exam_pattern = st.selectbox(
+            "परीक्षा प्रकार:",
+            ["NCISM Standard Paper (MCQ + SAQ + LAQ)", "Quick Test (5 SAQ Questions - 25 Marks)", "Final Prelim (LAQ Intensive - 50 Marks)"]
+        )
+
+    exam_chapters = st.text_input("कोणत्या चॅप्टर्स / मुद्द्यांवर परीक्षा हवी आहे?", placeholder="उदा. Dosha Dhatu Mala, Virya Vipaka, Pitta Prakopa, Agada", key="exam_chap_input")
+
+    if st.button("📝 प्रश्नपत्रिका तयार करा (Generate Exam Paper)", use_container_width=True, key="btn_gen_exam"):
+        with st.spinner("🎓 NCISM Chief Examiner विद्यापीठ प्रश्नपत्रिका तयार करत आहेत..."):
+            exam_prompt = f"""
+            Tu NCISM / MUHS University BAMS Chief Paper Setter aahes.
+            Subject: {exam_subject}
+            Focus Chapters/Topics: {exam_chapters if exam_chapters else 'Entire Syllabus'}
+            Pattern: {exam_pattern}
+
+            Khali dilya format madhye prashnapatrika banva:
+            1. University Header (MUHS / NCISM Pattern, Marks, Time)
+            2. SECTION A: 5 High-yield Multiple Choice Questions (MCQs)
+            3. SECTION B: 3 Short Answer Questions (SAQ - 5 Marks each)
+            4. SECTION C: 1 Long Answer Question (LAQ - 10 Marks with Shloka & Clinicals)
+            
+            Prashna Marathi + Sanskrit Terminology madhye tayar kara.
+            """
+            st.session_state.exam_paper_data = cached_ask_gemini(exam_prompt, as_json=False)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    if st.session_state.exam_paper_data:
+        st.markdown(f"""
+        <div class="textbook-container">
+            <h3 style="color:#0F4935; border-bottom:2px solid #E2E8E3; padding-bottom:8px;">🏛️ University Question Paper: {exam_subject}</h3>
+            {st.session_state.exam_paper_data}
+        </div>
+        """, unsafe_allow_html=True)
+
+        # PDF Download of Question Paper
+        qp_pdf = generate_direct_pdf(f"University Exam - {exam_subject}", exam_subject, s_name, st.session_state.exam_paper_data)
+        st.download_button("📄 प्रश्नपत्रिका PDF डाउनलोड करा", qp_pdf, file_name=f"{exam_subject}_Question_Paper.pdf", mime="application/pdf")
+
+        # Answer Submission Section
+        st.markdown('<div class="study-form-card" style="margin-top:20px;">', unsafe_allow_html=True)
+        st.markdown("#### ✍️ तुमचे उत्तर तपासा (AI Answer Paper Evaluation)")
+        student_answer = st.text_area(
+            "तुमचे उत्तर किंवा महत्त्वाचे मुद्दे येथे लिहा (किंवा टाइप करा):",
+            placeholder="उदा. Question 1 चा श्लोक, संप्राप्ती, लक्षणे आणि उपचार पद्धती...",
+            height=160
+        )
+
+        if st.button("🎯 पेपर तपासा आणि गुण द्या (Evaluate My Answer)", use_container_width=True, key="btn_eval_paper"):
+            if not student_answer.strip():
+                st.warning("⚠️ कृपया तपासण्यासाठी तुमचे उत्तर टाइप करा.")
+            else:
+                with st.spinner("👨‍🏫 AI Chief Examiner तुमचे उत्तर तपासून गुण देत आहेत..."):
+                    eval_prompt = f"""
+                    You are a Senior BAMS University Examiner.
+                    Subject: {exam_subject}
+                    Original Question Paper Snippet: {st.session_state.exam_paper_data[:500]}
+                    Student's Written Answer:
+                    {student_answer}
+
+                    Check this answer strictly per NCISM University Assessment Rules:
+                    1. 🎯 एकूण गुण (Marks Awarded out of 10/20)
+                    2. ✅ उत्तरामधील अचूक मुद्दे (Strengths)
+                    3. ⚠️ सुटलेले महत्त्वाचे श्लोक / संदर्भ (Missing Shlokas or References)
+                    4. 💡 10/10 गुण मिळवण्यासाठी काय सुधारणा करावी (Examiner Feedback)
+                    5. 🌟 Model Answer Blueprint
+                    Provide response in clear, encouraging Marathi.
+                    """
+                    st.session_state.exam_eval_data = cached_ask_gemini(eval_prompt, as_json=False)
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        if st.session_state.exam_eval_data:
+            st.markdown(f"""
+            <div class="textbook-container" style="border-left: 6px solid #C88A24;">
+                <h3 style="color:#92400E;">🏆 Examiner's Marksheet & Feedback</h3>
+                {st.session_state.exam_eval_data}
+            </div>
+            """, unsafe_allow_html=True)
+
+            eval_pdf = generate_direct_pdf(f"Evaluation - {exam_subject}", exam_subject, s_name, st.session_state.exam_eval_data)
+            st.download_button("📄 निकाल व गुणपत्रिका PDF", eval_pdf, file_name=f"{exam_subject}_Result.pdf", mime="application/pdf")
 
 # =========================================================================
-# 🌿 SAAS FOOTER
+# 📱 FIXED MOBILE BOTTOM NAVIGATION BAR
 # =========================================================================
-st.markdown(f"""
-<div class="saas-footer">
-    🌿 <strong>AyurVeda AI Studio</strong><br>
-    BAMS • AI • Academic Platform<br>
-    Developed by <strong>Avishkar Alase</strong>
+st.markdown("""
+<div class="bottom-navbar-fixed">
+    <div class="bottom-nav-item active">
+        <span style="font-size:18px;">⌂</span>
+        <span>Home</span>
+    </div>
+    <div class="bottom-nav-item">
+        <span style="font-size:18px;">🔖</span>
+        <span>Saved</span>
+    </div>
+    <div class="bottom-nav-item">
+        <span style="font-size:18px;">◷</span>
+        <span>History</span>
+    </div>
+    <div class="bottom-nav-item">
+        <span style="font-size:18px;">♙</span>
+        <span>Profile</span>
+    </div>
 </div>
 """, unsafe_allow_html=True)
