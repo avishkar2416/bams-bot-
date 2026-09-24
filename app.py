@@ -362,6 +362,7 @@ if st.session_state.user_id:
     else:
         st.session_state.last_active = now_ts
 
+# Always fetch fresh profile directly from DB to avoid session caching bugs
 def fetch_profile(uid):
     try:
         r = supabase.table("user_profiles").select("*").eq("user_id", uid).execute()
@@ -371,9 +372,8 @@ def fetch_profile(uid):
         pass
     return None
 
-if "profile" not in st.session_state or not st.session_state.profile:
-    if st.session_state.user_id:
-        st.session_state.profile = fetch_profile(st.session_state.user_id)
+if st.session_state.user_id:
+    st.session_state.profile = fetch_profile(st.session_state.user_id)
 
 YEAR_SUBJECTS = {
     "BAMS 1st Professional (प्रथम वर्ष)": [
@@ -489,7 +489,8 @@ if not st.session_state.user_id:
                                 "college_name": r_col.strip(),
                                 "bams_year": r_yr,
                                 "age": int(r_age),
-                                "is_pro": False
+                                "is_pro": False,
+                                "utr_number": None
                             }
                             supabase.table("user_profiles").upsert(p_data).execute()
                             st.session_state.user_id = uid
@@ -507,38 +508,48 @@ if not st.session_state.user_id:
     st.stop()
 
 # =========================================================================
-# 💰 ₹30 LIFETIME SUBSCRIPTION PAYWALL (SECURE MANUAL APPROVAL SYSTEM)
+# 💰 ₹30 LIFETIME SUBSCRIPTION PAYWALL (STRICT VERIFICATION CHECK)
 # =========================================================================
 prof = st.session_state.profile or {}
-is_pro_user = prof.get("is_pro", False)
+# Strict Boolean evaluation - must be strictly True in database
+is_pro_user = (prof.get("is_pro") is True)
 saved_utr = prof.get("utr_number")
 
 YOUR_UPI_ID = "avishkaralase@ybl"
 YOUR_NAME = "Avishkar Alase"
 PAY_AMOUNT = "30"
 
-# Standard Clean QR without broken intent
 qr_clean_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa={YOUR_UPI_ID}%26pn=Avishkar%20Alase%26am=30%26cu=INR"
 
 if not is_pro_user:
-    # जर विद्यार्थ्याने आधीच UTR सबमिट केला असेल आणि तुम्ही ॲप्रूव्ह केला नसेल
+    # परिस्थिती १: विद्यार्थ्याने UTR सबमिट केला आहे, पण Admin ने अजून is_pro = True केलेले नाही
     if saved_utr:
         st.markdown(f"""
-        <div class="saas-card" style="text-align:center; max-width:550px; margin:40px auto; padding:30px; border:2px solid #C88A24;">
-            <div style="font-size:42px;">⏳</div>
-            <h3 style="color:#0F4935; margin:10px 0;">पेमेंट पडताळणी प्रलंबित आहे (Pending Verification)</h3>
-            <p style="color:#4A5851; font-size:14px; line-height:1.6;">
+        <div class="saas-card" style="text-align:center; max-width:550px; margin:40px auto; padding:32px 24px; border:2px solid #C88A24;">
+            <div style="font-size:46px; margin-bottom:10px;">⏳</div>
+            <h3 style="color:#0F4935; margin:0 0 10px 0;">पेमेंट पडताळणी प्रलंबित आहे (Pending Approval)</h3>
+            <p style="color:#4A5851; font-size:14px; line-height:1.6; margin:0 0 15px 0;">
                 तुम्ही सबमिट केलेला UTR: <b><code>{saved_utr}</code></b><br>
                 तुमचे ₹३० चे पेमेंट तपासून <b>१० ते १५ मिनिटांत</b> तुमचे Lifetime Pro खाते सुरू केले जाईल.
             </p>
-            <div style="background:#F4F8F6; padding:12px; border-radius:10px; font-size:13px; color:#0F4935; margin-top:15px;">
-                त्वरित ॲक्टिव्हेशनसाठी पेमेंटचा स्क्रीनशॉट व्हॉट्सॲपवर पाठवा: <b>+91 9423759186</b>
+            <div style="background:#F4F8F6; border:1px solid #D1E5DC; padding:12px; border-radius:12px; font-size:13px; color:#0F4935;">
+                ⚡ त्वरित सुरू करण्यासाठी पेमेंटचा स्क्रीनशॉट व्हॉट्सॲपवर पाठवा: <b>+91 9423759186</b>
             </div>
         </div>
         """, unsafe_allow_html=True)
+        
+        c_r1, c_r2, c_r3 = st.columns([1, 2, 1])
+        with c_r2:
+            if st.button("🔄 स्टेटस तपासा (Check Status)", use_container_width=True):
+                st.session_state.profile = fetch_profile(st.session_state.user_id)
+                st.rerun()
+            if st.button("✏️ चुकीचा UTR बदलून पुन्हा टाका", use_container_width=True):
+                supabase.table("user_profiles").update({"utr_number": None}).eq("user_id", st.session_state.user_id).execute()
+                st.session_state.profile["utr_number"] = None
+                st.rerun()
         st.stop()
 
-    # जर अजून UTR सबमिट केला नसेल
+    # परिस्थिती २: पेमेंट अजून केलेले नाही किंवा UTR सबमिट केलेला नाही
     st.markdown("""
     <div style="text-align:center; padding:10px 0 16px 0;">
         <span style="background:#FEF3C7; color:#92400E; padding:4px 14px; border-radius:20px; font-size:12px; font-weight:800;">
@@ -583,20 +594,21 @@ if not is_pro_user:
             else:
                 with st.spinner("पडताळणीसाठी पाठवत आहे..."):
                     try:
-                        # Database madhye UTR save hoil, is_pro FALSE rahil (Admin approve karel)
+                        # Database madhye is_pro strictly FALSE theva
                         supabase.table("user_profiles").update({
-                            "utr_number": clean_utr
+                            "utr_number": clean_utr,
+                            "is_pro": False
                         }).eq("user_id", st.session_state.user_id).execute()
                         
                         st.session_state.profile["utr_number"] = clean_utr
-                        st.success("✅ UTR यशस्वीरीत्या सबमिट झाला आहे!")
+                        st.session_state.profile["is_pro"] = False
+                        st.success("✅ UTR सबमिट झाला! पडताळणी प्रलंबित आहे.")
                         time.sleep(1)
                         st.rerun()
                     except Exception as e:
                         st.error(f"त्रुटी: {e}")
 
         st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown("<div style='text-align:center; padding-top:10px;'><small style='color:#68756E;'>काही अडचण आल्यास संपर्क: support@ayurveda-ai.com</small></div>", unsafe_allow_html=True)
 
     st.stop()
 
