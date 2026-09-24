@@ -307,17 +307,6 @@ st.markdown(f"""
         line-height: 1.85;
     }}
 
-    .paywall-card {{
-        background: #FFFFFF;
-        border: 2px solid #C88A24;
-        border-radius: 20px;
-        padding: 30px;
-        text-align: center;
-        max-width: 650px;
-        margin: 20px auto;
-        box-shadow: 0 10px 30px rgba(200, 138, 36, 0.15);
-    }}
-
     div.stButton > button {{
         background: {th['primary']} !important;
         color: #FFFFFF !important;
@@ -450,6 +439,7 @@ if not st.session_state.user_id:
         t_login, t_reg = st.tabs(["🔑 विद्यार्थी लॉगिन (Sign In)", "✨ नवीन नोंदणी (Student Register)"])
 
         with t_login:
+            st.markdown(f"<div style='font-size: 15px; font-weight: 700; color: {th['deep_green']}; margin-bottom: 12px;'>खात्यात प्रवेश करा:</div>", unsafe_allow_html=True)
             l_email = st.text_input("📧 ईमेल पत्ता:", placeholder="student@gmail.com", key="auth_login_email")
             l_pass = st.text_input("🔒 पासवर्ड:", type="password", placeholder="तुमचा पासवर्ड", key="auth_login_pass")
 
@@ -473,7 +463,9 @@ if not st.session_state.user_id:
                         st.error(f"लॉगिन अयशस्वी: {e}")
 
         with t_reg:
+            st.markdown(f"<div style='font-size: 15px; font-weight: 700; color: {th['deep_green']}; margin-bottom: 12px;'>विद्यार्थी नोंदणी फॉर्म:</div>", unsafe_allow_html=True)
             r_name = st.text_input("👤 विद्यार्थ्याचे पूर्ण नाव:", placeholder="उदा. राहुल प्रकाश जोशी")
+            
             c_mob, c_age = st.columns([2, 1])
             with c_mob:
                 r_mob = st.text_input("📱 मोबाईल नंबर:", placeholder="9876543210", max_chars=10)
@@ -518,7 +510,7 @@ if not st.session_state.user_id:
     st.stop()
 
 # =========================================================================
-# 💰 ₹30 LIFETIME SUBSCRIPTION PAYWALL CHECK (DIRECT REDIRECT BUTTONS)
+# 💰 ₹30 LIFETIME SUBSCRIPTION PAYWALL (CLEAN NATIVE UI - NO CODE ARTIFACTS)
 # =========================================================================
 prof = st.session_state.profile or {}
 is_pro_user = prof.get("is_pro", False)
@@ -531,49 +523,52 @@ upi_intent_url = f"upi://pay?pa={YOUR_UPI_ID}&pn={urllib.parse.quote(YOUR_NAME)}
 qr_api_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={urllib.parse.quote(upi_intent_url)}"
 
 if not is_pro_user:
-    st.markdown(f"""
-    <div class="paywall-card" style="background:#FFFFFF; border:2px solid #C88A24; border-radius:24px; padding:24px 20px; text-align:center; max-width:620px; margin:15px auto; box-shadow:0 12px 36px rgba(200, 138, 36, 0.15);">
-        <span class="step-pill" style="background:#FEF3C7; color:#92400E; font-weight:800;">🔥 मर्यादित काळासाठी विशेष ऑफर</span>
-        <h2 style="color:#0F4935; margin:10px 0 6px 0; font-size:23px; font-weight:900;">फक्त ₹३० मध्ये Lifetime Pro Access!</h2>
-        <p style="color:#68756E; font-size:13.5px; margin-bottom:16px;">
+    st.markdown("""
+    <div style="text-align:center; padding:10px 0 16px 0;">
+        <span style="background:#FEF3C7; color:#92400E; padding:4px 14px; border-radius:20px; font-size:12px; font-weight:800;">
+            🔥 मर्यादित काळासाठी विशेष ऑफर
+        </span>
+        <h2 style="color:#0F4935; margin:12px 0 4px 0; font-size:24px; font-weight:900;">
+            फक्त ₹३० मध्ये Lifetime Pro Access!
+        </h2>
+        <p style="color:#68756E; font-size:13.5px; margin:0 auto; max-width:540px;">
             सर्व BAMS A4 हँडराइटन नोट्स, 100 MCQs ग्रँड टेस्ट, क्लिनिकल केसशीट्स आणि थेट PDF डाऊनलोड <b>आयुष्यभरासाठी मोफत मिळवा.</b>
-        </p>
-
-        <!-- Direct UPI One-Click Redirect Buttons for Mobile -->
-        <div style="background:#F2F8F5; border:1px solid #D5E7DC; border-radius:18px; padding:16px; margin-bottom:18px;">
-            <div style="font-size:13px; font-weight:800; color:#0F4935; margin-bottom:10px;">📱 मोबाईलवरून थेट पेमेंट करण्यासाठी खालील बटण दाबा:</div>
-            <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap;">
-                <a href="{upi_intent_url}" style="background:#176B4D; color:#FFFFFF; text-decoration:none; padding:12px 22px; border-radius:14px; font-weight:800; font-size:14px; display:inline-block; box-shadow:0 4px 12px rgba(23,107,77,0.3);">
-                    ⚡ Pay ₹30 via Any UPI (PhonePe / GPay / Paytm)
-                </a>
-            </div>
-            <div style="font-size:11px; color:#475569; margin-top:8px;">(मोबाईलवर हे बटण दाबल्यावर थेट तुमचे UPI ॲप उघडेल)</div>
-        </div>
-
-        <!-- QR Code for Scanning (Desktop or other device) -->
-        <div style="background:#FFFFFF; border:1.5px dashed #C88A24; border-radius:18px; padding:14px; display:inline-block; margin-bottom:14px;">
-            <div style="font-size:12px; font-weight:700; color:#78350F; margin-bottom:8px;">किंवा खालील QR Code स्कॅन करा:</div>
-            <img src="{qr_api_url}" width="180" style="border-radius:12px;" alt="UPI QR Code"/><br>
-            <div style="margin-top:8px; font-size:13px; font-weight:800; color:#0F4935;">UPI ID: <code>{YOUR_UPI_ID}</code></div>
-        </div>
-
-        <p style="font-size:12px; color:#4A5851; margin:0 0 10px 0;">
-            पेमेंट पूर्ण झाल्यावर मिळालेला १२ आकडी <b>UTR / Transaction Number</b> खाली टाका:
         </p>
     </div>
     """, unsafe_allow_html=True)
 
-    c_pay1, c_pay2, c_pay3 = st.columns([1, 2, 1])
-    with c_pay2:
+    pay_col1, pay_col2, pay_col3 = st.columns([1, 4, 1])
+    with pay_col2:
+        st.markdown('<div class="saas-card" style="text-align:center; padding:22px;">', unsafe_allow_html=True)
+        
+        st.markdown("**📱 मोबाईलवरून १-क्लिक पेमेंट करा:**")
+        st.link_button(
+            "⚡ Pay ₹30 via Any UPI (PhonePe / GPay / Paytm)",
+            upi_intent_url,
+            use_container_width=True
+        )
+        st.caption("मोबाईलवर हे बटण दाबल्यावर थेट तुमचे UPI पेमेंट ॲप उघडेल.")
+
+        st.divider()
+
+        st.markdown("**किंवा खालील QR Code स्कॅन करा:**")
+        st.image(qr_api_url, width=200)
+        st.markdown(f"UPI ID: `{YOUR_UPI_ID}`")
+
+        st.divider()
+
+        st.markdown("<p style='font-size:13px; color:#1E2924; text-align:left; margin-bottom:4px;'>पेमेंट पूर्ण झाल्यावर मिळालेला १२ आकडी <b>UTR / Transaction Number</b> खाली टाका:</p>", unsafe_allow_html=True)
         entered_utr = st.text_input(
-            "📝 12-Digit UTR / Ref Number:",
+            "UTR Number:",
             placeholder="उदा. 425689123456",
             max_chars=16,
-            key="input_utr_activation"
+            key="input_utr_activation",
+            label_visibility="collapsed"
         )
+        
         if st.button("✨ Subscription Unlock करा (Active Lifetime)", use_container_width=True, key="btn_unlock_pro"):
             if not entered_utr.strip() or len(entered_utr.strip()) < 8:
-                st.warning("⚠️ कृपया अचूक १२ आकडी UTR क्रमांक टाका.")
+                st.warning("⚠️ कृपया अचूक किमान ८ ते १२ आकडी UTR क्रमांक टाका.")
             else:
                 with st.spinner("पडताळणी करत आहे..."):
                     try:
@@ -589,54 +584,10 @@ if not is_pro_user:
                     except Exception as e:
                         st.error(f"पडताळणी करताना त्रुटी: {e}")
 
-    st.markdown("<div style='text-align:center; padding-top:15px;'><small style='color:#68756E;'>काही अडचण आल्यास संपर्क: support@ayurveda-ai.com</small></div>", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("<div style='text-align:center; padding-top:10px;'><small style='color:#68756E;'>काही अडचण आल्यास संपर्क: support@ayurveda-ai.com</small></div>", unsafe_allow_html=True)
+
     st.stop()
-
-# =========================================================================
-# 🎯 DYNAMIC MODEL DISCOVERY & GEMINI ENGINE
-# =========================================================================
-@st.cache_data(show_spinner=False, ttl=86400)
-def get_working_models():
-    found = []
-    try:
-        for m in client.models.list():
-            name = m.name.replace("models/", "")
-            actions = getattr(m, 'supported_generation_methods', []) or getattr(m, 'supported_actions', [])
-            if any("generateContent" in a for a in actions):
-                if "flash" in name:
-                    found.insert(0, name)
-                else:
-                    found.append(name)
-    except Exception:
-        pass
-
-    fallbacks = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]
-    for fb in fallbacks:
-        if fb not in found:
-            found.append(fb)
-    return found
-
-def cached_ask_gemini(prompt: str, as_json: bool = False):
-    models_to_try = get_working_models()
-    last_error = ""
-
-    for model_name in models_to_try:
-        try:
-            config = types.GenerateContentConfig(response_mime_type="application/json") if as_json else None
-            res = client.models.generate_content(
-                model=model_name,
-                contents=prompt,
-                config=config
-            )
-            if res and res.text:
-                return res.text
-        except Exception as e:
-            last_error = str(e)
-            if "429" in last_error or "RESOURCE_EXHAUSTED" in last_error:
-                time.sleep(3)
-            continue
-
-    raise RuntimeError(f"API त्रुटी: {last_error[:120]}")
 
 # =========================================================================
 # 👤 PROFILE EXTRACTION & SIDEBAR
