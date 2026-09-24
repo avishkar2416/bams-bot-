@@ -25,7 +25,7 @@ st.set_page_config(
 )
 
 # =========================================================================
-# 🎯 AUTOMATIC DYNAMIC FESTIVAL THEME ENGINE (SUBTLE ACCENTS ONLY)
+# 🎯 AUTOMATIC DYNAMIC FESTIVAL THEME ENGINE
 # =========================================================================
 def get_current_festival_theme():
     now = datetime.now()
@@ -186,8 +186,6 @@ st.markdown(f"""
 
     html, body, .stApp {{
         background-color: {th['bg']} !important;
-        background-image: radial-gradient(at 100% 0%, rgba(23, 107, 77, 0.03) 0px, transparent 50%),
-                          radial-gradient(at 0% 100%, rgba(200, 138, 36, 0.03) 0px, transparent 50%) !important;
         font-family: 'Plus Jakarta Sans', 'Mukta', -apple-system, sans-serif !important;
         color: {th['text']} !important;
         -webkit-font-smoothing: antialiased;
@@ -209,16 +207,10 @@ st.markdown(f"""
         padding: 14px 24px;
         background: rgba(255, 255, 255, 0.92);
         backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
         border: 1px solid {th['border']};
         border-radius: 16px;
         margin-bottom: 20px;
-        box-shadow: 0 2px 8px -2px rgba(15, 73, 53, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
-    }}
-    .saas-brand {{
-        display: flex;
-        align-items: center;
-        gap: 12px;
+        box-shadow: 0 2px 8px -2px rgba(15, 73, 53, 0.04);
     }}
     .brand-logo-badge {{
         width: 38px;
@@ -230,16 +222,10 @@ st.markdown(f"""
         align-items: center;
         justify-content: center;
         font-size: 19px;
-        box-shadow: 0 4px 10px -2px rgba(23, 107, 77, 0.25);
-    }}
-    .brand-title-wrap {{
-        display: flex;
-        flex-direction: column;
     }}
     .brand-name {{
         font-size: 18px;
         font-weight: 800;
-        letter-spacing: -0.02em;
         color: {th['deep_green']};
         margin: 0;
         line-height: 1.2;
@@ -247,15 +233,10 @@ st.markdown(f"""
     .brand-sub {{
         font-size: 11px;
         font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
         color: {th['muted']};
         margin-top: 2px;
     }}
     .author-pill {{
-        display: flex;
-        align-items: center;
-        gap: 8px;
         background: #F0F4F2;
         border: 1px solid #D5E0D9;
         padding: 5px 12px;
@@ -263,18 +244,6 @@ st.markdown(f"""
         font-size: 12px;
         font-weight: 700;
         color: {th['deep_green']};
-    }}
-    .author-avatar {{
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        background: {th['primary']};
-        color: #ffffff;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 10px;
-        font-weight: 800;
     }}
 
     .dashboard-welcome {{
@@ -290,48 +259,6 @@ st.markdown(f"""
         flex-wrap: wrap;
         gap: 16px;
     }}
-    .welcome-meta h2 {{
-        font-size: 22px;
-        font-weight: 800;
-        letter-spacing: -0.02em;
-        color: {th['deep_green']} !important;
-        margin: 0 0 4px 0 !important;
-    }}
-    .welcome-meta p {{
-        font-size: 13.5px;
-        color: {th['muted']} !important;
-        margin: 0 !important;
-    }}
-    .festive-accent-badge {{
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: {th['accent_badge_bg']};
-        border: 1px solid {th['accent_badge_border']};
-        color: {th['accent_badge_text']};
-        font-size: 11.5px;
-        font-weight: 700;
-        padding: 4px 10px;
-        border-radius: 8px;
-        margin-bottom: 6px;
-    }}
-    .quick-status-grid {{
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }}
-    .status-chip {{
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: #F4F6F4;
-        border: 1px solid #E2E8E3;
-        padding: 6px 12px;
-        border-radius: 10px;
-        font-size: 12px;
-        font-weight: 600;
-        color: {th['text']};
-    }}
 
     .module-hero {{
         background: linear-gradient(135deg, #0F4935 0%, #176B4D 100%);
@@ -340,35 +267,13 @@ st.markdown(f"""
         border-radius: 16px;
         margin-bottom: 20px;
         box-shadow: 0 8px 20px -6px rgba(15, 73, 53, 0.25);
-        border: 1px solid rgba(255, 255, 255, 0.12);
         display: flex;
         justify-content: space-between;
         align-items: center;
         flex-wrap: wrap;
         gap: 12px;
     }}
-    .module-hero * {{
-        color: #FFFFFF !important;
-    }}
-    .module-hero h3 {{
-        margin: 0 0 4px 0 !important;
-        font-size: 20px !important;
-        font-weight: 800 !important;
-    }}
-    .module-hero p {{
-        margin: 0 !important;
-        font-size: 13.5px !important;
-        opacity: 0.9;
-        font-weight: 400;
-    }}
-    .module-tag {{
-        background: rgba(255, 255, 255, 0.16);
-        border: 1px solid rgba(255, 255, 255, 0.28);
-        padding: 4px 10px;
-        border-radius: 8px;
-        font-size: 11.5px;
-        font-weight: 700;
-    }}
+    .module-hero * {{ color: #FFFFFF !important; }}
 
     .saas-card {{
         background: {th['card_bg']};
@@ -380,11 +285,8 @@ st.markdown(f"""
     }}
     .step-pill {{
         display: inline-flex;
-        align-items: center;
-        gap: 6px;
         font-size: 11px;
         font-weight: 800;
-        letter-spacing: 0.06em;
         text-transform: uppercase;
         color: {th['primary']};
         background: #EAF3EF;
@@ -401,73 +303,19 @@ st.markdown(f"""
         box-shadow: 0 6px 20px -4px rgba(15, 73, 53, 0.04);
         margin-top: 18px;
         color: #1A2621;
-        font-family: 'Mukta', 'Plus Jakarta Sans', serif;
         font-size: 16px;
         line-height: 1.85;
     }}
-    .textbook-container h1, .textbook-container h2, .textbook-container h3 {{
-        color: {th['deep_green']} !important;
-        font-weight: 800 !important;
-        margin-top: 1.5em;
-        margin-bottom: 0.5em;
-        padding-bottom: 6px;
-        border-bottom: 1px solid #EBEFEA;
-    }}
-    .textbook-container blockquote {{
-        border-left: 4px solid {th['primary']};
-        background: #F4F8F6;
-        padding: 14px 20px;
-        margin: 18px 0;
-        border-radius: 0 12px 12px 0;
-        color: {th['deep_green']};
-        font-weight: 600;
-    }}
-    .textbook-container table {{
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px 0;
-        font-size: 14.5px;
-    }}
-    .textbook-container th, .textbook-container td {{
-        border: 1px solid #E2E8E3;
-        padding: 10px 14px;
-        text-align: left;
-    }}
-    .textbook-container th {{
-        background-color: #F4F7F5;
-        color: {th['deep_green']};
-        font-weight: 700;
-    }}
 
-    .stTabs [data-baseweb="tab-list"] {{
-        gap: 6px;
-        background-color: transparent;
-        padding: 4px;
-        border-bottom: 2px solid #E8ECE8;
-        overflow-x: auto;
-        white-space: nowrap;
-    }}
-    .stTabs [data-baseweb="tab"] {{
-        background-color: transparent !important;
-        border: none !important;
-        border-bottom: 2px solid transparent !important;
-        border-radius: 0px !important;
-        padding: 10px 16px !important;
-        font-size: 14.5px !important;
-        font-weight: 600 !important;
-        color: {th['muted']} !important;
-    }}
-    .stTabs [aria-selected="true"] {{
-        color: {th['primary']} !important;
-        border-bottom: 2px solid {th['active_tab_border']} !important;
-        font-weight: 700 !important;
-    }}
-
-    div[data-baseweb="select"] > div,
-    div[data-baseweb="input"] > div {{
-        background-color: #FFFFFF !important;
-        border: 1px solid {th['border']} !important;
-        border-radius: 12px !important;
+    .paywall-card {{
+        background: #FFFFFF;
+        border: 2px solid #C88A24;
+        border-radius: 20px;
+        padding: 30px;
+        text-align: center;
+        max-width: 650px;
+        margin: 20px auto;
+        box-shadow: 0 10px 30px rgba(200, 138, 36, 0.15);
     }}
 
     div.stButton > button {{
@@ -487,34 +335,6 @@ st.markdown(f"""
         background-color: #FFFFFF !important;
         border-right: 1px solid {th['border']} !important;
     }}
-    .sidebar-profile-card {{
-        background: #F9FAF8;
-        border: 1px solid #E6ECE8;
-        border-radius: 14px;
-        padding: 16px;
-        margin-bottom: 18px;
-    }}
-    .sidebar-avatar {{
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #176B4D 0%, #0F4935 100%);
-        color: #ffffff;
-        font-weight: 800;
-        font-size: 13px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }}
-
-    .saas-footer {{
-        text-align: center;
-        padding: 24px 12px 10px 12px;
-        font-size: 12.5px;
-        color: {th['muted']};
-        border-top: 1px solid {th['border']};
-        margin-top: 40px;
-    }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -527,9 +347,9 @@ client = genai.Client(api_key=api_key)
 supabase: Client = create_client(supabase_url, supabase_key)
 
 # =========================================================================
-# 🔄 30-MINUTE SESSION PERSISTENCE ENGINE (No logout on refresh)
+# 🔄 30-MINUTE SESSION PERSISTENCE ENGINE
 # =========================================================================
-SESSION_TIMEOUT = 1800  # 30 minutes in seconds
+SESSION_TIMEOUT = 1800
 now_ts = int(time.time())
 
 persisted_uid = st.query_params.get("uid")
@@ -566,11 +386,10 @@ if "profile" not in st.session_state or not st.session_state.profile:
     if st.session_state.user_id:
         st.session_state.profile = fetch_profile(st.session_state.user_id)
 
-# Year to Subjects Master Mapping
 YEAR_SUBJECTS = {
     "BAMS 1st Professional (प्रथम वर्ष)": [
         "Kriya Sharir (क्रिया शारीर)",
-        "Rachana Sharir (रचना शारीr)",
+        "Rachana Sharir (रचना शारीर)",
         "Samhita Siddhant & Padartha Vijnana",
         "Sanskrit & Ashtanga Hridaya"
     ],
@@ -609,10 +428,7 @@ if not st.session_state.user_id:
                 <span class="brand-sub">BAMS • AI • Academic Platform</span>
             </div>
         </div>
-        <div class="author-pill">
-            <span class="author-avatar">AA</span>
-            <span>Avishkar Alase ✓</span>
-        </div>
+        <div class="author-pill">Avishkar Alase ✓</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -634,7 +450,6 @@ if not st.session_state.user_id:
         t_login, t_reg = st.tabs(["🔑 विद्यार्थी लॉगिन (Sign In)", "✨ नवीन नोंदणी (Student Register)"])
 
         with t_login:
-            st.markdown(f"<div style='font-size: 15px; font-weight: 700; color: {th['deep_green']}; margin-bottom: 12px;'>खात्यात प्रवेश करा:</div>", unsafe_allow_html=True)
             l_email = st.text_input("📧 ईमेल पत्ता:", placeholder="student@gmail.com", key="auth_login_email")
             l_pass = st.text_input("🔒 पासवर्ड:", type="password", placeholder="तुमचा पासवर्ड", key="auth_login_pass")
 
@@ -658,9 +473,7 @@ if not st.session_state.user_id:
                         st.error(f"लॉगिन अयशस्वी: {e}")
 
         with t_reg:
-            st.markdown(f"<div style='font-size: 15px; font-weight: 700; color: {th['deep_green']}; margin-bottom: 12px;'>विद्यार्थी नोंदणी फॉर्म:</div>", unsafe_allow_html=True)
             r_name = st.text_input("👤 विद्यार्थ्याचे पूर्ण नाव:", placeholder="उदा. राहुल प्रकाश जोशी")
-            
             c_mob, c_age = st.columns([2, 1])
             with c_mob:
                 r_mob = st.text_input("📱 मोबाईल नंबर:", placeholder="9876543210", max_chars=10)
@@ -686,7 +499,8 @@ if not st.session_state.user_id:
                                 "mobile_no": r_mob.strip(),
                                 "college_name": r_col.strip(),
                                 "bams_year": r_yr,
-                                "age": int(r_age)
+                                "age": int(r_age),
+                                "is_pro": False
                             }
                             supabase.table("user_profiles").upsert(p_data).execute()
                             st.session_state.user_id = uid
@@ -701,12 +515,81 @@ if not st.session_state.user_id:
                         st.error(f"नोंदणी त्रुटी: {e}")
 
         st.markdown('</div>', unsafe_allow_html=True)
+    st.stop()
 
+# =========================================================================
+# 💰 ₹30 LIFETIME SUBSCRIPTION PAYWALL CHECK (DIRECT REDIRECT BUTTONS)
+# =========================================================================
+prof = st.session_state.profile or {}
+is_pro_user = prof.get("is_pro", False)
+
+YOUR_UPI_ID = "avishkaralase@ybl"
+YOUR_NAME = "Avishkar Alase"
+PAY_AMOUNT = "30"
+
+upi_intent_url = f"upi://pay?pa={YOUR_UPI_ID}&pn={urllib.parse.quote(YOUR_NAME)}&am={PAY_AMOUNT}&cu=INR&tn=AyurVeda_AI_Lifetime"
+qr_api_url = f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={urllib.parse.quote(upi_intent_url)}"
+
+if not is_pro_user:
     st.markdown(f"""
-    <div class="saas-footer">
-        {th['footer_text']} • <strong>AyurVeda AI Studio</strong> • BAMS Academic Platform • Developed by <strong>Avishkar Alase</strong>
+    <div class="paywall-card" style="background:#FFFFFF; border:2px solid #C88A24; border-radius:24px; padding:24px 20px; text-align:center; max-width:620px; margin:15px auto; box-shadow:0 12px 36px rgba(200, 138, 36, 0.15);">
+        <span class="step-pill" style="background:#FEF3C7; color:#92400E; font-weight:800;">🔥 मर्यादित काळासाठी विशेष ऑफर</span>
+        <h2 style="color:#0F4935; margin:10px 0 6px 0; font-size:23px; font-weight:900;">फक्त ₹३० मध्ये Lifetime Pro Access!</h2>
+        <p style="color:#68756E; font-size:13.5px; margin-bottom:16px;">
+            सर्व BAMS A4 हँडराइटन नोट्स, 100 MCQs ग्रँड टेस्ट, क्लिनिकल केसशीट्स आणि थेट PDF डाऊनलोड <b>आयुष्यभरासाठी मोफत मिळवा.</b>
+        </p>
+
+        <!-- Direct UPI One-Click Redirect Buttons for Mobile -->
+        <div style="background:#F2F8F5; border:1px solid #D5E7DC; border-radius:18px; padding:16px; margin-bottom:18px;">
+            <div style="font-size:13px; font-weight:800; color:#0F4935; margin-bottom:10px;">📱 मोबाईलवरून थेट पेमेंट करण्यासाठी खालील बटण दाबा:</div>
+            <div style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap;">
+                <a href="{upi_intent_url}" style="background:#176B4D; color:#FFFFFF; text-decoration:none; padding:12px 22px; border-radius:14px; font-weight:800; font-size:14px; display:inline-block; box-shadow:0 4px 12px rgba(23,107,77,0.3);">
+                    ⚡ Pay ₹30 via Any UPI (PhonePe / GPay / Paytm)
+                </a>
+            </div>
+            <div style="font-size:11px; color:#475569; margin-top:8px;">(मोबाईलवर हे बटण दाबल्यावर थेट तुमचे UPI ॲप उघडेल)</div>
+        </div>
+
+        <!-- QR Code for Scanning (Desktop or other device) -->
+        <div style="background:#FFFFFF; border:1.5px dashed #C88A24; border-radius:18px; padding:14px; display:inline-block; margin-bottom:14px;">
+            <div style="font-size:12px; font-weight:700; color:#78350F; margin-bottom:8px;">किंवा खालील QR Code स्कॅन करा:</div>
+            <img src="{qr_api_url}" width="180" style="border-radius:12px;" alt="UPI QR Code"/><br>
+            <div style="margin-top:8px; font-size:13px; font-weight:800; color:#0F4935;">UPI ID: <code>{YOUR_UPI_ID}</code></div>
+        </div>
+
+        <p style="font-size:12px; color:#4A5851; margin:0 0 10px 0;">
+            पेमेंट पूर्ण झाल्यावर मिळालेला १२ आकडी <b>UTR / Transaction Number</b> खाली टाका:
+        </p>
     </div>
     """, unsafe_allow_html=True)
+
+    c_pay1, c_pay2, c_pay3 = st.columns([1, 2, 1])
+    with c_pay2:
+        entered_utr = st.text_input(
+            "📝 12-Digit UTR / Ref Number:",
+            placeholder="उदा. 425689123456",
+            max_chars=16,
+            key="input_utr_activation"
+        )
+        if st.button("✨ Subscription Unlock करा (Active Lifetime)", use_container_width=True, key="btn_unlock_pro"):
+            if not entered_utr.strip() or len(entered_utr.strip()) < 8:
+                st.warning("⚠️ कृपया अचूक १२ आकडी UTR क्रमांक टाका.")
+            else:
+                with st.spinner("पडताळणी करत आहे..."):
+                    try:
+                        supabase.table("user_profiles").update({
+                            "is_pro": True,
+                            "utr_number": entered_utr.strip()
+                        }).eq("user_id", st.session_state.user_id).execute()
+                        
+                        st.session_state.profile["is_pro"] = True
+                        st.success("🎉 अभिनंदन! तुमचे Lifetime Pro Subscription सक्रिय झाले आहे!")
+                        time.sleep(1)
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"पडताळणी करताना त्रुटी: {e}")
+
+    st.markdown("<div style='text-align:center; padding-top:15px;'><small style='color:#68756E;'>काही अडचण आल्यास संपर्क: support@ayurveda-ai.com</small></div>", unsafe_allow_html=True)
     st.stop()
 
 # =========================================================================
@@ -756,200 +639,8 @@ def cached_ask_gemini(prompt: str, as_json: bool = False):
     raise RuntimeError(f"API त्रुटी: {last_error[:120]}")
 
 # =========================================================================
-# ✍️ EXACT A4 HANDWRITTEN NOTE RENDERER
+# 👤 PROFILE EXTRACTION & SIDEBAR
 # =========================================================================
-def render_photo_identical_sheet(data, subject_name, topic_name, is_marathi=True):
-    title = data.get("title", topic_name)
-    marks = data.get("marks", "10 Marks (LAQ)")
-    definition = data.get("definition", "")
-    def_sub = data.get("definition_sub", "")
-    sthana_main = data.get("sthana_main", "")
-    sthana_sub = data.get("sthana_sub", "")
-    gunadharma = data.get("gunadharma", "")
-    gunadharma_en = data.get("gunadharma_en", "")
-    karya_list = "".join([f"<li>{k}</li>" for k in data.get("karya", [])])
-    types_list = "".join([f"<li><b>{t.get('name','')}</b> - {t.get('desc','')}</li>" for t in data.get("types", [])])
-    nidana_list = "".join([f"<li>{n}</li>" for n in data.get("nidana", [])])
-    lakshana_list = "".join([f"<li>{l}</li>" for l in data.get("lakshana", [])])
-    sidebar_box_title = data.get("sidebar_box_title", "Key Correlation")
-    sidebar_box_points = "".join([f"<div>✓ {p}</div>" for p in data.get("sidebar_box_points", [])])
-
-    flow_steps = data.get("samprapti_steps", [])
-    flow_html = ""
-    if flow_steps:
-        steps_inner = "".join([f'<div class="hw-box">{s}</div><div class="hw-arrow">↓</div>' for s in flow_steps[:-1]])
-        steps_inner += f'<div class="hw-box-final">{flow_steps[-1]}</div>'
-        flow_title = "७. <u>संप्राप्ती (Pathogenesis)</u> :-" if is_marathi else "7. <u>Pathogenesis (Samprapti)</u> :-"
-        flow_html = f"""
-        <div class="sec-title">{flow_title}</div>
-        <div style="text-align:center; margin: 6px 0 12px 0;">{steps_inner}</div>
-        """
-
-    chikitsa_list = "".join([f"<li>{c}</li>" for c in data.get("chikitsa", [])])
-    aushadha_list = "".join([f"<li>{a}</li>" for a in data.get("aushadha", [])])
-    punch_line = data.get("punch_line", "")
-
-    lbl_def = "व्याख्या (Definition)" if is_marathi else "Definition"
-    lbl_sthana = "स्थान (Location)" if is_marathi else "Location (Sthana)"
-    lbl_sthana_main = "मुख्य स्थान" if is_marathi else "Primary Seat"
-    lbl_sthana_sub = "उपस्थान" if is_marathi else "Secondary Seats"
-    lbl_guna = "गुणधर्म (Properties)" if is_marathi else "Properties (Guna)"
-    lbl_karya = "कार्ये (Functions)" if is_marathi else "Functions (Karma)"
-    lbl_types = "प्रकार (Types / Sub-types)" if is_marathi else "Classification / Types"
-    lbl_nidana = "प्रकोपांची कारणे (Nidana)" if is_marathi else "Etiology (Nidana)"
-    lbl_lakshana = "प्रकोपांची लक्षणे (Lakshana)" if is_marathi else "Symptoms (Lakshana)"
-    lbl_chikitsa = "चिकित्सा (Management)" if is_marathi else "Management (Chikitsa)"
-    lbl_aushadha = "महत्त्वाची औषधे :-" if is_marathi else "Important Formulations :-"
-    lbl_punch = "परीक्षेसाठी मुख्य सूत्र (Exam Punch Line)" if is_marathi else "Exam Punch Line"
-
-    html_code = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-        <style>
-            @import url('https://fonts.googleapis.com/css2?family=Mukta:wght@500;600;700;800;900&family=Patrick+Hand&display=swap');
-            body {{
-                background-color: #cbd5e1;
-                margin: 0; padding: 15px 5px;
-                display: flex; flex-direction: column; align-items: center;
-                font-family: {'"Mukta", sans-serif' if is_marathi else '"Patrick Hand", "Mukta", sans-serif'};
-            }}
-            .action-bar {{ margin-bottom: 16px; display: flex; gap: 12px; font-family: sans-serif; }}
-            .btn-action {{
-                background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-                color: white; border: none; padding: 10px 22px; font-size: 14.5px; font-weight: 700;
-                border-radius: 10px; cursor: pointer; box-shadow: 0 4px 12px rgba(2,132,199,0.3);
-            }}
-            .a4-container {{
-                width: 780px; min-height: 1160px; background-color: #fcfbf7;
-                border: 2px solid #0f2b5c; box-shadow: 0 12px 35px rgba(0,0,0,0.18);
-                padding: 24px 28px; box-sizing: border-box; color: #0b2559; position: relative;
-                font-size: 15.5px; line-height: 1.45;
-            }}
-            .hl-red {{ background-color: #ffe4e6; color: #991b1b; padding: 0 4px; border-radius: 3px; font-weight: 700; }}
-            .u-red {{ text-decoration: underline; text-decoration-color: #ef4444; text-decoration-thickness: 1.8px; }}
-            .header-top {{ display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0f2b5c; padding-bottom: 10px; margin-bottom: 12px; }}
-            .ganesha-namah {{ font-size: 16px; font-weight: 700; color: #0b2559; width: 25%; }}
-            .main-title-box {{ border: 2px solid #0f2b5c; border-radius: 8px; padding: 4px 22px; font-size: 26px; font-weight: 900; background: #ffffff; }}
-            .marks-box {{ border: 1.8px solid #0f2b5c; border-radius: 6px; padding: 4px 10px; text-align: center; font-size: 13.5px; background: #ffffff; }}
-            .sheet-grid {{ display: flex; gap: 16px; }}
-            .left-col {{ flex: 1.25; padding-right: 12px; border-right: 1.5px solid #0f2b5c; }}
-            .right-col {{ flex: 1; padding-left: 6px; }}
-            .sec-title {{ font-weight: 800; font-size: 16px; margin: 8px 0 3px 0; }}
-            ul.hw-list {{ margin: 3px 0 8px 0; padding-left: 18px; line-height: 1.45; }}
-            ul.hw-list li {{ margin-bottom: 3px; }}
-            .side-card {{ border: 1.8px solid #0f2b5c; border-radius: 8px; padding: 8px 12px; background: #ffffff; margin-bottom: 12px; font-size: 14.5px; }}
-            .side-card-title {{ font-weight: 800; border-bottom: 1.5px solid #0f2b5c; padding-bottom: 2px; margin-bottom: 5px; text-align: center; }}
-            .hw-box {{ border: 1.8px solid #0f2b5c; border-radius: 6px; padding: 4px 8px; font-size: 14px; background: #ffffff; margin: auto; width: 90%; }}
-            .hw-arrow {{ font-size: 15px; font-weight: 900; margin: 2px 0; }}
-            .hw-box-final {{ border: 1.8px solid #0f2b5c; border-radius: 6px; padding: 5px 8px; font-size: 14px; font-weight: 800; background: #ffe4e6; color: #991b1b; margin: auto; width: 90%; }}
-            .punch-box {{ border-top: 2px solid #0f2b5c; margin-top: 12px; padding-top: 6px; font-size: 15px; font-weight: 800; }}
-            .footer-sign {{ position: absolute; bottom: 8px; right: 20px; font-size: 12px; font-family: 'Patrick Hand', sans-serif; color: #047857; font-weight: 800; }}
-            @media print {{
-                .action-bar {{ display: none !important; }}
-                body {{ padding: 0; background: none; }}
-                .a4-container {{ border: none; box-shadow: none; }}
-            }}
-        </style>
-    </head>
-    <body>
-        <div class="action-bar">
-            <button class="btn-action" onclick="downloadSheet()">📸 फोटो डाऊनलोड करा (.PNG)</button>
-            <button class="btn-action" style="background:#059669;" onclick="window.print()">📄 प्रिंट करा / PDF सेव्ह करा</button>
-        </div>
-
-        <div class="a4-container" id="captureCanvas">
-            <div class="header-top">
-                <div class="ganesha-namah">॥ श्री गणेशाय नमः ॥</div>
-                <div class="main-title-box">{title}</div>
-                <div class="marks-box">
-                    <span style="color:#0369a1; font-weight:700;">{subject_name}</span><br>
-                    <span style="color:#b91c1c; font-weight:800; border-bottom: 1.5px solid #ef4444;">{marks}</span>
-                </div>
-            </div>
-
-            <div class="sheet-grid">
-                <div class="left-col">
-                    <div class="sec-title">* <span class="u-red">{lbl_def}</span> :-</div>
-                    <div style="margin-bottom:8px;">{definition} <span style="font-size:13.5px; opacity:0.9;">({def_sub})</span></div>
-
-                    <div class="sec-title">१. <span class="u-red">{lbl_sthana}</span> :-</div>
-                    <ul class="hw-list">
-                        <li><b>{lbl_sthana_main}</b> - {sthana_main}</li>
-                        <li><b>{lbl_sthana_sub}</b> - {sthana_sub}</li>
-                    </ul>
-
-                    <div class="sec-title">२. <span class="u-red">{lbl_guna}</span> :-</div>
-                    <ul class="hw-list">
-                        <li>{gunadharma}</li>
-                        <div style="font-size:13.5px; opacity:0.9; margin-top:2px;">({gunadharma_en})</div>
-                    </ul>
-
-                    <div class="sec-title">३. <span class="u-red">{lbl_karya}</span> :-</div>
-                    <ul class="hw-list">{karya_list}</ul>
-
-                    <div class="sec-title">४. <span class="u-red">{lbl_types}</span> :-</div>
-                    <ul class="hw-list">{types_list}</ul>
-
-                    <div class="sec-title">५. <span class="u-red">{lbl_nidana}</span> :-</div>
-                    <ul class="hw-list">{nidana_list}</ul>
-
-                    <div class="sec-title">६. <span class="u-red">{lbl_lakshana}</span> :-</div>
-                    <ul class="hw-list">{lakshana_list}</ul>
-                </div>
-
-                <div class="right-col">
-                    <div class="side-card">
-                        <div class="side-card-title">{sidebar_box_title}</div>
-                        {sidebar_box_points}
-                    </div>
-
-                    {flow_html}
-
-                    <div class="sec-title">८. <span class="u-red">{lbl_chikitsa}</span> :-</div>
-                    <ul class="hw-list">{chikitsa_list}</ul>
-
-                    <div class="side-card" style="margin-top:10px;">
-                        <div class="side-card-title" style="color:#991b1b;">{lbl_aushadha}</div>
-                        <ul class="hw-list" style="margin-bottom:2px;">{aushadha_list}</ul>
-                    </div>
-                </div>
-            </div>
-
-            <div class="punch-box">
-                ✍️ <span class="u-red">{lbl_punch}</span> :-<br>
-                <div style="text-align:center; margin-top:4px; font-size:16px;">
-                    "{punch_line}"
-                </div>
-            </div>
-
-            <div class="footer-sign">
-                🌿 AyurVeda AI | By Avishkar Alase
-            </div>
-        </div>
-
-        <script>
-            function downloadSheet() {{
-                const el = document.getElementById('captureCanvas');
-                html2canvas(el, {{ scale: 2.2, useCORS: true }}).then(canvas => {{
-                    const a = document.createElement('a');
-                    a.download = '{topic_name.replace(" ", "_")}_Handwritten.png';
-                    a.href = canvas.toDataURL('image/png');
-                    a.click();
-                }});
-            }}
-        </script>
-    </body>
-    </html>
-    """
-    return html_code
-
-# =========================================================================
-# 👤 SIDEBAR - COMPACT IDENTITY CARD & SAVED NOTES
-# =========================================================================
-prof = st.session_state.profile or {}
 s_name = prof.get("full_name") or "विद्यार्थी"
 s_college = prof.get("college_name") or "BAMS Medical College"
 s_year = prof.get("bams_year") or "BAMS Scholar"
@@ -962,19 +653,17 @@ initials = "".join([part[0].upper() for part in s_name.split()[:2]]) if s_name e
 with st.sidebar:
     st.markdown(f"""
     <div class="sidebar-profile-card">
-        <div class="sidebar-user-header">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
             <div class="sidebar-avatar">{initials}</div>
-            <div style="overflow: hidden;">
-                <div style="font-weight: 800; font-size: 15px; color: {th['deep_green']}; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">{s_name}</div>
-                <div style="font-size: 11.5px; color: {th['muted']}; font-weight: 600;">{s_year}</div>
+            <div>
+                <div style="font-weight: 800; font-size: 15px; color: {th['deep_green']};">{s_name}</div>
+                <div style="font-size: 11.5px; color: #15803D; font-weight:700;">🌟 Lifetime Pro Member</div>
             </div>
         </div>
         <div style="font-size: 12px; color: {th['text']}; line-height: 1.5; border-top: 1px solid #E5ECE7; padding-top: 8px;">
             <div>🏛️ <b>कॉलेज:</b> {s_college}</div>
-            <div style="display: flex; gap: 8px; margin-top: 2px;">
-                <span>📱 {s_mob}</span>
-                <span>• वय: {s_age}</span>
-            </div>
+            <div>🎓 <b>वर्ष:</b> {s_year}</div>
+            <div>📱 <b>मो.:</b> {s_mob} • वय: {s_age}</div>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -1021,10 +710,7 @@ st.markdown(f"""
             <span class="brand-sub">BAMS Smart Academic Platform</span>
         </div>
     </div>
-    <div class="author-pill">
-        <span class="author-avatar">AA</span>
-        <span>Avishkar Alase ✓</span>
-    </div>
+    <div class="author-pill">🌟 Lifetime Pro Active ✓</div>
 </div>
 
 <div class="dashboard-welcome">
@@ -1096,17 +782,10 @@ with tab1:
         )
     with c4:
         st.markdown('<div class="step-pill">STEP 04 • 🌐 Language</div>', unsafe_allow_html=True)
-        language_preference = st.radio(
-            "माध्यम निवडा:",
-            ["🚩 मराठी (संस्कृत + अर्थ)", "🌿 Simple English + Sanskrit"],
-            horizontal=True
-        )
+        language_preference = st.radio("माध्यम निवडा:", ["🚩 मराठी (संस्कृत + अर्थ)", "🌿 Simple English + Sanskrit"], horizontal=True)
 
     st.markdown('<div class="step-pill">STEP 05 • 🔍 Topic</div>', unsafe_allow_html=True)
-    topic = st.text_input(
-        "अभ्यासाचा विषय / प्रश्न प्रविष्ट करा:",
-        placeholder="उदा. Virya, Ojas, Pitta Dosha, Rakta Dhatu, Ashwagandha, Agada"
-    )
+    topic = st.text_input("अभ्यासाचा विषय / प्रश्न प्रविष्ट करा:", placeholder="उदा. Virya, Ojas, Pitta Dosha, Rakta Dhatu, Ashwagandha, Agada")
 
     if "current_generated_note" not in st.session_state:
         st.session_state.current_generated_note = None
@@ -1155,29 +834,22 @@ with tab1:
                         {{"name": "{'शीत वीर्य' if is_marathi else 'Sheeta Virya'}", "desc": "{'सोम प्रधान' if is_marathi else 'Soma / Cooling dominant'}"}},
                         {{"name": "{'उष्ण वीर्य' if is_marathi else 'Ushna Virya'}", "desc": "{'अग्नी प्रधान' if is_marathi else 'Agni / Heating dominant'}"}}
                     ],
-                    "nidana": [
-                        "{'अतिउष्ण, अम्ल, लवण आहार' if is_marathi else 'Excessive intake of antagonistic diet'}"
-                    ],
-                    "lakshana": [
-                        "{'दाह, तृष्णा' if is_marathi else 'Excessive heat, burning sensation'}"
-                    ],
-                    "sidebar_box_title": "{'Core Correlation' if is_marathi else 'Core Concept'}",
+                    "nidana": ["{'अतिउष्ण, अम्ल, लवण आहार' if is_marathi else 'Excessive intake of antagonistic diet'}"],
+                    "lakshana": ["{'दाह, तृष्णा' if is_marathi else 'Excessive heat, burning sensation'}"],
+                    "sidebar_box_title": "Core Concept",
                     "sidebar_box_points": ["Potency", "Action Capability", "Metabolism"],
                     "samprapti_steps": [
-                        "{'निदान सेवन' if is_marathi else 'Step 1: Intake of Nidana'}",
-                        "{'दोष प्रकोप' if is_marathi else 'Step 2: Dosha Prakopa'}",
-                        "{'धातु शैथिल्य' if is_marathi else 'Step 3: Dhatu Vitiation'}",
-                        "{'व्याधी निर्मिती' if is_marathi else 'Final: Manifestation of Disease'}"
+                        "{'निदान सेवन' if is_marathi else 'Intake of Nidana'}",
+                        "{'दोष प्रकोप' if is_marathi else 'Dosha Prakopa'}",
+                        "{'धातु शैथिल्य' if is_marathi else 'Dhatu Vitiation'}",
+                        "{'व्याधी निर्मिती' if is_marathi else 'Manifestation'}"
                     ],
                     "chikitsa": [
                         "{'दोषानुकूल चिकित्सा व शमन' if is_marathi else 'Dosha specific Pacification'}",
-                        "<span class='hl-red'>{'शोधन' if is_marathi else 'Purification'}</span> {'हे श्रेष्ठ' if is_marathi else 'is the prime therapy'}"
+                        "<span class='hl-red'>शोधन</span> श्रेष्ठ"
                     ],
-                    "aushadha": [
-                        "{'गुग्गुळू / आवळा' if is_marathi else 'Amalaki / Guggulu'}",
-                        "{'गुडुची (Guduchi)' if is_marathi else 'Guduchi'}"
-                    ],
-                    "punch_line": "{'द्रव्याचे कर्म सामर्थ्य म्हणजेच वीर्य होय.' if is_marathi else 'Virya is the quintessential potency through which action is achieved.'}"
+                    "aushadha": ["गुग्गुळू", "गुडुची (Guduchi)"],
+                    "punch_line": "द्रव्याचे कर्म सामर्थ्य म्हणजेच वीर्य होय."
                 }}
                 """
                 with st.spinner("✨ Preparing your BAMS study notes..."):
@@ -1208,7 +880,6 @@ with tab1:
                 2. ✍️ Examiner's Step-by-Step Model Answer Blueprint (How to score 10/10 Marks).
                 3. ⚠️ Common Mistakes to Avoid.
                 4. 💡 Pro Examiner Tip for Top University Ranks.
-                Format with bold headings, clean bullet points, and high readability.
                 """
                 with st.spinner("✨ Preparing your BAMS study notes..."):
                     try:
@@ -1230,7 +901,7 @@ with tab1:
                 Language Mode: {language_preference}
 
                 Kontaahi mudda skip na karta, khali dilelya 14 sections madhye exhaustively deep, point-to-point notes tayar kar:
-                1. 📜 व्युत्पत्ती, निरुक्ती व श्लोक अन्वय (Mukhya Sanskrit Shloka > blockquote madhye reference granthasaha).
+                1. 📜 व्युत्पत्ती, निरुक्ती व श्लोक अन्वय.
                 2. 🔬 व्याख्या व स्वरूप.
                 3. 🌱 उत्पत्ती व निर्मिती प्रक्रिया.
                 4. 📍 स्थान व आश्रय.
@@ -1243,7 +914,7 @@ with tab1:
                 11. 💊 चिकित्सा व औषधीय महत्त्व.
                 12. ⭐ High-Yield Points & Memory Mnemonics.
                 13. 🎯 PG AIAPGET Special Focus.
-                14. 📝 संभाव्य परीक्षा प्रश्नसंच (NCISM Pattern: 1 LAQ, 2 SAQ, 4 MCQs).
+                14. 📝 संभाव्य परीक्षा प्रश्नसंच (NCISM Pattern).
                 """
                 with st.spinner("✨ Preparing your BAMS study notes..."):
                     try:
@@ -1266,7 +937,7 @@ with tab1:
 
         st.markdown(f"""
         <div style="border-bottom: 1.5px solid #E2E8E3; padding-bottom: 12px; margin-top: 26px;">
-            <div style="font-size: 11px; font-weight: 800; color: {th['primary']}; text-transform: uppercase; letter-spacing: 0.05em;">📚 Generated Study Notes</div>
+            <div style="font-size: 11px; font-weight: 800; color: {th['primary']}; text-transform: uppercase;">📚 Generated Study Notes</div>
             <h3 style="margin: 4px 0 2px 0; color: {th['deep_green']}; font-weight: 800;">{c_top}</h3>
             <div style="font-size: 13px; color: {th['muted']}; font-weight: 600;">{c_sub} • {c_mod}</div>
         </div>
